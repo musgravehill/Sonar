@@ -4,7 +4,7 @@ uint16_t SONAR_getDepth_cm() {
 }
 
 void SONAR_chechOvertimeFail() {
-  uint32_t delta_mks = micros() - SONAR_pulseStart_mks;
+  uint32_t delta_mks = micros() - SONAR_pulseDepthValidLast_mks;
   if (delta_mks > SONAR_failOvertime_mks) {
     SONAR_pulseDepthLength_mks = 1; //unknown depth, no signal
   }
@@ -36,6 +36,7 @@ void SONAR_ISR() {
       SONAR_state = 1;
       if (delta_mks > 1300 && delta_mks < SONAR_depthMax_mks) {
         SONAR_pulseDepthLength_mks = delta_mks;
+        SONAR_pulseDepthValidLast_mks = mcrs; //time valid depth 
       } else {
         SONAR_pulseDepthLength_mks = 1;
       }
