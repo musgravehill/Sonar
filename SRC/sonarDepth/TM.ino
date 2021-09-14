@@ -8,6 +8,7 @@ void TIMEMACHINE_loop() {
 
 
 void TIMEMACHINE_311ms() {
-  uint16_t depth = SONAR_pulseDepthLength_mks / SONAR_time2depth;
+  SONAR_chechOvertimeFail(); //!!!!!!!!!!
+  uint16_t depth = SONAR_getDepth_cm();
   Serial.println(depth);
 }
