@@ -1,16 +1,14 @@
 
+///////TODO PORTBDC read pin2 state 0\1, dont use slow digitlRead
+const uint8_t SONAR_pin = 2; //interrupt #0
+volatile uint32_t SONAR_pulseStart_ms = 1L; //time the pulse started. Used in calculation of the pulse length
+volatile boolean SONAR_isSyncWaiting = true;
+volatile boolean SONAR_isMeasureDepth = false;
+volatile uint16_t SONAR_pulseDepthLength_ms = 1;
+#define SONAR_allowNextSync_ms 251130  //min time to get new sync-pulse  (sonar send data 3-4Hz)
 
-const byte SONAR_pin = 2; //interrupt #0
-volatile int pulseLength; //holds the length of the input pulse. volatile because it is updated by the ISR
-volatile unsigned long pulseStart = 0; //time the pulse started. Used in calculation of the pulse length
-volatile boolean newPulse = false; //flag to indicate that a new pulse has been detected
-
-
-unsigned long currentTime = 0; //name says it all
-
-void setup()
-{
-  attachInterrupt(0, SONAR_ISR, CHANGE); //when interrupt 0 (pin 2 of Uno) detects a chanhe of state execute this function
+void setup() {
+  attachInterrupt(0, SONAR_ISR, CHANGE);
   Serial.begin(57600);
 }
 
@@ -18,8 +16,6 @@ void loop() {
 
 }
 
-// the interrupt routine starts here
-//it is executed at any time that pin 2 (interrupt 0 on a Uno) changes state.
 void SONAR_ISR() {
   if (digitalRead(rcPin) == HIGH) //if the pin is HIGH
   {
