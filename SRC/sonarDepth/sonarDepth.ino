@@ -31,10 +31,9 @@ void SONAR_ISR() {
   }
 
   uint32_t delta_mks = mcrs - SONAR_pulseStart_mks;
-  
+
   if (delta_mks > SONAR_failOvertime_mks) {
     SONAR_pulseDepthLength_mks = 1; //unknown depth, no signal
-    return;
   }
 
   if (SONAR_state == 1) { //sync
@@ -53,7 +52,7 @@ void SONAR_ISR() {
   if (SONAR_state == 2) { //depth
     if (PIND & (1 << PD2)) { //rising => d2 is high
       SONAR_state = 1;
-      if (delta_mks > 800 && delta_mks < SONAR_depthMax_mks) {
+      if (delta_mks > 1300 && delta_mks < SONAR_depthMax_mks) {
         SONAR_pulseDepthLength_mks = delta_mks;
       } else {
         SONAR_pulseDepthLength_mks = 1;
