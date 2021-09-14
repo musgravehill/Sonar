@@ -43,7 +43,7 @@ void SONAR_ISR() {
   }
 
   if (SONAR_state == 2) { //depth
-    if (digitalRead(SONAR_pin) == HIGH) {
+    if (PIND & (1 << PD2)) { //rising => d2 is high
       uint32_t delta_mks = mcrs - SONAR_pulseStart_mks;
       SONAR_state = 1;
       if (delta_mks > 800 && delta_mks < SONAR_depthMax_mks) {
