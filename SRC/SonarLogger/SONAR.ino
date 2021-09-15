@@ -36,11 +36,16 @@ void SONAR_ISR() {
       SONAR_state = 1;
       if (delta_mks > 1300 && delta_mks < SONAR_depthMax_mks) {
         SONAR_pulseDepthLength_mks = delta_mks;
-        SONAR_pulseDepthValidLast_mks = mcrs; //time valid depth 
+        SONAR_pulseDepthValidLast_mks = mcrs; //time valid depth
       } else {
         SONAR_pulseDepthLength_mks = 1;
       }
     }
   }
 
+}
+
+void SONAR_init() {
+  DDRD &= ~(1 << PD2); //set d2 input SONAR_pin
+  attachInterrupt(0, SONAR_ISR, CHANGE);
 }

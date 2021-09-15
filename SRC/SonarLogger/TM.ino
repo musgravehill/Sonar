@@ -13,16 +13,8 @@ void TIMEMACHINE_loop() {
 
 void TIMEMACHINE_311ms() {
   SONAR_checkOvertimeFail(); //!!!!!!!!!!
-
-  if (SYS_GPS_isNewData) {
-    uint16_t depth = SONAR_getDepth_cm();
-    myFile = sd.open(SYS_LOG_FileName, FILE_WRITE);
-    if (myFile) {
-      myFile.println(GPS_string + ';' + depth);
-      myFile.close();
-      SYS_GPS_isNewData = false;
-    }
-  }
+  SD_logData();
+  
 }
 
 void TIMEMACHINE_911ms() {

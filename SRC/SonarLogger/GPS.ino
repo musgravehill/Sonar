@@ -26,3 +26,7 @@ void GPS_serial_process() {
     }
   }
 }
+
+void GPS_init() {
+  Serial.begin(57600); 
+}

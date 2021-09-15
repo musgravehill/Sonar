@@ -46,26 +46,11 @@ boolean SYS_GPS_isNewData = false; //after save SD set SYS_GPS_isNewData=false;
 uint32_t TIMEMACHINE_next_311ms = 0L;
 uint32_t TIMEMACHINE_next_911ms = 0L;
 
-void setup() {
-  //=====MONITOR===
-  MONITOR_init();
-  
-  //=====SONAR=====
-  DDRD &= ~(1 << PD2); //set d2 input SONAR_pin
-  attachInterrupt(0, SONAR_ISR, CHANGE);
-
-  //=====GPS=====
-  Serial.begin(57600);//GPS
-
-  //=====SD=====
-  if (sd.begin(SD_SS, SPI_SPEED)) {
-    myFile = sd.open(SYS_LOG_FileName, FILE_WRITE);
-    if (myFile) {
-      myFile.println(' ');
-      myFile.close();
-    }
-  }
-  
+void setup() {  
+  MONITOR_init();  
+  SONAR_init();   
+  GPS_init();  
+  SD_init();  
 }
 
 void loop() {
