@@ -29,8 +29,8 @@ boolean SD_isError = true;
 String GPS_string = "";
 String GPS_string_tmp = "";
 uint8_t GPS_GLL_idx = 0;
-uint8_t GPS_message_idx = 0;
-String GPS_message = "";
+uint8_t GPS_messageType_idx = 0;
+String GPS_messageType = "";
 
 //================================================SONAR=================================================================================
 //SONAR_pin = 2; //interrupt #0
