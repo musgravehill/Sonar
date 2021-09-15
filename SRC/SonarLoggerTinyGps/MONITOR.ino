@@ -10,9 +10,13 @@ void MONITOR_render() {
   float flat, flon;
   unsigned long age;
   gps.f_get_position(&flat, &flon, &age);
-  lcd.print(flat, 6);
-  lcd.print(' ');
-  lcd.print(flon, 6);
+  if (flat != TinyGPS::GPS_INVALID_F_ANGLE && flon != TinyGPS::GPS_INVALID_F_ANGLE) {
+    lcd.print(flat, 4);
+    lcd.print(' ');
+    lcd.print(flon, 4);
+  } else {
+    lcd.print(F("GPS WAIT..."));
+  }
 
   lcd.setCursor(0, 1);
   lcd.print((SONAR_getDepth_cm() / 100.0), 2);
