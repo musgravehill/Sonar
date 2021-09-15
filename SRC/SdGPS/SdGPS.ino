@@ -38,6 +38,11 @@ void setup() {
 }
 
 void loop() {
+  GPS_serial_process();
 
-
+  if (SYS_GPS_isNewData) {
+    Serial.println(GPS_string);
+    SYS_GPS_isNewData = false;
+  }
+  
 }
