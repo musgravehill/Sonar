@@ -6,6 +6,8 @@ void SD_logData() {
       myFile.println(GPS_string + depth);
       myFile.close();
       SYS_GPS_isNewData = false;
+    }else {
+      SD_isError = true;
     }
   }
 }

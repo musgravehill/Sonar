@@ -25,12 +25,14 @@ SdFat32 sd;
 File32 myFile;
 boolean SD_isError = true;
 
-//=====GPS=====
+//=============================================== GPS===================================================================================
 String GPS_string = "";
 String GPS_string_tmp = "";
 uint8_t GPS_GLL_idx = 0;
+uint8_t GPS_message_idx = 0;
+String GPS_message = "";
 
-//=====SONAR=====
+//================================================SONAR=================================================================================
 //SONAR_pin = 2; //interrupt #0
 volatile uint32_t SONAR_timeAllowListen_mks = 1L; //time to next listen sync after previous syncOk
 volatile uint32_t SONAR_pulseStart_mks = 1L; //time the pulse started. Used in calculation of the pulse length
