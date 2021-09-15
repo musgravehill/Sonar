@@ -1,3 +1,5 @@
+///// TODO SONAR depth filter smooth, delete too big,too low depths from current window
+
 
 #include <stdlib.h>
 #include <avr/wdt.h> //wathchdog
