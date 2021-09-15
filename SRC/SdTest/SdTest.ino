@@ -18,9 +18,9 @@ File32 myFile;
 
 void setup() {
   if (sd.begin(chipSelect, SPI_SPEED)) {
-    myFile = sd.open("test.txt", FILE_WRITE);
+    myFile = sd.open(F("test.txt"), FILE_WRITE);
     if (myFile) {
-      myFile.println("testing 1, 2, 3.");
+      myFile.println(F("4 5 6"));
       myFile.close();
     }
   }
