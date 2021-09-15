@@ -1,4 +1,27 @@
 
+//SD
+//MOSI 11
+//MISO 12
+//CLK 13
+//SS 10
+
+#include <SPI.h>
+#include "SdFat.h"
+#include "sdios.h"
+#define SD_FAT_TYPE 1 //1 for FAT16/FAT32 
+#define SD_SS 10
+#define SPI_SPEED SD_SCK_MHZ(4)
+#define LOG_FileName "log.txt"
+SdFat32 sd;
+File32 myFile;
+
+#include <SoftwareSerial.h>
+SoftwareSerial GPS_serial(8, 9); //RX, TX
+String GPS_string = "";
+String GPS_string_tmp = "";
+uint8_t GPS_GLL_idx = 0;
+boolean SYS_GPS_isNewData = false; //after save SD set SYS_GPS_isNewData=false;
+
 //SONAR_pin = 2; //interrupt #0
 volatile uint32_t SONAR_timeAllowListen_mks = 1L; //time to next listen sync after previous syncOk
 volatile uint32_t SONAR_pulseStart_mks = 1L; //time the pulse started. Used in calculation of the pulse length
@@ -16,10 +39,24 @@ uint32_t TIMEMACHINE_next_311ms = 0L;
 
 void setup() {
   DDRD &= ~(1 << PD2); //set d2 input SONAR_pin
-  attachInterrupt(0, SONAR_ISR, CHANGE);
+  attachInterrupt(0, SONAR_ISR, CHANGE);  
+
   Serial.begin(57600);
+  GPS_serial.begin(57600);
+
+  if (sd.begin(SD_SS, SPI_SPEED)) {
+    myFile = sd.open(LOG_FileName, FILE_WRITE);
+    if (myFile) {
+      myFile.println(' ');
+      myFile.close();
+    }
+  }
 }
 
 void loop() {
   TIMEMACHINE_loop();
+
+  GPS_serial_process();
+
+  
 }

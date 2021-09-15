@@ -1,6 +1,8 @@
-//MOSI - pin 11
-//MISO - pin 12
-//CLK - pin 13
+//SD
+//MOSI 11
+//MISO 12
+//CLK 13
+//SS 10
 
 
 #include <SPI.h>

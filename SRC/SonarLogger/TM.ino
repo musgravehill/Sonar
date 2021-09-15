@@ -9,6 +9,12 @@ void TIMEMACHINE_loop() {
 
 void TIMEMACHINE_311ms() {
   SONAR_chechOvertimeFail(); //!!!!!!!!!!
+  
   uint16_t depth = SONAR_getDepth_cm();
   Serial.println(depth);
+
+  if (SYS_GPS_isNewData) {
+    Serial.println(GPS_string);
+    SYS_GPS_isNewData = false;
+  }
 }
