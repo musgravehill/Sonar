@@ -47,6 +47,7 @@ uint32_t TIMEMACHINE_next_311ms = 0L;
 uint32_t TIMEMACHINE_next_911ms = 0L;
 
 void setup() {
+  delay(3000);
   MONITOR_init();
   SONAR_init();
   GPS_init();
