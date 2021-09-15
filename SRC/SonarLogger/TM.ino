@@ -13,8 +13,7 @@ void TIMEMACHINE_loop() {
 
 void TIMEMACHINE_311ms() {
   SONAR_checkOvertimeFail(); //!!!!!!!!!!
-  SD_logData();
-  
+  SD_logData();  
 }
 
 void TIMEMACHINE_911ms() {

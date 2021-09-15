@@ -1,14 +1,17 @@
 ///// TODO SONAR depth filter smooth, delete too big,too low depths from current window
 
 
+
+//===================GPS $GLL ONLY! 57600 NMEA=====$GPGLL,5248.80185,N,03457.13776,E,161108.00,A,A*33============
+
 #include <stdlib.h>
 #include <avr/wdt.h> //wathchdog
 #include <stdint.h>
 
 //=================================MONITOR==============
-#include <Wire.h> 
+#include <Wire.h>
 #include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x3F, 20, 4); //0x3F  0x27 
+LiquidCrystal_I2C lcd(0x27, 16, 2); //0x3F  0x27
 
 //===============================SD=======================
 // MOSI-11 MISO-12 CLK-13 SS-10
@@ -20,6 +23,7 @@ LiquidCrystal_I2C lcd(0x3F, 20, 4); //0x3F  0x27
 #define SPI_SPEED SD_SCK_MHZ(4)
 SdFat32 sd;
 File32 myFile;
+boolean SD_isError = true;
 
 //=====GPS=====
 String GPS_string = "";
@@ -40,17 +44,17 @@ volatile uint32_t SONAR_pulseDepthValidLast_mks = 1; //mks for sonar depth
 
 //=================SYS==============
 #define SYS_LOG_FileName "log.txt"
-boolean SYS_GPS_isNewData = false; //after save SD set SYS_GPS_isNewData=false;
+boolean SYS_GPS_isNewData = false;
 
 //================================== TIMEMACHINE =================
 uint32_t TIMEMACHINE_next_311ms = 0L;
 uint32_t TIMEMACHINE_next_911ms = 0L;
 
-void setup() {  
-  MONITOR_init();  
-  SONAR_init();   
-  GPS_init();  
-  SD_init();  
+void setup() {
+  MONITOR_init();
+  SONAR_init();
+  GPS_init();
+  SD_init();
 }
 
 void loop() {
