@@ -1,7 +1,7 @@
 void GPS_serial_process() {
-  if (GPS_serial.available()) {
+  if (Serial.available()) {
     //delay(1);  //small delay to allow input buffer to fill
-    char c = GPS_serial.read();
+    char c = Serial.read();
 
     if (c == '$') {
       GPS_GLL_idx = 0;
@@ -24,5 +24,5 @@ void GPS_serial_process() {
     if (GPS_GLL_idx > 6) {
       GPS_GLL_idx = 6;
     }
-  }  
+  }
 }
