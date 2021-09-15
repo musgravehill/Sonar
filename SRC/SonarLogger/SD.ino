@@ -1,5 +1,5 @@
 void SD_logData() {
-  if (SYS_GPS_isNewData && GPS_string.length() > 8) {
+  if (SYS_GPS_isNewData) {
     uint16_t depth = SONAR_getDepth_cm();
     myFile = sd.open(SYS_LOG_FileName, FILE_WRITE);
     if (myFile) {

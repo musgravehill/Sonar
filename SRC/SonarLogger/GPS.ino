@@ -16,9 +16,11 @@ void GPS_serial_process() {
       }
       if (GPS_GLL_idx == 5) {
         GPS_GLL_idx = 6;
-        GPS_string = GPS_string_tmp;
-        GPS_string_tmp = F("");
-        SYS_GPS_isNewData = true;
+        if (GPS_string_tmp.length() > 8) {
+          GPS_string = GPS_string_tmp;
+          GPS_string_tmp = F("");
+          SYS_GPS_isNewData = true;
+        }
       }
     }
     if (GPS_GLL_idx > 6) {
