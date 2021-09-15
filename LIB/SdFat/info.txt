@@ -1,0 +1,10 @@
+arduino lib - install - find sdfat - install
+C:\Users\bob.bobacer\Documents\Arduino\libraries\SdFat\src\SdFatConfig.h
+
+// For minimum flash size use these settings:
+ #define USE_FAT_FILE_FLAG_CONTIGUOUS 0
+ #define ENABLE_DEDICATED_SPI 0
+ #define USE_LONG_FILE_NAMES 0
+ #define SDFAT_FILE_TYPE 1
+
+
