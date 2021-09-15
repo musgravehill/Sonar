@@ -1,4 +1,13 @@
 
+#include <stdlib.h>
+#include <avr/wdt.h> //wathchdog
+#include <stdint.h>
+
+//=================================MONITOR==============
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x3F, 20, 4); //0x3F  0x27 
+
 //===============================SD=======================
 // MOSI-11 MISO-12 CLK-13 SS-10
 #include <SPI.h>
@@ -33,9 +42,12 @@ boolean SYS_GPS_isNewData = false; //after save SD set SYS_GPS_isNewData=false;
 
 //================================== TIMEMACHINE =================
 uint32_t TIMEMACHINE_next_311ms = 0L;
-
+uint32_t TIMEMACHINE_next_911ms = 0L;
 
 void setup() {
+  //=====MONITOR===
+  MONITOR_init();
+  
   //=====SONAR=====
   DDRD &= ~(1 << PD2); //set d2 input SONAR_pin
   attachInterrupt(0, SONAR_ISR, CHANGE);
@@ -51,9 +63,13 @@ void setup() {
       myFile.close();
     }
   }
+  
 }
 
 void loop() {
+  wdt_enable (WDTO_2S); //try to have time < 8s, else autoreset by watchdog
   TIMEMACHINE_loop();
   GPS_serial_process();
+  wdt_reset();
+  wdt_disable();
 }

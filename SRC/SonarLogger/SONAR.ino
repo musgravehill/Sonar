@@ -3,7 +3,7 @@ uint16_t SONAR_getDepth_cm() {
   return SONAR_pulseDepthLength_mks / SONAR_time2depth;
 }
 
-void SONAR_chechOvertimeFail() {
+void SONAR_checkOvertimeFail() {
   uint32_t delta_mks = micros() - SONAR_pulseDepthValidLast_mks;
   if (delta_mks > SONAR_failOvertime_mks) {
     SONAR_pulseDepthLength_mks = 1; //unknown depth, no signal
