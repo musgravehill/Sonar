@@ -57,8 +57,7 @@ void SONAR_ISR() {
         SONAR_pulseDepthValidLast_mks = mcrs;
       }
       if (delta_mks >= SONAR_depthMax_mks) { //after SONAR_depthMax_mks swith state to 1 (SYNC start-end process)
-        SONAR_state = 1; // goto SYNC waiting
-        SONAR_depths_idx = 0; //set idx to 0 for new future depths-pulses
+        SONAR_state = 1; // goto SYNC waiting        
       }
     }
   }

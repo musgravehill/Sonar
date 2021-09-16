@@ -15,13 +15,20 @@ void MONITOR_render() {
     lcd.print(' ');
     lcd.print(flon, 4);
   } else {
-    lcd.print(F("GPS WAIT..."));
+    lcd.print(F("GPS?"));
   }
 
-  lcd.setCursor(0, 1);
-  lcd.print((SONAR_depth_curr/ 100.0), 1);
   if (SD_isError) {
-    lcd.setCursor(8, 1);
-    lcd.print(F("SD_ERR"));
+    lcd.setCursor(14, 0);
+    lcd.print(F("SD?"));
   }
+
+  for (byte i = 0; i <= SONAR_depths_idx_max; i++) {
+    lcd.setCursor(i * 2, 1);
+    lcd.print((SONAR_depths_cm[i] / 100.0), 0);
+  }
+
+  //lcd.setCursor(0, 1);
+  //lcd.print((SONAR_depth_curr_cm/ 100.0), 1);
+
 }
