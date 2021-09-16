@@ -36,11 +36,12 @@ void SONAR_ISR() {
   if (SONAR_state == 2) {
     if (PIND & (1 << PD2)) { //rising => d2 is high
       if (delta_mks > 1300 && delta_mks < SONAR_depthMax_mks) {  //depth from ~0.8m to ~40m
-        SONAR_pulseDepthLength_mks = delta_mks;
+         delta_mks;
+        
+        SONAR_depths_cm SONAR_depths_idx
+        
         SONAR_pulseDepthValidLast_mks = mcrs; //time for last valid depth => I can control last valid time
-      } else {
-        SONAR_pulseDepthLength_mks = 1; //depth pulse not valid
-      }
+      } 
       if (delta_mks >= SONAR_depthMax_mks) { //after SONAR_depthMax_mks swith state to 1 (SYNC start-end process)
         SONAR_state = 1;
       }
