@@ -1,16 +1,16 @@
 
 void SONAR_depth_process() { //every 250ms => 4Hz. My sonar sends data rate 4Hz
+  if (!SONAR_isValid) {
+    return;
+  }
+  uint16_t depth_max = 0;
   for (byte i = 0; i <= SONAR_depths_idx_max; i++) {
-    if (SONAR_depths_cm[i] > SONAR_depth_curr) {
-      SONAR_depth_curr = SONAR_depths_cm[i];
+    if (SONAR_depths_cm[i] > depth_max) {
+      depth_max =  SONAR_depths_cm[i];
     }
   }
-  uint16_t depths[4]; //250ms * 4depth => 1second delay?
-  
+  SONAR_depth_curr_cm = 0.1 * SONAR_depth_curr_cm + 0.9 * depth_max; //0.2*prev_val + 0.8*currentDepth
 }
-
-
-
 
 void SONAR_checkOvertimeFail() {
   uint32_t delta_mks = micros() - SONAR_pulseDepthValidLast_mks;
@@ -57,7 +57,8 @@ void SONAR_ISR() {
         SONAR_pulseDepthValidLast_mks = mcrs;
       }
       if (delta_mks >= SONAR_depthMax_mks) { //after SONAR_depthMax_mks swith state to 1 (SYNC start-end process)
-        SONAR_state = 1;
+        SONAR_state = 1; // goto SYNC waiting
+        SONAR_depths_idx = 0; //set idx to 0 for new future depths-pulses
       }
     }
   }

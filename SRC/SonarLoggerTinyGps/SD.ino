@@ -11,7 +11,7 @@ void SD_logData() {
         myFile.print(';');
         myFile.print(flon, 6);
         myFile.print(';');
-        myFile.println(SONAR_depth_curr);
+        myFile.println(SONAR_depth_curr_cm);
         myFile.close();
         SYS_GPS_isNewData = false;
       } else {
