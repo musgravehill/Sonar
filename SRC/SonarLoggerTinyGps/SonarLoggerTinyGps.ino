@@ -36,14 +36,20 @@ volatile uint32_t SONAR_pulseDepthValidLast_mks = 1; //mks for sonar depth
 volatile uint16_t SONAR_depths_cm[4] = {0, 0, 0, 0}; //0...3
 volatile uint8_t SONAR_depths_idx = 0; //0...3
 #define SONAR_depths_idx_max 3
+volatile uint16_t SONAR_depth_instantaneous_cm = 0; //centimeter, calc in ISR interrupt
 #define SONAR_allowNextSync_mks 244450  //min time to get new sync-pulse  (sonar send data 3-4Hz)
 #define SONAR_failOvertime_mks 2657900 // 265790*10  
 #define SONAR_depthMax_mks 57000
 #define SONAR_time2depth 13.67 //100cm = 1m
 
 boolean SONAR_isValid = false;
-volatile uint16_t SONAR_depth_instantaneous_cm = 0; //centimeter, calc in ISR interrupt
 uint16_t SONAR_depth_curr_cm = 0; //centimeter
+
+volatile uint16_t SONAR_flashes_cm[4] = {0, 0, 0, 0}; //0...3
+volatile uint8_t SONAR_flashes_idx = 0; //0...3
+#define SONAR_flashes_idx_max 3
+
+
 //=================SYS==============
 #define SYS_LOG_FileName "log.txt"
 

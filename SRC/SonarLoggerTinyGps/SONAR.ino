@@ -1,9 +1,9 @@
 
-void SONAR_depth_filter() {
-  SONAR_depth_curr_cm = 0.1 * SONAR_depth_curr_cm + 0.9 * SONAR_depth_instantaneous_cm; //0.2*prev + 0.8*curr
+void SONAR_depth_process() {
+  SONAR_depth_curr_cm = SONAR_depth_instantaneous_cm; //0.05 * SONAR_depth_curr_cm + 0.95 * SONAR_depth_instantaneous_cm; //0.2*prev + 0.8*curr
 }
 
-void SONAR_depth_process() { //4Hz. My sonar sends data rate 4Hz
+void SONAR_depth_process_ISR() { //4Hz. My sonar sends data rate 4Hz
   if (!SONAR_isValid) {
     return;
   }
@@ -60,10 +60,18 @@ void SONAR_ISR() {
         }
         //time for last valid depth => I can control last valid time
         SONAR_pulseDepthValidLast_mks = mcrs;
+
+        //flasher
+        SONAR_flashes_cm[SONAR_depths_idx] = (delta_mks / SONAR_time2depth);
+        SONAR_flashes_idx++;
+        if (SONAR_flashes_idx > SONAR_flashes_idx_max) {
+          SONAR_flashes_idx = 0;
+        }
+
       }
       if (delta_mks >= SONAR_depthMax_mks) { //after SONAR_depthMax_mks swith state to 1 (SYNC start-end process)
         SONAR_state = 1; // goto SYNC waiting
-        SONAR_depth_process();
+        SONAR_depth_process_ISR();
       }
     }
   }
