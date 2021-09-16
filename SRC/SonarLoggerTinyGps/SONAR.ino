@@ -62,11 +62,11 @@ void SONAR_ISR() {
         SONAR_pulseDepthValidLast_mks = mcrs;
 
         //flasher
-        SONAR_flashes_cm[SONAR_depths_idx] = (delta_mks / SONAR_time2depth);
+        /*SONAR_flashes_cm[SONAR_depths_idx] = (delta_mks / SONAR_time2depth);
         SONAR_flashes_idx++;
         if (SONAR_flashes_idx > SONAR_flashes_idx_max) {
           SONAR_flashes_idx = 0;
-        }
+        }*/
 
       }
       if (delta_mks >= SONAR_depthMax_mks) { //after SONAR_depthMax_mks swith state to 1 (SYNC start-end process)

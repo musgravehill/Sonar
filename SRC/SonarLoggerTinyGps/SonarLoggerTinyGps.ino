@@ -45,9 +45,9 @@ volatile uint16_t SONAR_depth_instantaneous_cm = 0; //centimeter, calc in ISR in
 boolean SONAR_isValid = false;
 uint16_t SONAR_depth_curr_cm = 0; //centimeter
 
-volatile uint16_t SONAR_flashes_cm[4] = {0, 0, 0, 0}; //0...3
-volatile uint8_t SONAR_flashes_idx = 0; //0...3
-#define SONAR_flashes_idx_max 3
+//volatile uint16_t SONAR_flashes_cm[4] = {0, 0, 0, 0}; //0...3
+//volatile uint8_t SONAR_flashes_idx = 0; //0...3
+//#define SONAR_flashes_idx_max 3
 
 
 //=================SYS==============

@@ -23,13 +23,17 @@ void MONITOR_render() {
     lcd.print(F("SD?"));
   }
 
-  
-  for (byte i = 0; i <= 3; i++) {
+
+  /*for (byte i = 0; i <= 3; i++) {
     lcd.setCursor(i * 4, 1);
     lcd.print((SONAR_flashes_cm[i] / 100.0), 1);
-  }
+    }*/
 
-  lcd.setCursor(6, 0);
-  lcd.print((SONAR_depth_curr_cm/ 100.0), 1);
+  lcd.setCursor(0, 1);
+  lcd.print((SONAR_depth_curr_cm / 100.0), 2);
+  lcd.print('m');
+  if (!SONAR_isValid) {
+    lcd.print(F(" SONAR?"));
+  }
 
 }
