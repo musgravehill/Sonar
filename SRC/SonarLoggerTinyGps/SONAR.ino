@@ -15,7 +15,7 @@ void SONAR_depth_process() { //every 250ms => 4Hz. My sonar sends data rate 4Hz
 void SONAR_checkOvertimeFail() {
   uint32_t delta_mks = micros() - SONAR_pulseDepthValidLast_mks;
   if (delta_mks > SONAR_failOvertime_mks) {
-    SONAR_isValid = false;    
+    SONAR_isValid = false;
   } else {
     SONAR_isValid = true;
   }
@@ -58,6 +58,7 @@ void SONAR_ISR() {
       }
       if (delta_mks >= SONAR_depthMax_mks) { //after SONAR_depthMax_mks swith state to 1 (SYNC start-end process)
         SONAR_state = 1; // goto SYNC waiting
+        SONAR_depth_process();
       }
     }
   }
