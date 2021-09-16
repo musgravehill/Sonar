@@ -18,27 +18,31 @@ void SONAR_ISR() {
 
   uint32_t delta_mks = mcrs - SONAR_pulseStart_mks;
 
-  if (SONAR_state == 1) { //sync
+  //=============SYNC start-end process================
+  if (SONAR_state == 1) {
+    SONAR_pulseStart_mks = mcrs;
     if (PIND & (1 << PD2)) { //sync time start at rising => d2 is high
-      SONAR_pulseStart_mks = mcrs;
+
     }
-    else { //sync time finish at falling
-      if (delta_mks > 6660 && delta_mks < 6700) {
-        SONAR_state = 2;
-        SONAR_timeAllowListen_mks = mcrs + SONAR_allowNextSync_mks;
-        SONAR_pulseStart_mks = mcrs;
+    else { //sync time finish at falling ====SYNC end
+      if (delta_mks > 6660 && delta_mks < 6700) {  //sync pulse w = 6680 mks
+        SONAR_state = 2; //listen for depth pulses
+        SONAR_timeAllowListen_mks = mcrs + SONAR_allowNextSync_mks; //after this time allow to listen for next SYNC
       }
     }
   }
 
-  if (SONAR_state == 2) { //depth
+  //==============DEPTH pulses measure===========================
+  if (SONAR_state == 2) {
     if (PIND & (1 << PD2)) { //rising => d2 is high
-      SONAR_state = 1;
-      if (delta_mks > 1300 && delta_mks < SONAR_depthMax_mks) {
+      if (delta_mks > 1300 && delta_mks < SONAR_depthMax_mks) {  //depth from ~0.8m to ~40m
         SONAR_pulseDepthLength_mks = delta_mks;
-        SONAR_pulseDepthValidLast_mks = mcrs; //time valid depth
+        SONAR_pulseDepthValidLast_mks = mcrs; //time for last valid depth => I can control last valid time
       } else {
-        SONAR_pulseDepthLength_mks = 1;
+        SONAR_pulseDepthLength_mks = 1; //depth pulse not valid
+      }
+      if (delta_mks >= SONAR_depthMax_mks) { //after SONAR_depthMax_mks swith state to 1 (SYNC start-end process)
+        SONAR_state = 1;
       }
     }
   }
