@@ -19,7 +19,7 @@ void MONITOR_render() {
   }
 
   lcd.setCursor(0, 1);
-  lcd.print((SONAR_getDepth_cm() / 100.0), 2);
+  lcd.print((SONAR_depth_curr/ 100.0), 1);
   if (SD_isError) {
     lcd.setCursor(8, 1);
     lcd.print(F("SD_ERR"));

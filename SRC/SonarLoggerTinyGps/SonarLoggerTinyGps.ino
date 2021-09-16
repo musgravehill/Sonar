@@ -36,15 +36,21 @@ volatile uint32_t SONAR_pulseDepthValidLast_mks = 1; //mks for sonar depth
 #define SONAR_failOvertime_mks 2657900 // 265790*10  
 #define SONAR_depthMax_mks 57000
 #define SONAR_time2depth 13.67 //100cm = 1m
+
 volatile uint16_t SONAR_depths_cm[8]; //0...7 centimeter
 volatile uint8_t SONAR_depths_idx = 0; //0...7  
+#define SONAR_depths_idx_max 7
+
+boolean SONAR_isValid = false;
+
+uint16_t SONAR_depth_curr = 0;
 
 //=================SYS==============
 #define SYS_LOG_FileName "log.txt"
 boolean SYS_GPS_isNewData = false;
 
 //================================== TIMEMACHINE =================
-uint32_t TIMEMACHINE_next_311ms = 0L;
+uint32_t TIMEMACHINE_next_251ms = 0L;
 uint32_t TIMEMACHINE_next_911ms = 0L;
 
 void setup() {
