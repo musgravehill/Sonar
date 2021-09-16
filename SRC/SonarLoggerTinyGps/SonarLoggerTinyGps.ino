@@ -25,6 +25,7 @@ boolean SD_isError = true;
 //=============================================== GPS GPRMC===================================================================================
 #include <TinyGPS.h>
 TinyGPS gps;
+boolean GPS_isNewData = false;
 
 //================================================SONAR=================================================================================
 //SONAR_pin = 2; //interrupt #0
@@ -45,7 +46,6 @@ uint16_t SONAR_depth_curr_cm = 0; //centimeter
 
 //=================SYS==============
 #define SYS_LOG_FileName "log.txt"
-boolean SYS_GPS_isNewData = false;
 
 //================================== TIMEMACHINE =================
 uint32_t TIMEMACHINE_next_251ms = 0L;
