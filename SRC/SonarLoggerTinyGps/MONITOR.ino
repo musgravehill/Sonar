@@ -24,12 +24,12 @@ void MONITOR_render() {
   }
 
   
-  for (byte i = 0; i <= 4; i++) {
-    lcd.setCursor(i * 3, 1);
+  for (byte i = 0; i <= 3; i++) {
+    lcd.setCursor(i * 4, 1);
     lcd.print((SONAR_depths_cm[i] / 100.0), 1);
   }
 
- // lcd.setCursor(0, 1);
- // lcd.print((SONAR_depth_curr_cm/ 100.0), 1);
+  lcd.setCursor(6, 0);
+  lcd.print((SONAR_depth_curr_cm/ 100.0), 1);
 
 }

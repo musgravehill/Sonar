@@ -1,5 +1,9 @@
 
-void SONAR_depth_process() { //every 250ms => 4Hz. My sonar sends data rate 4Hz
+void SONAR_depth_filter() {
+  SONAR_depth_curr_cm = 0.1 * SONAR_depth_curr_cm + 0.9 * SONAR_depth_instantaneous_cm; //0.2*prev + 0.8*curr
+}
+
+void SONAR_depth_process() { //4Hz. My sonar sends data rate 4Hz
   if (!SONAR_isValid) {
     return;
   }
@@ -8,8 +12,9 @@ void SONAR_depth_process() { //every 250ms => 4Hz. My sonar sends data rate 4Hz
     if (SONAR_depths_cm[i] > depth_max) {
       depth_max =  SONAR_depths_cm[i];
     }
+    SONAR_depths_cm[i] = 0;//clean for next measure
   }
-  SONAR_depth_curr_cm = 0.1 * SONAR_depth_curr_cm + 0.9 * depth_max; //0.2*prev_val + 0.8*currentDepth
+  SONAR_depth_instantaneous_cm = depth_max;
 }
 
 void SONAR_checkOvertimeFail() {
