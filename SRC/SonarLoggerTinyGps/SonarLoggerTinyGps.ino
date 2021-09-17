@@ -21,6 +21,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //0x3F  0x27
 SdFat32 sd;
 File32 myFile;
 boolean SD_isError = true;
+uint16t SD_records_count = 0;
 
 //=============================================== GPS GPRMC===================================================================================
 #include <TinyGPS.h>

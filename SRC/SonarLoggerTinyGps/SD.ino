@@ -3,7 +3,7 @@ void SD_logData() {
     float flat, flon;
     unsigned long age;
     gps.f_get_position(&flat, &flon, &age);
-    if (flat != TinyGPS::GPS_INVALID_F_ANGLE && flon != TinyGPS::GPS_INVALID_F_ANGLE && SONAR_isValid) {      
+    if (flat != TinyGPS::GPS_INVALID_F_ANGLE && flon != TinyGPS::GPS_INVALID_F_ANGLE && SONAR_isValid) {
       myFile = sd.open(SYS_LOG_FileName, FILE_WRITE);
       if (myFile) {
         myFile.print(flat, 6);
@@ -13,6 +13,7 @@ void SD_logData() {
         myFile.println(SONAR_depth_curr_cm);
         myFile.close();
         GPS_isNewData = false;
+        SD_records_count++;
       } else {
         SD_isError = true;
       }
