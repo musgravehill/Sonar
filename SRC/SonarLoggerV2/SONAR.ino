@@ -27,6 +27,7 @@ void SONAR_checkOvertimeFail() {
   }
 }
 
+//listen first depth pulse. And I can make a FLASHER, that stores N pulses.
 void SONAR_ISR() {
   uint32_t mcrs = micros();
   if (SONAR_state == 1 && SONAR_timeAllowListen_mks > mcrs) {
