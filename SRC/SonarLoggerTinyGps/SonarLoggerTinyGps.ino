@@ -21,7 +21,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //0x3F  0x27
 SdFat32 sd;
 File32 myFile;
 boolean SD_isError = true;
-uint16t SD_records_count = 0;
+uint16_t SD_records_count = 0;
 
 //=============================================== GPS GPRMC===================================================================================
 #include <TinyGPS.h>
@@ -34,10 +34,12 @@ volatile uint32_t SONAR_timeAllowListen_mks = 1L; //time to next listen sync aft
 volatile uint32_t SONAR_pulseStart_mks = 1L; //time the pulse started. Used in calculation of the pulse length
 volatile uint8_t SONAR_state = 1; //1=sync process 2=depth process
 volatile uint32_t SONAR_pulseDepthValidLast_mks = 1; //mks for sonar depth
-volatile uint16_t SONAR_depths_cm[4] = {0, 0, 0, 0}; //0...3
-volatile uint8_t SONAR_depths_idx = 0; //0...3
-#define SONAR_depths_idx_max 3
-volatile uint16_t SONAR_depth_instantaneous_cm = 0; //centimeter, calc in ISR interrupt
+volatile uint16_t SONAR_depths_cm[4] = {0, 0, 0, 0}; //0...3  max_depths from real bottom of the lake
+volatile uint8_t SONAR_depths_idx = 0; //0...3  max_depths from real bottom of the lake
+#define SONAR_depths_idx_max 3 //max_depths from real bottom of the lake
+volatile uint16_t SONAR_depth_instant_mks = 0; //mks pulse, calc in ISR interrupt
+volatile boolean SONAR_isProcessTodo = false;
+
 #define SONAR_allowNextSync_mks 244450  //min time to get new sync-pulse  (sonar send data 3-4Hz)
 #define SONAR_failOvertime_mks 2657900 // 265790*10  
 #define SONAR_depthMax_mks 57000
@@ -46,6 +48,7 @@ volatile uint16_t SONAR_depth_instantaneous_cm = 0; //centimeter, calc in ISR in
 boolean SONAR_isValid = false;
 uint16_t SONAR_depth_curr_cm = 0; //centimeter
 
+//write it in ISR - 1.0m(fish) 1.5m(fish) 4m(stone)
 //volatile uint16_t SONAR_flashes_cm[4] = {0, 0, 0, 0}; //0...3
 //volatile uint8_t SONAR_flashes_idx = 0; //0...3
 //#define SONAR_flashes_idx_max 3
@@ -69,7 +72,8 @@ void setup() {
 void loop() {
   wdt_enable (WDTO_2S); //try to have time < 8s, else autoreset by watchdog
   TIMEMACHINE_loop();
-  GPS_serial_process();
+  GPS_serial_process_continuously();
+  SONAR_depth_process_continuously();
   wdt_reset();
   wdt_disable();
 }
