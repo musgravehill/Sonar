@@ -39,14 +39,14 @@ volatile uint8_t SONAR_depths_idx = 0; //0...3  max_depths from real bottom of t
 #define SONAR_depths_idx_max 3 //max_depths from real bottom of the lake
 volatile boolean SONAR_isProcessTodo = false;
 
-#define SONAR_allowNextSync_mks 244450  //min time to get new sync-pulse  (sonar send data 3-4Hz)
-#define SONAR_failOvertime_mks 2657900 // 265790*10  
+#define SONAR_allowNextSync_mks 244450L  //min time to get new sync-pulse  (sonar send data 3-4Hz)
+#define SONAR_failOvertime_mks 2657900L // 265790*10  
 #define SONAR_depthMin_mks 600
 #define SONAR_depthMax_mks 56000
 #define SONAR_time2depth 13.67 //100cm = 1m
 
 boolean SONAR_isValid = false;
-uint32_t SONAR_pulseDepthValidLast_mks = 1; //mks for sonar depth
+uint32_t SONAR_pulseDepthValidLast_mks = 1L; //mks for sonar depth
 uint16_t SONAR_depth_curr_cm = 0; //centimeter
 
 

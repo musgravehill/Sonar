@@ -30,12 +30,11 @@ void MONITOR_render() {
     }*/
 
   lcd.setCursor(0, 1);
-  lcd.print((SONAR_depth_curr_cm / 100.0), 1);
-    lcd.print(F("m "));
   if (SONAR_isValid) {
-    
+    lcd.print((SONAR_depth_curr_cm / 100.0), 1);
+    lcd.print(F("m "));
   } else {
-    lcd.print(F(" SONAR? "));
+    lcd.print(F("SONAR? "));
   }
   lcd.print(SD_records_count);
   lcd.print(F("pos"));
