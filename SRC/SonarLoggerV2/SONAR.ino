@@ -50,11 +50,13 @@ void SONAR_ISR() {
   //==============DEPTH pulses measure===========================
   if (SONAR_state == 2) {
     if (PIND & (1 << PD2)) { //rising => d2 is high
-      if (delta_mks > 1300 && delta_mks < SONAR_depthMax_mks) {  //depth from ~0.8m to ~40m
-        SONAR_depth_instant_mks = delta_mks; //store last depth after sync
-
-        //time for last valid depth => I can control last valid time
-        SONAR_pulseDepthValidLast_mks = mcrs;
+      if (delta_mks > SONAR_depthMin_mks && delta_mks < SONAR_depthMax_mks) {  //depth from ~0.8m to ~40m
+        //store last valid depth to array
+        SONAR_depths_cm[SONAR_depths_idx] = (delta_mks / SONAR_time2depth);
+        SONAR_depths_idx++;
+        if (SONAR_depths_idx > SONAR_depths_idx_max) {
+          SONAR_depths_idx = 0;
+        }
 
         //flasher
         /*SONAR_flashes_cm[SONAR_depths_idx] = (delta_mks / SONAR_time2depth);
@@ -63,24 +65,12 @@ void SONAR_ISR() {
           SONAR_flashes_idx = 0;
           }*/
 
-      }
-      if (delta_mks >= SONAR_depthMax_mks) { //after SONAR_depthMax_mks swith state to 1 (SYNC start-end process)
-        SONAR_state = 1; // goto SYNC waiting
-
-        //store last valid depth to array
-        if (SONAR_depth_instant_mks > 0) {
-          SONAR_depths_cm[SONAR_depths_idx] = (SONAR_depth_instant_mks / SONAR_time2depth);
-          SONAR_depths_idx++;
-          if (SONAR_depths_idx > SONAR_depths_idx_max) {
-            SONAR_depths_idx = 0;
-          }
-        }
-
         SONAR_isProcessTodo = true; //todo process data from sonar
+        SONAR_pulseDepthValidLast_mks = mcrs;//time for last valid depth => I can control last valid time
+        SONAR_state = 1; // goto SYNC waiting
       }
     }
   }
-
 }
 
 void SONAR_init() {
