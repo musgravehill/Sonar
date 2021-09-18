@@ -10,7 +10,7 @@ void SD_logData_continuously() {
   if (myFile) {
 
     //TODO GPS //TODO   global lat, long
-    
+
     myFile.print(F("R;"));
     for (byte i = 0; i <= SONAR_pulses_rising_idx_max; i++) {
       myFile.print(SONAR_pulses_rising[i], DEC);
@@ -29,6 +29,9 @@ void SD_logData_continuously() {
   } else {
     SD_isError = true;
   }
+
+  SONAR_pulses_rising_idx = 0;
+  SONAR_pulses_falling_idx = 0;
 
   SONAR_isProcessTodo = false;
 }

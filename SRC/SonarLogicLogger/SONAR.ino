@@ -42,15 +42,16 @@ void SONAR_ISR() {
           SONAR_pulses_falling_idx = 0;
         }
       }
-      else {
-        SONAR_isProcessTodo = true; //todo process data from sonar
-        SONAR_state = 1; // goto SYNC waiting
-      }
-      return;
     }
+    else {
+      SONAR_isProcessTodo = true; //todo process data from sonar
+      SONAR_state = 1; // goto SYNC waiting      
+    }
+    return;
   }
+}
 
-  void SONAR_init() {
-    DDRD &= ~(1 << PD2); //set d2 input SONAR_pin
-    attachInterrupt(0, SONAR_ISR, CHANGE);
-  }
+void SONAR_init() {
+  DDRD &= ~(1 << PD2); //set d2 input SONAR_pin
+  attachInterrupt(0, SONAR_ISR, CHANGE);
+}
