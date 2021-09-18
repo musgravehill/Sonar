@@ -5,6 +5,9 @@
 
 //listen N pulses Rising and Falling after Sync
 void SONAR_ISR() {
+  if (SONAR_isProcessTodo) {
+    return;  //waiting for SD log
+  }
   uint32_t mcrs = micros();
   if (SONAR_state == 1 && SONAR_timeAllowListen_mks > mcrs) {
     return;  //waiting for Sync, but time too less from prev syncOk
@@ -36,14 +39,16 @@ void SONAR_ISR() {
         SONAR_pulses_rising_idx = 0;
       }
     } else { //falling
-
+      SONAR_pulses_falling[SONAR_pulses_falling_idx] = delta_mks;
+      SONAR_pulses_falling_idx++;
+      if (SONAR_pulses_falling_idx > SONAR_pulses_falling_idx_max) {
+        SONAR_pulses_falling_idx = 0;
+      }
     }
-
     if (delta_mks >= SONAR_depthMax_mks) {
       SONAR_isProcessTodo = true; //todo process data from sonar
       SONAR_state = 1; // goto SYNC waiting
     }
-
     return;
   }
 }

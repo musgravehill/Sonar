@@ -39,6 +39,7 @@ volatile uint8_t SONAR_pulses_falling_idx = 0;
 volatile boolean SONAR_isProcessTodo = false; 
 
 #define SONAR_allowNextSync_mks 244450L  //min time to get new sync-pulse  (sonar send data 3-4Hz)
+#define SONAR_depthMax_mks 57000
 
 //=================SYS==============
 #define SYS_LOG_FileName "sig.txt"
