@@ -14,8 +14,8 @@ void MONITOR_render() {
 
   lcd.setCursor(0, 1);
   lcd.print(F("R"));
-  lcd.print(SONAR_pulses_rising[0]);
+  lcd.print(MONITOR_SONAR_pulses_rising_0);
   lcd.print(F(" F"));
-  lcd.print(SONAR_pulses_falling[0]);
+  lcd.print(MONITOR_SONAR_pulses_falling_0);
 
 }

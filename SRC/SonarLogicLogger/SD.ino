@@ -2,8 +2,15 @@ void SD_logData_continuously() {
   if (!SONAR_isProcessTodo) {
     return;
   }
+
+  MONITOR_SONAR_pulses_rising_0 = SONAR_pulses_rising[0];
+  MONITOR_SONAR_pulses_falling_0 = SONAR_pulses_falling[0];
+
   myFile = sd.open(SYS_LOG_FileName, FILE_WRITE);
   if (myFile) {
+
+    //TODO GPS //TODO   global lat, long
+    
     myFile.print(F("R;"));
     for (byte i = 0; i <= SONAR_pulses_rising_idx_max; i++) {
       myFile.print(SONAR_pulses_rising[i], DEC);

@@ -9,6 +9,12 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27, 16, 2); //0x3F  0x27
+uint16_t MONITOR_SONAR_pulses_rising_0 = 0;
+uint16_t MONITOR_SONAR_pulses_falling_0 = 0;
+
+//=============================================== GPS GPRMC===================================================================================
+#include <TinyGPS.h>
+TinyGPS gps;
 
 //==================================================SD=======================
 // MOSI-11 MISO-12 CLK-13 SS-10
@@ -44,6 +50,7 @@ volatile boolean SONAR_isProcessTodo = false;
 //=================SYS==============
 #define SYS_LOG_FileName "sig.txt"
 
+
 //================================== TIMEMACHINE =================
 uint32_t TIMEMACHINE_next_251ms = 0L;
 uint32_t TIMEMACHINE_next_911ms = 0L;
@@ -52,12 +59,14 @@ void setup() {
   delay(3000);
   MONITOR_init();
   SONAR_init();
+  GPS_init();
   SD_init();
 }
 
 void loop() {
   wdt_enable (WDTO_2S); //try to have time < 8s, else autoreset by watchdog
   TIMEMACHINE_loop();
+  GPS_serial_process_continuously();
   SD_logData_continuously();
   wdt_reset();
   wdt_disable();

@@ -1,8 +1,4 @@
 
-
-
-
-
 //listen N pulses Rising and Falling after Sync
 void SONAR_ISR() {
   if (SONAR_isProcessTodo) {
@@ -32,28 +28,29 @@ void SONAR_ISR() {
 
   //==============DEPTH pulses measure===========================
   if (SONAR_state == 2) {
-    if (PIND & (1 << PD2)) { //rising => d2 is high
-      SONAR_pulses_rising[SONAR_pulses_rising_idx] = delta_mks;
-      SONAR_pulses_rising_idx++;
-      if (SONAR_pulses_rising_idx > SONAR_pulses_rising_idx_max) {
-        SONAR_pulses_rising_idx = 0;
+    if (delta_mks <= SONAR_depthMax_mks) {
+      if (PIND & (1 << PD2)) { //rising => d2 is high
+        SONAR_pulses_rising[SONAR_pulses_rising_idx] = delta_mks;
+        SONAR_pulses_rising_idx++;
+        if (SONAR_pulses_rising_idx > SONAR_pulses_rising_idx_max) {
+          SONAR_pulses_rising_idx = 0;
+        }
+      } else { //falling
+        SONAR_pulses_falling[SONAR_pulses_falling_idx] = delta_mks;
+        SONAR_pulses_falling_idx++;
+        if (SONAR_pulses_falling_idx > SONAR_pulses_falling_idx_max) {
+          SONAR_pulses_falling_idx = 0;
+        }
       }
-    } else { //falling
-      SONAR_pulses_falling[SONAR_pulses_falling_idx] = delta_mks;
-      SONAR_pulses_falling_idx++;
-      if (SONAR_pulses_falling_idx > SONAR_pulses_falling_idx_max) {
-        SONAR_pulses_falling_idx = 0;
+      else {
+        SONAR_isProcessTodo = true; //todo process data from sonar
+        SONAR_state = 1; // goto SYNC waiting
       }
+      return;
     }
-    if (delta_mks >= SONAR_depthMax_mks) {
-      SONAR_isProcessTodo = true; //todo process data from sonar
-      SONAR_state = 1; // goto SYNC waiting
-    }
-    return;
   }
-}
 
-void SONAR_init() {
-  DDRD &= ~(1 << PD2); //set d2 input SONAR_pin
-  attachInterrupt(0, SONAR_ISR, CHANGE);
-}
+  void SONAR_init() {
+    DDRD &= ~(1 << PD2); //set d2 input SONAR_pin
+    attachInterrupt(0, SONAR_ISR, CHANGE);
+  }
