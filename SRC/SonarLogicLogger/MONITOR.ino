@@ -6,20 +6,16 @@ void MONITOR_init() {
 void MONITOR_render() {
   lcd.clear();
   lcd.setCursor(0, 0);
-
-   
-
+  lcd.print(SD_records_count);
+  lcd.print(F("rec"));
   if (SD_isError) {
-    lcd.setCursor(13, 0);
-    lcd.print(F("SD?"));
+    lcd.print(F(" SD?"));
   }
 
-
-  /*for (byte i = 0; i <= 3; i++) {
-    lcd.setCursor(i * 4, 1);
-    lcd.print((SONAR_flashes_cm[i] / 100.0), 1);
-    }*/
-
-   
+  lcd.setCursor(0, 1);
+  lcd.print(F("R"));
+  lcd.print(SONAR_pulses_rising[0]);
+  lcd.print(F(" F"));
+  lcd.print(SONAR_pulses_falling[0]);
 
 }

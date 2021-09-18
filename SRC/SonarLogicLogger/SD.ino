@@ -7,10 +7,14 @@ void SD_logData_continuously() {
     myFile.print(F("R;"));
     for (byte i = 0; i <= SONAR_pulses_rising_idx_max; i++) {
       myFile.print(SONAR_pulses_rising[i], DEC);
+      myFile.print(F(";"));
+      SONAR_pulses_rising[i] = 0;
     }
     myFile.print(F("F;"));
     for (byte i = 0; i <= SONAR_pulses_falling_idx_max; i++) {
       myFile.print(SONAR_pulses_falling[i], DEC);
+      myFile.print(F(";"));
+      SONAR_pulses_falling[i] = 0;
     }
     myFile.println();
     myFile.close();
@@ -18,6 +22,7 @@ void SD_logData_continuously() {
   } else {
     SD_isError = true;
   }
+
   SONAR_isProcessTodo = false;
 }
 
