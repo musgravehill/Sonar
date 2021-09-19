@@ -558,7 +558,6 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                 let map__mapIsReady = false;
                 let map__depth_min = 0;
                 let map__depth_max = 0;
-                let map__points = [];
                 const map__colors = [
                     '#f51c03',
                     '#f45202',
@@ -572,10 +571,10 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                     '#20ad31',
                     '#1f9a45',
                     '#1e8759',
-                    '#1d746d',
-                    '#1d6282',
-                    '#1c4f96',
-                    '#1b3caa',
+                    //'#1d746d',
+                    //'#1d6282',
+                    //'#1c4f96',
+                    //'#1b3caa',
                     '#1a29be',
                     '#1a17d3'
                 ];
@@ -597,6 +596,7 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                 }
 
                 function map__bathymetryProcess() {
+                    let map__points = [];
                     map__depth_min = 0;
                     map__depth_max = 0;
                     const depth_min_allow = parseFloat($('#form_bathymetry__depth_min_input').val()) || 0;
@@ -631,7 +631,7 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
 
                         const lat = parseFloat(raw[34]) || 0;
                         const lng = parseFloat(raw[35]) || 0;
-                        const depthM = depth_mks / 1367;
+                        const depthM = depth_mks / 1367.0;
                         if (lat > 0 && lng > 0 && depthM >= depth_min_allow && depthM <= depth_max_allow) {
                             let point = {
                                 lat: lat,
@@ -640,43 +640,43 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                             };
                             map__points.push(point);
 
-                            if (map__depth_min > point.depth) {
-                                map__depth_min = point.depth;
+                            if (map__depth_min > depthM) {
+                                map__depth_min = depthM;
                             }
-                            if (map__depth_max < point.depth) {
-                                map__depth_max = point.depth;
+                            if (map__depth_max < depthM) {
+                                map__depth_max = depthM;
                             }
                         }
 
-
-                        for (const point of map__points) {
-                            map__point(point.lat, point.lng, point.depth);
-                        }
-
-                        let html = '<div class="logic_pulses_block">';
-                        let lastF_px = 0;
-                        for (const R of RR) {
-                            let ml_px = 0, w_px = 0, w_mks = 0, F_mks = 0;
-                            ml_px = Math.round((R) / 10.0);
-                            for (const F of FF) {
-                                if (R <= F) {
-                                    w_mks = F - R;
-                                    w_px = Math.round(w_mks / 10.0);
-                                    F_mks = F;
-                                    break;
-                                }
-                            }
-                            lastF_px = ml_px;
-                            html += '<div class="logic_pulse" title="W,mks: ' + w_mks + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>';
-                            html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + R + '" style="margin-left:' + (ml_px - 4) + 'px; "></div>';
-                            html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + F_mks + '" style="margin-left:' + (ml_px + w_px - 4) + 'px; "></div>';
-
-                        }
-                        html += '<div class="logic_pulse_axis_x" style="margin-left:0px; width:' + lastF_px + 'px;"></div>';
-                        html += '</div>';
-                        $('#map__logic_block').append(html);
+                        /* let html = '<div class="logic_pulses_block">';
+                         let lastF_px = 0;
+                         for (const R of RR) {
+                         let ml_px = 0, w_px = 0, w_mks = 0, F_mks = 0;
+                         ml_px = Math.round((R) / 10.0);
+                         for (const F of FF) {
+                         if (R <= F) {
+                         w_mks = F - R;
+                         w_px = Math.round(w_mks / 10.0);
+                         F_mks = F;
+                         break;
+                         }
+                         }
+                         lastF_px = ml_px;
+                         html += '<div class="logic_pulse" title="W,mks: ' + w_mks + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>';
+                         html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + R + '" style="margin-left:' + (ml_px - 4) + 'px; "></div>';
+                         html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + F_mks + '" style="margin-left:' + (ml_px + w_px - 4) + 'px; "></div>';
+                         
+                         }
+                         html += '<div class="logic_pulse_axis_x" style="margin-left:0px; width:' + lastF_px + 'px;"></div>';
+                         html += '</div>';
+                         $('#map__logic_block').append(html);
+                         */
                     }
-                }                 
+
+                    for (const point of map__points) {
+                        map__point(point.lat, point.lng, point.depth);
+                    }
+                }
 
                 function map__palette() {
                     for (const color of map__colors) {
@@ -730,7 +730,7 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
 
                 function map__point(lat, lng, depthM) {
                     const color = map__getColor(depthM) + 'FF';
-                    let r = 0.25;
+                    let r = 0.5;
                     let myCircle = new ymaps.Circle([
                         [lat, lng], // Координаты центра круга.            
                         r // Радиус круга в метрах.
