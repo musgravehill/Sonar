@@ -668,7 +668,7 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                         //MAP
                         const lat = parseFloat(raw[34]) || 0;
                         const lng = parseFloat(raw[35]) || 0;
-                        const depthM = depth_mks / 1367.0;
+                        let depthM = depth_mks / 1367.0;
                         if (lat > 0 && lng > 0 && depthM >= depth_min_allow && depthM <= depth_max_allow) {
                             const lat5 = Math.round(lat * 100000) / 100000;
                             const lng5 = Math.round(lng * 100000) / 100000;
