@@ -9,22 +9,39 @@
     </head>
     <body>
         <main class="container">
-
-            <div id="map_palette"></div>
-            <div id="map__bathymetry_block" style="width: 100%; height: 500px; margin: 4px 0px;"></div>
-
-
-            <div id="map__logic_block" style="width: 100%; height:  300px; overflow: scroll;"></div>
-
-
-            <textarea id="form_bathymetry__data_input" class="form-control d-inline-block" style="width: 300px; height: 100px;" placeholder="Bathymetry log"></textarea>
-            <input type="number" id="form_bathymetry__depth_min_input" placeholder="min" value="0">
-            <input type="number" id="form_bathymetry__depth_max_input" placeholder="max" value="5">
-            <span id="form_bathymetry__btn_ok" class="btn btn-success">Ok</span>
-
-            <textarea id="form_logic__data_input" class="form-control d-inline-block" style="width: 300px; height: 100px;" placeholder="Logic log"></textarea> 
-            <span id="form_logic__btn_ok" class="btn btn-success">Ok</span>
-
+            <div class="row">
+                <div class="col-6">
+                    <h2>Bathymetry</h2>
+                    <textarea id="form_bathymetry__data_input" class="form-control d-inline-block m-0" style="width: 200px; height: 16px;" placeholder="Bathymetry log"></textarea>
+                    <div class="d-inline-block m-0" style="width: 170px">
+                        <div class="input-group m-0">
+                            <span class="input-group-text" id="basic-addon1">Min depth, m</span>
+                            <input type="number" id="form_bathymetry__depth_min_input" placeholder="min" value="0" class="form-control">
+                        </div>
+                    </div>
+                    <div class="d-inline-block m-0" style="width: 110px">
+                        <div class="input-group m-0">
+                            <span class="input-group-text" id="basic-addon1">max</span>
+                            <input type="number" id="form_bathymetry__depth_max_input" placeholder="max" value="5" class="form-control">
+                        </div>
+                    </div>
+                    <span id="form_bathymetry__btn_ok" class="btn btn-success  d-inline-block m-0">Ok</span>
+                </div>
+                <div class="col-6">
+                    <h2>Logic</h2>
+                    <textarea id="form_logic__data_input" class="form-control d-inline-block m-0" style="width: 200px; height: 16px;" placeholder="Logic log"></textarea> 
+                    <span id="form_logic__btn_ok" class="btn btn-success d-inline-block m-0">Ok</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 mt-2">
+                    <div id="map__logic_block" style="width: 100%; height:  300px; overflow: scroll;"></div>
+                </div>
+                <div class="col-12 mt-2">
+                    <div id="map_palette"></div>
+                    <div id="map__bathymetry_block" style="width: 100%; height: 500px; margin: 4px 0px;"></div>
+                </div>
+            </div>
 
             <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=ea0860a1-d606-43c4-88f4-93529deb4edb" type="text/javascript"></script>
             <script>
@@ -89,17 +106,19 @@
                         }
 
                         for (const R of RR) {
-                            let w = 0;
-                            let start = Math.round((R - offsetX) / 10.0);
+                            let ml_px = 0, w_px = 0, offsetX_px = 0, w_mks = 0, offsetFromSync_mks = 0;
+                            ml_px = Math.round((R) / 10.0);
+
                             for (const F of FF) {
                                 if (R <= F) {
-                                    w = Math.round((F - R) / 10.0);
-                                    offsetX = F;
+                                    w_mks = F - R;
+                                    w_px = Math.round(w_mks / 10.0);
+                                    offsetFromSync_mks = F;
                                     break;
                                 }
                             }
 
-                            $('#map__logic_block').append('<div class="logic_pulse" style="margin-left:' + start + 'px; width:' + w + 'px;"></div>');
+                            $('#map__logic_block').append('<div class="logic_pulse" title="W,mks:' + w_mks + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>');
 
                         }
 
@@ -241,5 +260,9 @@
         height: 50px;
         background-color: #003580;
         display: inline-block;
+        position: absolute;
+    }
+    .logic_pulse:hover{         
+        background-color: blueviolet;
     }
 </style>
