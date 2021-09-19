@@ -638,8 +638,8 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                             const idx = lat5 + '_' + lng5;
                             if (map__pointsLatLng[idx] > 0) {
                                 map__pointsLatLng[idx] = (map__pointsLatLng[idx] + depthM) / 2.0;
-                            }else{
-                                 map__pointsLatLng[idx] = depthM;
+                            } else {
+                                map__pointsLatLng[idx] = depthM;
                             }
 
                             if (map__depth_min > depthM) {
@@ -688,12 +688,20 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                          */
                     }
 
-                    console.log(map__pointsLatLng);
 
 
-                   // for (const point of map__pointsLatLng) {
+
+
+                    for (let index in map__pointsLatLng) {
+                        const ll = index.split(/_/);
+                        map__point(ll[0], ll[1], map__pointsLatLng[index]);
+                    }
+
+
+
+                    // for (const point of map__pointsLatLng) {
                     //    map__point(point.lat, point.lng, point.depth);
-                   // }
+                    // }
                 }
 
                 function map__palette() {
@@ -748,7 +756,7 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
 
                 function map__point(lat, lng, depthM) {
                     const color = map__getColor(depthM) + 'FF';
-                    let r = 0.5;
+                    let r = 1;
                     let myCircle = new ymaps.Circle([
                         [lat, lng], // Координаты центра круга.            
                         r // Радиус круга в метрах.
