@@ -17,7 +17,7 @@
                             <div class="" style="width: 170px">
                                 <div class="input-group">
                                     <span class="input-group-text" id="basic-addon1">Min depth, m</span>
-                                    <input type="number" id="form_bathymetry__depth_min_input" placeholder="min" value="0" class="form-control">
+                                    <input type="number" id="form_bathymetry__depth_min_input" placeholder="min" value="1" class="form-control">
                                 </div>
                             </div>
                         </div>
@@ -558,7 +558,6 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                 let map__mapIsReady = false;
                 let map__depth_min = 0;
                 let map__depth_max = 0;
-                const pulse_w_realBottom_mks_min = 2000;//мин. ширина импульса, который считается отразавшимся ото дна.
                 const map__colors = [
                     '#f51c03',
                     '#f45202',
@@ -593,8 +592,11 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                     });
                 }
 
+                function map__getPulse_w_realBottom_mks_min(depth_mks) {
+                    let pulse_w_realBottom_mks_min = 2000;//мин. ширина импульса, который считается отразившимся ото дна.
+                }
+
                 function map__bathymetryProcess() {
-                    let map__points = [];
                     let map__pointsLatLng = [];
                     map__depth_min = 0;
                     map__depth_max = 0;
@@ -604,19 +606,14 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
 
                     const lines = $('#form_bathymetry__data_input').val().split(/\n/);
                     for (const line of lines) {
+                        let pulses = [];
                         let RR = [], FF = [];
-                        let depth_mks_isNeed = true;
-                        let depth_mks = 0;
                         const raw = line.split(';');
 
                         for (var i = 1; i <= 16; i++) {
                             const mks = parseInt(raw[i]) || 0;
                             if (mks > 0) {
                                 RR.push(mks);
-                            }
-                            if (depth_mks_isNeed && mks >= pulse_w_realBottom_mks_min) {
-                                depth_mks = mks;
-                                depth_mks_isNeed = false;
                             }
                         }
                         for (var i = 18; i <= 33; i++) {
@@ -629,6 +626,30 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                             continue; //goto next line
                         }
 
+                        for (const R of RR) {
+                            for (const F of FF) {
+                                if (R < F) {
+                                    w_mks = F - R;
+                                    const pulse = {
+                                        R: R,
+                                        F: F,
+                                        W: (F - R)
+                                    };
+                                    pulses.push(pulse);
+                                    break;
+                                }
+                            }
+                        }
+
+                        let depth_mks = 0;
+                        for (const pulse of pulses) {
+                            const pulse_w_realBottom_mks_min = map__getPulse_w_realBottom_mks_min(pulse.R);
+                            if (pulse.W >= pulse_w_realBottom_mks_min) {
+                                depth_mks = pulse.R;
+                            }
+                        }
+
+                        //MAP
                         const lat = parseFloat(raw[34]) || 0;
                         const lng = parseFloat(raw[35]) || 0;
                         const depthM = depth_mks / 1367.0;
@@ -648,60 +669,26 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                             if (map__depth_max < depthM) {
                                 map__depth_max = depthM;
                             }
-
-                            /* if (lat_min > lat) {
-                             lat_min = lat;
-                             }
-                             if (lng_min > lng) {
-                             lng_min = lng;
-                             }
-                             if (lat_max < lat) {
-                             lat_max = lat;
-                             }
-                             if (lng_max < lng) {
-                             lng_max = lng;
-                             }*/
                         }
 
-                        /* let html = '<div class="logic_pulses_block">';
-                         let lastF_px = 0;
-                         for (const R of RR) {
-                         let ml_px = 0, w_px = 0, w_mks = 0, F_mks = 0;
-                         ml_px = Math.round((R) / 10.0);
-                         for (const F of FF) {
-                         if (R <= F) {
-                         w_mks = F - R;
-                         w_px = Math.round(w_mks / 10.0);
-                         F_mks = F;
-                         break;
-                         }
-                         }
-                         lastF_px = ml_px;
-                         html += '<div class="logic_pulse" title="W,mks: ' + w_mks + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>';
-                         html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + R + '" style="margin-left:' + (ml_px - 4) + 'px; "></div>';
-                         html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + F_mks + '" style="margin-left:' + (ml_px + w_px - 4) + 'px; "></div>';
-                         
-                         }
-                         html += '<div class="logic_pulse_axis_x" style="margin-left:0px; width:' + lastF_px + 'px;"></div>';
-                         html += '</div>';
-                         $('#map__logic_block').append(html);
-                         */
+                        //LOGIC
+                        let html = '<div class="logic_pulses_block">';
+                        for (const pulse of pulses) {
+                            let ml_px = Math.round((pulse.R) / 10.0);
+                            let w_px = Math.round(pulse.W / 10.0);
+                            html += '<div class="logic_pulse" title="W,mks: ' + pulse.W + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>';
+                            html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + pulse.R + '" style="margin-left:' + (ml_px - 4) + 'px; "></div>';
+                            html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + pulse.F + '" style="margin-left:' + (ml_px + w_px - 4) + 'px; "></div>';
+                        }
+                        html += '<div class="logic_pulse_axis_x" style="margin-left:0px; width:' + pulse.F + 'px;"></div>';
+                        html += '</div>';
+                        $('#map__logic_block').append(html);
                     }
-
-
-
-
 
                     for (let index in map__pointsLatLng) {
                         const ll = index.split(/_/);
                         map__point(ll[0], ll[1], map__pointsLatLng[index]);
                     }
-
-
-
-                    // for (const point of map__pointsLatLng) {
-                    //    map__point(point.lat, point.lng, point.depth);
-                    // }
                 }
 
                 function map__palette() {
