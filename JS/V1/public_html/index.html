@@ -558,6 +558,7 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                 let map__mapIsReady = false;
                 let map__depth_min = 0;
                 let map__depth_max = 0;
+                const pulse_w_realBottom_mks_min = 2000;//мин. ширина импульса, который считается отразавшимся ото дна.
                 const map__colors = [
                     '#f51c03',
                     '#f45202',
@@ -571,14 +572,11 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                     '#20ad31',
                     '#1f9a45',
                     '#1e8759',
-                    //'#1d746d',
-                    //'#1d6282',
-                    //'#1c4f96',
-                    //'#1b3caa',
-                    '#1a29be',
-                    '#1a17d3'
+                    '#00d9ff',
+                    '#109df5',
+                    '#2061ec',
+                    '#3125e3'
                 ];
-
 
                 document.addEventListener('DOMContentLoaded', function () {
                     ymaps.ready(map__init);
@@ -597,10 +595,12 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
 
                 function map__bathymetryProcess() {
                     let map__points = [];
+                    let map__pointsLatLng = [];
                     map__depth_min = 0;
                     map__depth_max = 0;
                     const depth_min_allow = parseFloat($('#form_bathymetry__depth_min_input').val()) || 0;
                     const depth_max_allow = parseFloat($('#form_bathymetry__depth_max_input').val()) || 0;
+                    //let lat_min = 0, lng_min = 0, lat_max = 0, lng_max = 0;
 
                     const lines = $('#form_bathymetry__data_input').val().split(/\n/);
                     for (const line of lines) {
@@ -614,7 +614,7 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                             if (mks > 0) {
                                 RR.push(mks);
                             }
-                            if (depth_mks_isNeed && mks >= 2600) {
+                            if (depth_mks_isNeed && mks >= pulse_w_realBottom_mks_min) {
                                 depth_mks = mks;
                                 depth_mks_isNeed = false;
                             }
@@ -633,12 +633,14 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                         const lng = parseFloat(raw[35]) || 0;
                         const depthM = depth_mks / 1367.0;
                         if (lat > 0 && lng > 0 && depthM >= depth_min_allow && depthM <= depth_max_allow) {
-                            let point = {
-                                lat: lat,
-                                lng: lng,
-                                depth: depthM
-                            };
-                            map__points.push(point);
+                            const lat5 = Math.round(lat * 100000) / 100000;
+                            const lng5 = Math.round(lng * 100000) / 100000;
+                            const idx = lat5 + '_' + lng5;
+                            if (map__pointsLatLng[idx] > 0) {
+                                map__pointsLatLng[idx] = (map__pointsLatLng[idx] + depthM) / 2.0;
+                            }else{
+                                 map__pointsLatLng[idx] = depthM;
+                            }
 
                             if (map__depth_min > depthM) {
                                 map__depth_min = depthM;
@@ -646,6 +648,19 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                             if (map__depth_max < depthM) {
                                 map__depth_max = depthM;
                             }
+
+                            /* if (lat_min > lat) {
+                             lat_min = lat;
+                             }
+                             if (lng_min > lng) {
+                             lng_min = lng;
+                             }
+                             if (lat_max < lat) {
+                             lat_max = lat;
+                             }
+                             if (lng_max < lng) {
+                             lng_max = lng;
+                             }*/
                         }
 
                         /* let html = '<div class="logic_pulses_block">';
@@ -673,9 +688,12 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                          */
                     }
 
-                    for (const point of map__points) {
-                        map__point(point.lat, point.lng, point.depth);
-                    }
+                    console.log(map__pointsLatLng);
+
+
+                   // for (const point of map__pointsLatLng) {
+                    //    map__point(point.lat, point.lng, point.depth);
+                   // }
                 }
 
                 function map__palette() {
