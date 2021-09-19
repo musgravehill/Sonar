@@ -674,10 +674,9 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                             const lng5 = Math.round(lng * 100000) / 100000;
                             const idx = lat5 + '_' + lng5;
                             if (map__pointsLatLng[idx] > 0) {
-                                map__pointsLatLng[idx] = (map__pointsLatLng[idx] + depthM) / 2.0;
-                            } else {
-                                map__pointsLatLng[idx] = depthM;
+                                depthM = (map__pointsLatLng[idx] + depthM) / 2.0;
                             }
+                            map__pointsLatLng[idx] = depthM;
 
                             if (map__depth_min > depthM) {
                                 map__depth_min = depthM;
@@ -715,8 +714,8 @@ R;2416;2736;3832;4932;5708;10812;11176;12372;16888;17416;17744;0;0;0;0;0;F;2612;
                     }
 
                     $('#bathymetry__points_count').html(map__dataItemsCount + ' points');
-                    $('#map_palette_min_text').html(map__depth_min + ' m');
-                    $('#map_palette_max_text').html(map__depth_max + ' m');
+                    $('#map_palette_min_text').html(Math.round(map__depth_min * 100) / 100 + ' m');
+                    $('#map_palette_max_text').html(Math.round(map__depth_max * 100) / 100 + ' m');
                 }
 
                 function map__palette() {
