@@ -29,7 +29,10 @@
                 </div>
                 <div class="col-6">
                     <h2>Logic</h2>
-                    <textarea id="form_logic__data_input" class="form-control d-inline-block m-0" style="width: 200px; height: 16px;" placeholder="Logic log"></textarea> 
+                    <textarea id="form_logic__data_input" class="form-control d-inline-block m-0" style="width: 200px; height: 16px;" placeholder="Logic log">R;1884;3844;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2388;4000;0;0;0;0;0;0;0;0;0;0;0;0;0;0;
+R;1896;3760;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2404;3916;0;0;0;0;0;0;0;0;0;0;0;0;0;0;
+R;1860;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2432;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;
+R;1880;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2388;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;</textarea> 
                     <span id="form_logic__btn_ok" class="btn btn-success d-inline-block m-0">Ok</span>
                 </div>
             </div>
@@ -87,8 +90,9 @@
 
                 function map__logicProcess() {
                     const lines = $('#form_logic__data_input').val().split(/\n/);
+                    let offsetY_px = 0;
                     for (const line of lines) {
-                        let lat = 0, lng = 0, RR = [], FF = [], offsetX = 0;
+                        let lat = 0, lng = 0, RR = [], FF = [];
                         const raw = line.split(';');
                         //const lat = parseFloat(raw[0]) || 0;
                         //const lng = parseFloat(raw[1]) || 0;
@@ -104,24 +108,26 @@
                                 FF.push(mks);
                             }
                         }
-
+                        let html = '<div class="logic_pulses_block">';
+                        let lastF_px = 0;
                         for (const R of RR) {
-                            let ml_px = 0, w_px = 0, offsetX_px = 0, w_mks = 0, offsetFromSync_mks = 0;
+                            let ml_px = 0, w_px = 0, w_mks = 0, F_mks = 0;
                             ml_px = Math.round((R) / 10.0);
-
                             for (const F of FF) {
                                 if (R <= F) {
                                     w_mks = F - R;
                                     w_px = Math.round(w_mks / 10.0);
-                                    offsetFromSync_mks = F;
+                                    F_mks = F;
                                     break;
                                 }
                             }
-
-                            $('#map__logic_block').append('<div class="logic_pulse" title="W,mks:' + w_mks + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>');
-
+                            lastF_px = ml_px;
+                            html += '<div class="logic_pulse" title="W,mks:' + w_mks + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>';
+                            //logic_pulse_text
                         }
-
+                        html += '<div class="logic_pulse_axis_x" style="margin-left:0px; width:' + lastF_px + 'px;"></div>';
+                        html += '</div>';
+                        $('#map__logic_block').append(html);
                     }
                 }
 
@@ -256,13 +262,32 @@
         margin: 0;
         padding: 0;
     }
-    .logic_pulse{
+    .logic_pulses_block{
+        display: block;
+        float: left;
+        width: 100%;
         height: 50px;
+    }
+    .logic_pulse{
+        height: 14px;
         background-color: #003580;
         display: inline-block;
         position: absolute;
     }
     .logic_pulse:hover{         
         background-color: blueviolet;
+    }
+    .logic_pulse_axis_x{
+        height: 1px;
+        margin-top:13px;
+        background-color: #003580;
+        display: inline-block;
+        position: absolute;
+    }
+    .logic_pulse_text{
+        font-size: 13px;
+        color:black;
+        display: inline-block;
+        position: absolute;
     }
 </style>
