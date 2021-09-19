@@ -108,6 +108,11 @@ R;1880;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2388;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;</text
                                 FF.push(mks);
                             }
                         }
+
+                        if (RR.length <= 0) {
+                            continue;
+                        }
+
                         let html = '<div class="logic_pulses_block">';
                         let lastF_px = 0;
                         for (const R of RR) {
