@@ -12,33 +12,49 @@
             <div class="row">
                 <div class="col-6">
                     <h2>Bathymetry</h2>
-                    <textarea id="form_bathymetry__data_input" class="form-control d-inline-block m-0" style="width: 200px; height: 16px;" placeholder="Bathymetry log"></textarea>
-                    <div class="d-inline-block m-0" style="width: 170px">
-                        <div class="input-group m-0">
-                            <span class="input-group-text" id="basic-addon1">Min depth, m</span>
-                            <input type="number" id="form_bathymetry__depth_min_input" placeholder="min" value="0" class="form-control">
+                    <div class="row">
+                        <div class="col-auto">
+                            <textarea id="form_bathymetry__data_input" class="form-control" style="width: 200px; height: 16px;" placeholder="Bathymetry log"></textarea>
                         </div>
-                    </div>
-                    <div class="d-inline-block m-0" style="width: 110px">
-                        <div class="input-group m-0">
-                            <span class="input-group-text" id="basic-addon1">max</span>
-                            <input type="number" id="form_bathymetry__depth_max_input" placeholder="max" value="5" class="form-control">
+                        <div class="col-auto">
+                            <div class="" style="width: 170px">
+                                <div class="input-group">
+                                    <span class="input-group-text" id="basic-addon1">Min depth, m</span>
+                                    <input type="number" id="form_bathymetry__depth_min_input" placeholder="min" value="0" class="form-control">
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <span id="form_bathymetry__btn_ok" class="btn btn-success  d-inline-block m-0">Ok</span>
+                        <div class="col-auto">
+                            <div class="" style="width: 110px">
+                                <div class="input-group">
+                                    <span class="input-group-text" id="basic-addon1">max</span>
+                                    <input type="number" id="form_bathymetry__depth_max_input" placeholder="max" value="5" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <span id="form_bathymetry__btn_ok" class="btn btn-success">Ok</span>
+                        </div>
+                    </div>   
                 </div>
                 <div class="col-6">
                     <h2>Logic</h2>
-                    <textarea id="form_logic__data_input" class="form-control d-inline-block m-0" style="width: 200px; height: 16px;" placeholder="Logic log">R;1884;3844;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2388;4000;0;0;0;0;0;0;0;0;0;0;0;0;0;0;
+                    <div class="row">
+                        <div class="col-auto">
+                            <textarea id="form_logic__data_input" class="form-control" style="width: 200px; height: 16px;" placeholder="Logic log">R;1884;3844;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2388;4000;0;0;0;0;0;0;0;0;0;0;0;0;0;0;
 R;1896;3760;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2404;3916;0;0;0;0;0;0;0;0;0;0;0;0;0;0;
 R;1860;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2432;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;
 R;1880;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2388;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;</textarea> 
-                    <span id="form_logic__btn_ok" class="btn btn-success d-inline-block m-0">Ok</span>
+                        </div>
+                        <div class="col-auto">
+                            <span id="form_logic__btn_ok" class="btn btn-success">Ok</span>
+                        </div>
+                    </div>   
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 mt-2">
-                    <div id="map__logic_block" style="width: 100%; height:  300px; overflow: scroll;position: relative;"></div>
+                    <div id="map__logic_block"></div>
                 </div>
                 <div class="col-12 mt-2">
                     <div id="map_palette"></div>
@@ -268,6 +284,15 @@ R;1880;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;F;2388;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;</text
         height:30px; 
         margin: 0;
         padding: 0;
+    }
+    
+    #map__logic_block{ 
+        width: 100%; 
+        height:  300px; 
+        overflow: scroll;
+        position: relative;
+        border: 1px solid #003580;
+        padding-top: 20px;
     }
     .logic_pulses_block{
         display: block;
