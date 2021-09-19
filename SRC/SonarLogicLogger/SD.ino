@@ -8,9 +8,6 @@ void SD_logData_continuously() {
 
   myFile = sd.open(SYS_LOG_FileName, FILE_WRITE);
   if (myFile) {
-
-    //TODO GPS //TODO   global lat, long
-
     myFile.print(F("R;"));
     for (byte i = 0; i <= SONAR_pulses_rising_idx_max; i++) {
       myFile.print(SONAR_pulses_rising[i], DEC);
@@ -23,6 +20,9 @@ void SD_logData_continuously() {
       myFile.print(F(";"));
       SONAR_pulses_falling[i] = 0;
     }
+    myFile.print(lat_f, 6);
+    myFile.print(F(";"));
+    myFile.print(lng_f, 6);
     myFile.println();
     myFile.close();
     SD_records_count++;

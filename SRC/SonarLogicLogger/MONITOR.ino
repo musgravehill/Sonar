@@ -7,10 +7,13 @@ void MONITOR_render() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(SD_records_count);
-  lcd.print(F("rec"));
+  lcd.print(F("rec "));
   if (SD_isError) {
-    lcd.print(F(" SD?"));
+    lcd.print(F(" SD? "));
   }
+  lcd.print(lat_f, 0); 
+  lcd.print(' ');
+  lcd.print(lng_f, 0);
 
   lcd.setCursor(0, 1);
   lcd.print(F("R"));
