@@ -75,6 +75,7 @@
                     '#2061ec',
                     '#3125e3'
                 ];
+                let sonar__lat_min = 0, sonar__lng_min = 0, sonar__lat_max = 0, sonar__lng_max = 0;
 
                 document.addEventListener('DOMContentLoaded', function () {
                     sonar__palette();
@@ -103,7 +104,7 @@
                     sonar__depth_max = 0;
                     const depth_min_allow = parseFloat($('#form_bathymetry__depth_min_input').val()) || 0;
                     const depth_max_allow = parseFloat($('#form_bathymetry__depth_max_input').val()) || 0;
-                    let lat_min = 0, lng_min = 0, lat_max = 0, lng_max = 0;
+
 
                     const lines = $('#form_bathymetry__data_input').val().split(/\n/);
                     for (const line of lines) {
@@ -175,9 +176,25 @@
                             if (sonar__depth_max < depthM) {
                                 sonar__depth_max = depthM;
                             }
+
+                            if (sonar__lat_min > lat) {
+                                sonar__lat_min = lat;
+                            }
+                            if (sonar__lng_min > lng) {
+                                sonar__lng_min = lng;
+                            }
+                            if (sonar__lat_max < lat) {
+                                sonar__lat_max = lat;
+                            }
+                            if (sonar__lng_max < lng) {
+                                sonar__lng_max = lng;
+                            }
+
+
+
                             sonar__dataItemsCount++;
                         }
-                    }
+                    } // one line
 
 
                     $('#bathymetry__points_count').html(sonar__dataItemsCount + ' points');
@@ -218,21 +235,6 @@
                     }
                 }
 
-                /*const map_onReady_promise = new Promise((resolve, reject) => {
-                 const timerId = setInterval(function () {
-                 if (sonar__mapIsReady) {
-                 clearInterval(timerId);
-                 resolve();
-                 }
-                 }, 1000);
-                 });
-                 
-                 map_onReady_promise.then(sonar__render);*/
-
-
-
-
-
                 function sonar__point(lat, lng, depthM) {
                     const color = sonar__getColor(depthM) + 'FF';
                     let r = 1;
@@ -262,9 +264,21 @@
                 function sonar__getDepth_px(depth_mks) {
                     const dx = (sonar__depth_max - sonar__depth_min) / 300; //height=300px
                     let px = Math.round(depthM / dx);
-                    px = Math.min(Math.max(parseInt(idx), 0), 300); //constrain from to
                     return px;
                 }
+
+                function sonar__getOffsetX_px(lat) {
+                    const dx = (sonar__lat_max - sonar__lat_min) / 2000; //max size paper
+                    let px = Math.round(lat / dx);
+                    return px;
+
+                }
+                function sonar__getOffsetY_px(lng) {
+                    const dx = (sonar__lng_max - sonar__lng_min) / 2000; //max size paper
+                    let px = Math.round(lng / dx);
+                    return px;
+                }
+
 
             </script>
         </main>
