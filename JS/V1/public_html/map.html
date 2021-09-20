@@ -4,28 +4,28 @@
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-        <title>Bathymetry</title>
+        <link href="bootstrap.min.css" rel="stylesheet">
+        <title>Map bathymetry</title>
     </head>
     <body>
         <main class="container">
             <div class="row">
                 <div class="col">
                     <h2>
-                        Bathymetry 
+                        Map bathymetry
                         <span id="bathymetry__points_count"></span>
                     </h2>
                     <div class="row">                        
                         <div class="col-auto">
-                            <div class="" style="width: 170px">
+                            <div class="" style="width: 200px">
                                 <div class="input-group">
                                     <span class="input-group-text" id="basic-addon1">Min depth, m</span>
-                                    <input type="number" id="form_bathymetry__depth_min_input" placeholder="min" value="1" class="form-control">
+                                    <input type="number" id="form_bathymetry__depth_min_input" placeholder="min" value="0.5" class="form-control">
                                 </div>
                             </div>
                         </div>
                         <div class="col-auto">
-                            <div class="" style="width: 110px">
+                            <div class="" style="width: 200px">
                                 <div class="input-group">
                                     <span class="input-group-text" id="basic-addon1">max</span>
                                     <input type="number" id="form_bathymetry__depth_max_input" placeholder="max" value="5" class="form-control">
@@ -41,17 +41,14 @@
                     </div>   
                 </div>                
             </div>
-            <div class="row">
-                <div class="col-12 mt-2">
-                    <div id="map__logic_block"></div>
-                </div>
-                <div class="col-12 mt-2 bm-4">
-                    <div class="d-block">
+            <div class="row">                
+                <div class="col-12">
+                    <div class="d-block mt-1">
                         <div id="map_palette_min_text" class="d-inline-block"></div>
                         <div class="d-inline-block"><div id="map_palette"></div></div>
                         <div id="map_palette_max_text" class="d-inline-block"></div>
                     </div>
-                    <div id="map__bathymetry_block" style="width: 100%; height: 500px; margin: 4px 0px;"></div>
+                    <div id="map__bathymetry_block" style="width: 100%; height: 500px;"></div>
                 </div>
             </div>
 
@@ -180,28 +177,9 @@
                             if (map__depth_max < depthM) {
                                 map__depth_max = depthM;
                             }
-                            
+
                             map__dataItemsCount++;
                         }
-
-                        //LOGIC
-                        if (map__dataItemsCount < 500) {
-                            let html = '<div class="logic_pulses_block">';
-                            let lastF = 0;
-                            for (const pulse of pulses) {
-                                let ml_px = Math.round((pulse.R) / 10.0);
-                                let w_px = Math.round(pulse.W / 10.0);
-                                html += '<div class="logic_pulse" title="W,mks: ' + pulse.W + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>';
-                                html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + pulse.R + '" style="margin-left:' + (ml_px - 4) + 'px; "></div>';
-                                html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + pulse.F + '" style="margin-left:' + (ml_px + w_px - 4) + 'px; "></div>';
-                                lastF = pulse.F;
-                            }
-                            html += '<div class="logic_pulse_axis_x" style="margin-left:0px; width:' + lastF + 'px;"></div>';
-                            html += '</div>';
-                            $('#map__logic_block').append(html);
-                        }
-
-                        
                     }
 
                     if (map__mapIsReady) {
@@ -235,27 +213,22 @@
                  map_onReady_promise.then(map__render);*/
 
                 function map__init() {
-                    /* ymaps.geolocation.get().then(function (res) {
-                     var mapContainer = $('#map__bathymetry_block'),
-                     bounds = res.geoObjects.get(0).properties.get('boundedBy'),
-                     // Рассчитываем видимую область для текущей положения пользователя.
-                     mapState = ymaps.util.bounds.getCenterAndZoom(
-                     bounds,
-                     [mapContainer.width(), mapContainer.height()]
-                     );
-                     mapState.zoom = 11;
-                     map__createMap(mapState);  
-                     }, function (e) {
-                     // Если местоположение невозможно получить, то просто создаем карту.
-                     map__createMap({
-                     center: [57, 39],
-                     zoom: 11
-                     });
-                     });*/
-
-                    map__createMap({
-                        center: [57, 39],  //TODO center to points
-                        zoom: 18
+                    ymaps.geolocation.get().then(function (res) {
+                        var mapContainer = $('#map__bathymetry_block'),
+                                bounds = res.geoObjects.get(0).properties.get('boundedBy'),
+                                // Рассчитываем видимую область для текущей положения пользователя.
+                                mapState = ymaps.util.bounds.getCenterAndZoom(
+                                        bounds,
+                                        [mapContainer.width(), mapContainer.height()]
+                                        );
+                        mapState.zoom = 11;
+                        map__createMap(mapState);
+                    }, function (e) {
+                        // Если местоположение невозможно получить, то просто создаем карту.
+                        map__createMap({
+                            center: [57, 39],
+                            zoom: 11
+                        });
                     });
                 }
 
@@ -294,11 +267,8 @@
 
             </script>
         </main>
-        <script
-            src="https://code.jquery.com/jquery-3.6.0.min.js"
-            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-        crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+        <script src="jquery-3.6.0.min.js"></script>
+        <script src="bootstrap.bundle.min.js"></script>
     </body>
 </html>
 <style>
@@ -307,48 +277,5 @@
         height:30px; 
         margin: 0;
         padding: 0;
-    }
-
-    #map__logic_block{ 
-        width: 100%; 
-        height: 400px; 
-        overflow: scroll;
-        position: relative;
-        border: 1px solid #003580;
-        padding-top: 20px;
-    }
-    .logic_pulses_block{
-        display: block;
-        float: left;
-        width: 100%;
-        height: 50px;
-    }
-    .logic_pulse{
-        height: 14px;
-        background-color: #003580;
-        display: inline-block;
-        position: absolute;
-    }
-    .logic_pulse:hover{         
-        background-color: blueviolet;
-    }
-    .logic_pulse_axis_x{
-        height: 1px;
-        margin-top:13px;
-        background-color: #003580;
-        display: inline-block;
-        position: absolute;
-    }
-    .logic_pulse_axis_x_point{
-        height: 8px;
-        width: 8px;
-        border-radius: 4px;
-        margin-top: 18px;
-        background-color: gray;
-        display: inline-block;
-        position: absolute;
-    }
-    .logic_pulse_axis_x_point:hover{
-        background-color: red;
-    }
+    }   
 </style>
