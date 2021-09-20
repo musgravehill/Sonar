@@ -162,9 +162,9 @@
 
                             let point = {
                                 depthM: depthM,
+                                depth_mks: depth_mks,
                                 pulses: pulses
                             };
-
                             if (sonar__pointsLatLng[idx] > 0) {
                                 depthM = (sonar__pointsLatLng[idx].depthM + depthM) / 2.0;
                             }
@@ -221,27 +221,28 @@
 
                     let html = '<div class="logic_pulses_block" style="margin-left:' + offsetX_px + 'px; margin-top:' + offsetY_px + 'px; border-bottom-color:' + color + ';">';
                     for (const pulse of data.pulses) {
+                        if (pulse.R > data.depth_mks) {
+                            break;
+                        }
                         let mt_px = sonar__getDepth_px(pulse.R);
                         let h_px = sonar__getDepth_px(pulse.W);
                         html += '<div class="logic_pulse" style="margin-top' + mt_px + 'px; height' + h_px + 'px;"></div>';
                     }
                     html += '</div>';
 
-
-
                     $('#sonar__3D_block').append(html);
                 }
 
-                function sonar__getColor(depthM) {
+                function sonar__getColor(mks) {
                     const dx = (sonar__depth_max - sonar__depth_min) / sonar__colors.length;
-                    let idx = Math.round(depthM / dx);
+                    let idx = Math.round(mks / dx);
                     idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colors.length - 1)); //constrain from to
                     return sonar__colors[idx];
                 }
 
                 function sonar__getDepth_px(mks) {
-                    const dx = (sonar__depth_max - sonar__depth_min) / 300; //height=300px
-                    let px = Math.round(depthM / dx);
+                    const dx = (sonar__depth_max - sonar__depth_min) / 100; //height=300px
+                    let px = Math.round(mks / dx);
                     return px;
                 }
 
