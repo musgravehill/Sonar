@@ -77,6 +77,7 @@
                 ];
                 let sonar__lat_min = 1000, sonar__lng_min = 1000, sonar__lat_max = 0, sonar__lng_max = 0;
                 let sonar__getOffsetLng_px_dx = 0;
+                const sonar__block_size_px = 800;
 
                 document.addEventListener('DOMContentLoaded', function () {
                     sonar__palette();
@@ -203,7 +204,7 @@
                     $('#map_palette_max_text').html(Math.round(sonar__depth_max * 100) / 100 + ' m');
 
 
-                    sonar__getOffsetLng_px_dx = (sonar__lng_max - sonar__lng_min) / 1000; //max size paper
+                    sonar__getOffsetLng_px_dx = (sonar__lng_max - sonar__lng_min) / sonar__block_size_px;
 
                     for (let index in sonar__pointsLatLng) {
                         const ll = index.split(/_/);
@@ -221,7 +222,7 @@
                 function sonar__point(lat, lng, data) {
                     const color = sonar__getColor(data.depthM);
                     const left_px = sonar__getOffsetLng_px(lng);
-                    const top_px = 1000 - sonar__getOffsetLat_px(lat);
+                    const top_px = sonar__block_size_px - sonar__getOffsetLat_px(lat);
                     const w_px = Math.round(0.00001 / sonar__getOffsetLng_px_dx);
 
                     let html = '<div class="logic_pulses_block" style="left:' + left_px + 'px; top:' + top_px + 'px; border-bottom-color:' + color + '; width:' + w_px + 'px; ">';
@@ -253,7 +254,7 @@
                 }
 
                 function sonar__getOffsetLat_px(lat) {
-                    const dx = (sonar__lat_max - sonar__lat_min) / 1000; //max size paper
+                    const dx = (sonar__lat_max - sonar__lat_min) / sonar__block_size_px; //max size paper
                     let px = Math.round((lat - sonar__lat_min) / dx);
                     return px;
 
@@ -288,22 +289,28 @@
     }
     .logic_pulses_block{
         display: block;
-        float: left;
-        width: 10px; 
+        float: left;        
         height: 100px; /*see  sonar__getDepth_px*/
-        border-bottom: 4px solid grey;         
+        border-bottom: 8px solid grey;         
         position: absolute;
-        opacity: 0.5;
+        opacity: 0.4;
+        z-index: 500;
+        transform: rotate(20deg);
     }
     .logic_pulses_block:hover{
-        border: 1px solid red;
+        border-left: 1px solid red;
+        border-right: 1px solid red;
+        border-top: 1px solid red;
         opacity: 1;
+        background-color: white;
+        z-index: 600;
     }
-    .logic_pulse{        
-        width: 10px;
+    .logic_pulse{          
         background-color: grey;       
-        position: absolute;
-        opacity: 0.5;
-    }    
+        position: absolute;        
+    }  
+    .logic_pulse:hover{
+
+    }
 
 </style>
