@@ -180,6 +180,8 @@
                             if (map__depth_max < depthM) {
                                 map__depth_max = depthM;
                             }
+                            
+                            map__dataItemsCount++;
                         }
 
                         //LOGIC
@@ -199,7 +201,7 @@
                             $('#map__logic_block').append(html);
                         }
 
-                        map__dataItemsCount++;
+                        
                     }
 
                     if (map__mapIsReady) {
