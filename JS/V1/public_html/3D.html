@@ -180,7 +180,6 @@
                     }
 
 
-
                     $('#bathymetry__points_count').html(sonar__dataItemsCount + ' points');
                     $('#map_palette_min_text').html(Math.round(sonar__depth_min * 100) / 100 + ' m');
                     $('#map_palette_max_text').html(Math.round(sonar__depth_max * 100) / 100 + ' m');
@@ -260,6 +259,13 @@
                     return sonar__colors[idx];
                 }
 
+                function sonar__getDepth_px(depth_mks) {
+                    const dx = (sonar__depth_max - sonar__depth_min) / 300; //height=300px
+                    let px = Math.round(depthM / dx);
+                    px = Math.min(Math.max(parseInt(idx), 0), 300); //constrain from to
+                    return px;
+                }
+
             </script>
         </main>
         <script
@@ -288,35 +294,15 @@
     .logic_pulses_block{
         display: block;
         float: left;
-        width: 100%;
-        height: 50px;
+        width: 10px; /*offset lat long */
+        height: 300px; /*see  sonar__getDepth_px*/
     }
-    .logic_pulse{
-        height: 14px;
+    .logic_pulse{        
         background-color: #003580;
         display: inline-block;
         position: absolute;
     }
     .logic_pulse:hover{         
         background-color: blueviolet;
-    }
-    .logic_pulse_axis_x{
-        height: 1px;
-        margin-top:13px;
-        background-color: #003580;
-        display: inline-block;
-        position: absolute;
-    }
-    .logic_pulse_axis_x_point{
-        height: 8px;
-        width: 8px;
-        border-radius: 4px;
-        margin-top: 18px;
-        background-color: gray;
-        display: inline-block;
-        position: absolute;
-    }
-    .logic_pulse_axis_x_point:hover{
-        background-color: red;
-    }
+    }    
 </style>
