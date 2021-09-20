@@ -217,13 +217,13 @@
                 function sonar__point(lat, lng, data) {
                     const color = sonar__getColor(data.depthM);
                     const offsetX_px = sonar__getOffsetX_px(lat);
-                    const offsetY = sonar__getOffsetY_px(lng);
+                    const offsetY_px = sonar__getOffsetY_px(lng);
 
-                    let html = '<div class="logic_pulses_block">';
+                    let html = '<div class="logic_pulses_block" style="margin-left:' + offsetX_px + 'px; margin-top:' + offsetY_px + 'px; border-bottom-color:' + color + ';">';
                     for (const pulse of data.pulses) {
-                        let ml_px = Math.round((pulse.R) / 10.0);
-                        let w_px = Math.round(pulse.W / 10.0);
-                        html += '<div class="logic_pulse" title="W,mks: ' + pulse.W + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>';
+                        let mt_px = sonar__getDepth_px(pulse.R);
+                        let h_px = sonar__getDepth_px(pulse.W);
+                        html += '<div class="logic_pulse" style="margin-top' + mt_px + 'px; height' + h_px + 'px;"></div>';
                     }
                     html += '</div>';
 
@@ -239,7 +239,7 @@
                     return sonar__colors[idx];
                 }
 
-                function sonar__getDepth_px(depth_mks) {
+                function sonar__getDepth_px(mks) {
                     const dx = (sonar__depth_max - sonar__depth_min) / 300; //height=300px
                     let px = Math.round(depthM / dx);
                     return px;
@@ -288,6 +288,8 @@
         float: left;
         width: 10px; /*offset lat long */
         height: 300px; /*see  sonar__getDepth_px*/
+        border-bottom: 2px solid grey; 
+
     }
     .logic_pulse{        
         background-color: #003580;
