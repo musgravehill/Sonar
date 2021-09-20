@@ -131,9 +131,9 @@
                         return 1200;
                     }
                     if (depth_mks < 3000) {
-                        return 3000;
+                        return 2500;
                     }
-                    return 3200;
+                    return 2600;
                 }
 
                 function sonar__bathymetryProcess() {
@@ -186,6 +186,7 @@
                             const pulse_w_realBottom_mks_min = sonar__getPulse_w_realBottom_mks_min(pulse.R);
                             if (pulse.W >= pulse_w_realBottom_mks_min) {
                                 depth_mks = pulse.R;
+                                break;
                             }
                         }
 
@@ -229,8 +230,11 @@
                             }
 
                             sonar__dataItemsCount++;
-                        }
+                        } 
+                        
+                        
                     } // one line
+
 
                     //all lines processed
                     $('#bathymetry__points_count').html(sonar__dataItemsCount + ' points');
@@ -261,7 +265,7 @@
                     const left_px = sonar__getOffsetLng_px(lng);
                     const top_px = sonar__block_size_px - sonar__getOffsetLat_px(lat);
 
-                    let html = '<div class="logic_pulses_block" style="left:' + left_px + 'px; top:' + top_px + 'px; border-bottom-color:' + color + '; width:' + sonar__pulse_w_px + 'px; ">';
+                    let html = '<div class="logic_pulses_block" style="left:' + left_px + 'px; top:' + top_px + 'px; box-shadow: 0px 8px 0px 0px ' + color + '; width:' + sonar__pulse_w_px + 'px; ">';
                     for (const pulse of data.pulses) {
                         if (pulse.R >= (data.depth_mks - 100)) {
                             break; //only fish over bottom                            
@@ -272,7 +276,7 @@
                     }
                     html += '</div>';
 
-                    html += '<div class="logic_pulses_full_block" style="left:' + left_px + 'px; top:' + top_px + 'px; border-bottom-color:' + color + '; width:' + sonar__pulse_w_px + 'px; ">';
+                    html += '<div class="logic_pulses_full_block" style="left:' + left_px + 'px; top:' + top_px + 'px; box-shadow: 0px 8px 0px 0px ' + color + '; width:' + sonar__pulse_w_px + 'px; ">';
                     for (const pulse of data.pulses) {
                         if (pulse.R >= (data.depth_mks - 10)) {
                             pulse_color = color; //bottom and under
@@ -348,7 +352,7 @@
         display: block;
         float: left;        
         height: 100px; /*sonar__logic_pulses_block_h_px*/
-        border-bottom: 8px solid grey;         
+        box-shadow: 0px 8px 0px 0px black;       
         position: absolute;        
         z-index: 500;
         transform: rotate(45deg);
@@ -375,7 +379,7 @@
         display: block;
         float: left;        
         height: 100px; /*sonar__logic_pulses_block_h_px*/
-        border-bottom: 8px solid grey;         
+        box-shadow: 0px 8px 0px 0px black;     
         position: absolute;
         opacity: 0.4;
         z-index: 500;        
