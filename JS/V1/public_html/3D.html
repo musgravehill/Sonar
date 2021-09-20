@@ -5,14 +5,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-        <title>Bathymetry</title>
+        <title>3D</title>
     </head>
     <body>
         <main class="container">
             <div class="row">
                 <div class="col">
                     <h2>
-                        Bathymetry 
+                        3D 
                         <span id="bathymetry__points_count"></span>
                     </h2>
                     <div class="row">                        
@@ -43,26 +43,21 @@
             </div>
             <div class="row">
                 <div class="col-12 mt-2">
-                    <div id="map__logic_block"></div>
-                </div>
-                <div class="col-12 mt-2 bm-4">
                     <div class="d-block">
                         <div id="map_palette_min_text" class="d-inline-block"></div>
                         <div class="d-inline-block"><div id="map_palette"></div></div>
                         <div id="map_palette_max_text" class="d-inline-block"></div>
-                    </div>
-                    <div id="map__bathymetry_block" style="width: 100%; height: 500px; margin: 4px 0px;"></div>
-                </div>
+                    </div>   
+                    <div id="sonar__3D_block"></div>
+                </div>                
             </div>
 
-            <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=ea0860a1-d606-43c4-88f4-93529deb4edb" type="text/javascript"></script>
+
             <script>
-                let map__map;
-                let map__mapIsReady = false;
-                let map__depth_min = 0;
-                let map__depth_max = 0;
-                let map__dataItemsCount = 0;
-                const map__colors = [
+                let sonar__depth_min = 0;
+                let sonar__depth_max = 0;
+                let sonar__dataItemsCount = 0;
+                const sonar__colors = [
                     '#f51c03',
                     '#f45202',
                     '#f38802',
@@ -82,22 +77,17 @@
                 ];
 
                 document.addEventListener('DOMContentLoaded', function () {
-                    ymaps.ready(map__init);
-                    map__palette();
-                    map__actions();
+                    sonar__palette();
+                    sonar__actions();
                 });
 
-                function map__render() {
-
-                }
-
-                function map__actions() {
+                function sonar__actions() {
                     $('#form_bathymetry__btn_ok').click(() => {
-                        map__bathymetryProcess();
+                        sonar__bathymetryProcess();
                     });
                 }
 
-                function map__getPulse_w_realBottom_mks_min(depth_mks) {
+                function sonar__getPulse_w_realBottom_mks_min(depth_mks) {
                     if (depth_mks < 1500) {
                         return 1200;
                     }
@@ -107,13 +97,13 @@
                     return 3200;
                 }
 
-                function map__bathymetryProcess() {
-                    let map__pointsLatLng = [];
-                    map__depth_min = 0;
-                    map__depth_max = 0;
+                function sonar__bathymetryProcess() {
+                    let sonar__pointsLatLng = [];
+                    sonar__depth_min = 0;
+                    sonar__depth_max = 0;
                     const depth_min_allow = parseFloat($('#form_bathymetry__depth_min_input').val()) || 0;
                     const depth_max_allow = parseFloat($('#form_bathymetry__depth_max_input').val()) || 0;
-                    //let lat_min = 0, lng_min = 0, lat_max = 0, lng_max = 0;
+                    let lat_min = 0, lng_min = 0, lat_max = 0, lng_max = 0;
 
                     const lines = $('#form_bathymetry__data_input').val().split(/\n/);
                     for (const line of lines) {
@@ -154,14 +144,13 @@
 
                         let depth_mks = 0;
                         for (const pulse of pulses) {
-                            const pulse_w_realBottom_mks_min = map__getPulse_w_realBottom_mks_min(pulse.R);
+                            const pulse_w_realBottom_mks_min = sonar__getPulse_w_realBottom_mks_min(pulse.R);
                             if (pulse.W >= pulse_w_realBottom_mks_min) {
                                 depth_mks = pulse.R;
                             }
                         }
 
-
-                        //MAP
+                        //3D
                         const lat = parseFloat(raw[34]) || 0;
                         const lng = parseFloat(raw[35]) || 0;
                         let depthM = depth_mks / 1367.0;
@@ -169,53 +158,62 @@
                             const lat5 = Math.round(lat * 100000) / 100000;
                             const lng5 = Math.round(lng * 100000) / 100000;
                             const idx = lat5 + '_' + lng5;
-                            if (map__pointsLatLng[idx] > 0) {
-                                depthM = (map__pointsLatLng[idx] + depthM) / 2.0;
-                            }
-                            map__pointsLatLng[idx] = depthM;
 
-                            if (map__depth_min > depthM) {
-                                map__depth_min = depthM;
-                            }
-                            if (map__depth_max < depthM) {
-                                map__depth_max = depthM;
-                            }
-                        }
+                            let point = {
+                                depthM: depthM,
+                                pulses: pulses
+                            };
 
-                        //LOGIC
-                        if (map__dataItemsCount < 500) {
-                            let html = '<div class="logic_pulses_block">';
-                            let lastF = 0;
-                            for (const pulse of pulses) {
-                                let ml_px = Math.round((pulse.R) / 10.0);
-                                let w_px = Math.round(pulse.W / 10.0);
-                                html += '<div class="logic_pulse" title="W,mks: ' + pulse.W + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>';
-                                html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + pulse.R + '" style="margin-left:' + (ml_px - 4) + 'px; "></div>';
-                                html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + pulse.F + '" style="margin-left:' + (ml_px + w_px - 4) + 'px; "></div>';
-                                lastF = pulse.F;
+                            if (sonar__pointsLatLng[idx] > 0) {
+                                depthM = (sonar__pointsLatLng[idx].depthM + depthM) / 2.0;
                             }
-                            html += '<div class="logic_pulse_axis_x" style="margin-left:0px; width:' + lastF + 'px;"></div>';
-                            html += '</div>';
-                            $('#map__logic_block').append(html);
-                        }
+                            sonar__pointsLatLng[idx] = point;
 
-                        map__dataItemsCount++;
-                    }
-
-                    if (map__mapIsReady) {
-                        for (let index in map__pointsLatLng) {
-                            const ll = index.split(/_/);
-                            map__point(ll[0], ll[1], map__pointsLatLng[index]);
+                            if (sonar__depth_min > depthM) {
+                                sonar__depth_min = depthM;
+                            }
+                            if (sonar__depth_max < depthM) {
+                                sonar__depth_max = depthM;
+                            }
+                            sonar__dataItemsCount++;
                         }
                     }
 
-                    $('#bathymetry__points_count').html(map__dataItemsCount + ' points');
-                    $('#map_palette_min_text').html(Math.round(map__depth_min * 100) / 100 + ' m');
-                    $('#map_palette_max_text').html(Math.round(map__depth_max * 100) / 100 + ' m');
+
+
+                    $('#bathymetry__points_count').html(sonar__dataItemsCount + ' points');
+                    $('#map_palette_min_text').html(Math.round(sonar__depth_min * 100) / 100 + ' m');
+                    $('#map_palette_max_text').html(Math.round(sonar__depth_max * 100) / 100 + ' m');
+
+
+                    /*
+                     //LOGIC
+                     if (sonar__mapIsReady) {
+                     for (let index in sonar__pointsLatLng) {
+                     const ll = index.split(/_/);
+                     sonar__point(ll[0], ll[1], sonar__pointsLatLng[index]);
+                     }
+                     }
+                     if (sonar__dataItemsCount < 500) {
+                     let html = '<div class="logic_pulses_block">';
+                     let lastF = 0;
+                     for (const pulse of pulses) {
+                     let ml_px = Math.round((pulse.R) / 10.0);
+                     let w_px = Math.round(pulse.W / 10.0);
+                     html += '<div class="logic_pulse" title="W,mks: ' + pulse.W + '" style="margin-left:' + ml_px + 'px; width:' + w_px + 'px;"></div>';
+                     html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + pulse.R + '" style="margin-left:' + (ml_px - 4) + 'px; "></div>';
+                     html += '<div class="logic_pulse_axis_x_point" title="mks from Sync: ' + pulse.F + '" style="margin-left:' + (ml_px + w_px - 4) + 'px; "></div>';
+                     lastF = pulse.F;
+                     }
+                     html += '<div class="logic_pulse_axis_x" style="margin-left:0px; width:' + lastF + 'px;"></div>';
+                     html += '</div>';
+                     $('#sonar__logic_block').append(html);
+                     */
+
                 }
 
-                function map__palette() {
-                    for (const color of map__colors) {
+                function sonar__palette() {
+                    for (const color of sonar__colors) {
                         const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
                         $('#map_palette').append(dv);
                     }
@@ -223,49 +221,21 @@
 
                 /*const map_onReady_promise = new Promise((resolve, reject) => {
                  const timerId = setInterval(function () {
-                 if (map__mapIsReady) {
+                 if (sonar__mapIsReady) {
                  clearInterval(timerId);
                  resolve();
                  }
                  }, 1000);
                  });
                  
-                 map_onReady_promise.then(map__render);*/
-
-                function map__init() {
-                    /* ymaps.geolocation.get().then(function (res) {
-                     var mapContainer = $('#map__bathymetry_block'),
-                     bounds = res.geoObjects.get(0).properties.get('boundedBy'),
-                     // Рассчитываем видимую область для текущей положения пользователя.
-                     mapState = ymaps.util.bounds.getCenterAndZoom(
-                     bounds,
-                     [mapContainer.width(), mapContainer.height()]
-                     );
-                     mapState.zoom = 11;
-                     map__createMap(mapState);  
-                     }, function (e) {
-                     // Если местоположение невозможно получить, то просто создаем карту.
-                     map__createMap({
-                     center: [57, 39],
-                     zoom: 11
-                     });
-                     });*/
-
-                    map__createMap({
-                        center: [57, 39],  //TODO center to points
-                        zoom: 18
-                    });
-                }
-
-                function map__createMap(state) {
-                    map__map = new ymaps.Map('map__bathymetry_block', state);
-                    map__mapIsReady = true;
-                }
+                 map_onReady_promise.then(sonar__render);*/
 
 
 
-                function map__point(lat, lng, depthM) {
-                    const color = map__getColor(depthM) + 'FF';
+
+
+                function sonar__point(lat, lng, depthM) {
+                    const color = sonar__getColor(depthM) + 'FF';
                     let r = 1;
                     let myCircle = new ymaps.Circle([
                         [lat, lng], // Координаты центра круга.            
@@ -280,14 +250,14 @@
                         strokeOpacity: 0, // Прозрачность обводки.           
                         strokeWidth: 1 // Ширина обводки в пикселях.
                     });
-                    map__map.geoObjects.add(myCircle);
+                    sonar__map.geoObjects.add(myCircle);
                 }
 
-                function map__getColor(depthM) {
-                    const dx = (map__depth_max - map__depth_min) / map__colors.length;
+                function sonar__getColor(depthM) {
+                    const dx = (sonar__depth_max - sonar__depth_min) / sonar__colors.length;
                     let idx = Math.round(depthM / dx);
-                    idx = Math.min(Math.max(parseInt(idx), 0), (map__colors.length - 1)); //constrain from to
-                    return map__colors[idx];
+                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colors.length - 1)); //constrain from to
+                    return sonar__colors[idx];
                 }
 
             </script>
@@ -307,7 +277,7 @@
         padding: 0;
     }
 
-    #map__logic_block{ 
+    #sonar__logic_block{ 
         width: 100%; 
         height: 400px; 
         overflow: scroll;
