@@ -52,6 +52,7 @@
 
                         <input id="sonar__over_bottom" type="checkbox" checked> over bottom  &nbsp;&nbsp;&nbsp;&nbsp;
                         <input id="sonar__bottom" type="checkbox" checked> bottom
+                        <input id="sonar__circles" type="checkbox" checked> circles
 
                     </div>   
                     <div id="sonar__3D_block"></div>
@@ -114,6 +115,13 @@
                             $('.logic_pulses_full_block').show();
                         } else {
                             $('.logic_pulses_full_block').hide();
+                        }
+                    });
+                    $('#sonar__circles').change(() => {
+                        if ($('#sonar__circles').is(":checked")) {
+                            $('.sonar__circles').show();
+                        } else {
+                            $('.sonar__circles').hide();
                         }
                     });
                 }
@@ -277,6 +285,11 @@
                     }
                     html += '</div>';
 
+                    html += '<div class="sonar__circles" title="' + (Math.round(data.depthM * 100) / 100) + 'm" style="left:' + left_px + 'px; top:' + top_px + 'px; background-color:' + color + '; width:' + sonar__pulse_w_px + 'px; height:' + sonar__pulse_w_px + 'px; ">';
+                    html += '</div>';
+
+
+
                     $('#sonar__3D_block').append(html);
                 }
 
@@ -336,27 +349,26 @@
         float: left;        
         height: 100px; /*sonar__logic_pulses_block_h_px*/
         border-bottom: 8px solid grey;         
-        position: absolute;
-        opacity: 0.4;
+        position: absolute;        
         z-index: 500;
-        transform: rotate(20deg);
+        transform: rotate(45deg);
         padding: 0;
         margin: 0;
     }
     .logic_pulses_block:hover{
         border-left: 1px solid red;
         border-right: 1px solid red;
-        border-top: 1px solid red;
-        opacity: 1;
+        border-top: 1px solid red;        
         background-color: white;
         z-index: 600;        
     }
-    .logic_pulse{          
+    .logic_pulse{     
+        opacity: 0.3;
         background-color: grey;       
         position: absolute;    
         padding: 0;
         margin: 0;
-    }  
+    }     
 
 
     .logic_pulses_full_block{
@@ -386,4 +398,13 @@
         padding: 0;
         margin: 0;
     }  
+
+    .sonar__circles{        
+        display: block;
+        float: left;          
+        position: absolute;
+        opacity: 1;        
+        padding: 0;
+        margin: 0;        
+    }
 </style>
