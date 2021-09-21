@@ -138,6 +138,10 @@
                                 return $(this).attr('w_mks') < pulseW_mks;
                             }).hide();
                         }
+                        $('div.sonar__2D_pulse').show().filter(function () {
+                            return $(this).attr('w_mks') < pulseW_mks;
+                        }).hide();
+
                         $('#sonar__range_pulse_w').attr('title', 'Мощность отраженок, mks: ' + pulseW_mks);
                     });
                 }
@@ -405,14 +409,14 @@
 <style>
     #sonar__2D_block_latconst_lng{
         width: 100%; 
-        height: 250px; 
+        height: 130px; 
         overflow: scroll;
         position: relative;
         border: 1px solid #003580;        
     }
     #sonar__2D_block_lat_lngconst{
         width: 100%; 
-        height: 250px; 
+        height: 130px; 
         overflow: scroll;
         position: relative;
         border: 1px solid #003580;        
