@@ -46,13 +46,16 @@
                 </div> 
                 <div class="col-10">
                     <div class="d-block">
-                        <div id="sonar__palette_min_text" class="d-inline-block"></div>
-                        <div class="d-inline-block"><div id="sonar__palette"></div></div>
-                        <div id="sonar__palette_max_text" class="d-inline-block"></div>
-                        <input id="sonar__over_bottom" type="checkbox" checked> over bottom  &nbsp;&nbsp;&nbsp; 
-                        <input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;
-                        <input id="sonar__circles" type="checkbox" checked> circles  &nbsp;&nbsp;&nbsp;
-                        <input type="range" class="form-range" min="0" max="3000" value="0" id="sonar__range_pulse_w" title="Мощность отраженок" style="width: 200px;">
+                        <div id="sonar__palette_depth_min_text" class="d-inline-block"></div>
+                        <div class="d-inline-block"><div id="sonar__palette_depth"></div></div>
+                        <div id="sonar__palette_depth_max_text" class="d-inline-block"></div>
+                        <input id="sonar__over_bottom" type="checkbox" checked> В толще воды  &nbsp;&nbsp;&nbsp; 
+                        <!--input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;-->
+                        <input id="sonar__circles" type="checkbox" checked> Точки  &nbsp;&nbsp;&nbsp;
+
+                        <input type="range" class="form-range" min="0" max="3000" value="0" id="sonar__range_pulse_w" title="Мощность отраженок, скрыть слабые" style="width: 150px;"> 
+                        <span id="sonar__range_pulse_w_val"></span>&nbsp;&nbsp;&nbsp;
+                        <div class="d-inline-block"><div id="sonar__palette_depth"></div></div>
                     </div>   
                     <div id="sonar__2D_block_latconst_lng"></div>
                     <div id="sonar__2D_block_lat_lngconst"></div>                    
@@ -67,7 +70,7 @@
                 let depth_min_allow = 0;
                 let depth_max_allow = 0;
                 let sonar__dataItemsCount = 0;
-                const sonar__colors = [
+                const sonar__colors_depth = [
                     '#f51c03',
                     '#f45202',
                     '#f38802',
@@ -87,7 +90,7 @@
                 ];
                 let sonar__lat_min = 1000, sonar__lng_min = 1000, sonar__lat_max = 0, sonar__lng_max = 0;
                 let sonar__getOffsetLng_px_dx = 0;
-                let sonar__getColor_dx = 1;
+                let sonar__getColor_m_dx = 1;
                 let sonar__mks2px_fullScale_dx = 1;
                 let sonar__getOffsetLat_px_dx = 1;
                 const sonar__block_size_px = 800;
@@ -95,9 +98,35 @@
                 const sonar__mks2m = 1367.0;
                 let sonar__pulse_w_px = 10;
                 let sonar__3D_pointsLatLng = [];
+                const sonar__colorsRGB_power = [
+                    '#0011fa',
+                    '#016efa',
+                    '#03cbfa',
+                    '#009716',
+                    '#45c80c',
+                    '#8afa03',
+                    '#fa8803',
+                    '#fa4503',
+                    '#fa0303'
+                ]; //9                    
+                const sonar__colorsWB_power = [
+                    '#f0f1f5',
+                    '#d2d3d7',
+                    '#b5b6b9',
+                    '#97989b',
+                    '#7a7b7d',
+                    '#5d5d5f',
+                    '#3f4041',
+                    '#222223',
+                    '#050505'
+                ]; //9
+                const sonar__colors_power_min_mks = 0;
+                const sonar__colors_power_max_mks = 2000;
+                const sonar__colors_power_dx = (sonar__colors_power_max_mks - sonar__colors_power_min_mks) / sonar__colorsRGB_power.length;
+
 
                 document.addEventListener('DOMContentLoaded', function () {
-                    sonar__palette();
+                    sonar__palette_depth();
                     sonar__actions();
                 });
 
@@ -142,7 +171,7 @@
                             return $(this).attr('w_mks') < pulseW_mks;
                         }).hide();
 
-                        $('#sonar__range_pulse_w').attr('title', 'Мощность отраженок, mks: ' + pulseW_mks);
+                        $('#sonar__range_pulse_w_val').html(pulseW_mks + 'mks');
                     });
                 }
 
@@ -260,10 +289,10 @@
 
                     //all lines processed
                     $('#bathymetry__points_count').html(sonar__dataItemsCount + ' points');
-                    $('#sonar__palette_min_text').html(Math.round(sonar__depth_min * 100) / 100 + ' m');
-                    $('#sonar__palette_max_text').html(Math.round(sonar__depth_max * 100) / 100 + ' m');
+                    $('#sonar__palette_depth_min_text').html(Math.round(sonar__depth_min * 100) / 100 + 'm');
+                    $('#sonar__palette_depth_max_text').html(Math.round(sonar__depth_max * 100) / 100 + 'm');
 
-                    sonar__getColor_dx = (sonar__depth_max - sonar__depth_min) / sonar__colors.length;
+                    sonar__getColor_m_dx = (sonar__depth_max - sonar__depth_min) / sonar__colors_depth.length;
                     sonar__mks2px_fullScale_dx = (2 * depth_max_allow * sonar__mks2m) / sonar__logic_pulsesOverBottom_block_h_px;
                     sonar__getOffsetLng_px_dx = (sonar__lng_max - sonar__lng_min) / sonar__block_size_px;
                     sonar__getOffsetLat_px_dx = (sonar__lat_max - sonar__lat_min) / sonar__block_size_px; //max size paper
@@ -316,74 +345,79 @@
                     }).hide();
                 }
                 function sonar__2D_point(lat, lng, data, isVertical) {
-                    const color = sonar__getColor(data.depthM);
+                    const depth_color = sonar__getColor_m(data.depthM);
                     const left_px = isVertical ? sonar__block_size_px - sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
 
-                    let html = '<div class="sonar__2D_pulses" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; box-shadow: 0px 10px 0px -2px ' + color + '; width:' + sonar__pulse_w_px + 'px; ">';
+                    let html = '<div class="sonar__2D_pulses" title="' + (Math.round(data.depthM * 100) / 100) + 'm" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; background-color:' + depth_color + '; width:' + sonar__pulse_w_px + 'px; "></div>';
                     for (const pulse of data.pulses) {
                         if (pulse.R >= (data.depth_mks - 100)) {
                             continue; //only fish over bottom                            
                         }
+                        const pulse_color = sonar__getColor_mks(pulse.W, false);
                         let mt_px = sonar__mks2px(pulse.R, data.depth_mks);
-                        let h_px = Math.max(sonar__mks2px(pulse.W, data.depth_mks), 2);
-                        html += '<div class="sonar__2D_pulse" title="R=' + pulse.R + ' W=' + pulse.W + ' ' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; height:' + h_px + 'px; width:' + (sonar__pulse_w_px - 2) + 'px; "></div>';
+                        html += '<div class="sonar__2D_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + (sonar__pulse_w_px - 2) + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
                     }
-                    html += '</div>';
 
                     return html;
                 }
 
 
-                function sonar__palette() {
-                    for (const color of sonar__colors) {
+                function sonar__palette_depth() {
+                    for (const color of sonar__colors_depth) {
                         const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
-                        $('#sonar__palette').append(dv);
+                        $('#sonar__palette_depth').append(dv);
                     }
                 }
 
                 function sonar__3D_point(lat, lng, data) {
-                    const color = sonar__getColor(data.depthM);
+                    const depth_color = sonar__getColor_m(data.depthM);
                     const left_px = sonar__getOffsetLng_px(lng);
                     const top_px = sonar__block_size_px - sonar__getOffsetLat_px(lat);
 
-                    let html = '<div class="logic_pulsesOverBottom_block" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; box-shadow: 0px 10px 0px -2px ' + color + '; width:' + sonar__pulse_w_px + 'px; ">';
+                    let html = '<div class="logic_pulsesOverBottom_block" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; box-shadow: 0px 10px 0px -2px ' + depth_color + '; width:' + sonar__pulse_w_px + 'px; ">';
                     for (const pulse of data.pulses) {
                         if (pulse.R >= (data.depth_mks - 100)) {
                             continue; //only fish over bottom                            
                         }
+                        pulse_color = sonar__getColor_mks(pulse.W, true); //fish over bottom 
                         let mt_px = sonar__mks2px(pulse.R, data.depth_mks);
-                        let h_px = Math.max(sonar__mks2px(pulse.W, data.depth_mks), 2);
-                        html += '<div class="logic_pulseOverBottom" title="R=' + pulse.R + ' W=' + pulse.W + ' ' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; height:' + h_px + 'px; width:' + (sonar__pulse_w_px - 2) + 'px; "></div>';
+                        html += '<div class="logic_pulseOverBottom" title="R=' + pulse.R + ' W=' + pulse.W + ' ' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__pulse_w_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
                     }
                     html += '</div>';
 
-                    html += '<div class="logic_pulsesFull_block" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; box-shadow: 0px 10px 0px -2px ' + color + '; width:' + sonar__pulse_w_px + 'px; ">';
-                    for (const pulse of data.pulses) {
-                        let pulse_opacity, pulse_color;
-                        if (pulse.R >= (data.depth_mks - 100)) {
-                            pulse_color = color; //bottom and under
-                            pulse_opacity = 1;
-                        } else {
-                            pulse_color = 'black'; //fish over bottom  
-                            pulse_opacity = 0.1;
-                        }
-                        let mt_px = sonar__mks2px_fullScale(pulse.R);
-                        let h_px = Math.max(sonar__mks2px_fullScale(pulse.W + pulse.R) - mt_px, 2);
-                        html += '<div class="logic_pulseFull" title="R=' + pulse.R + ' W=' + pulse.W + ' ' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; height:' + h_px + 'px; width:' + (sonar__pulse_w_px - 2) + 'px; background-color:' + pulse_color + '; opacity: ' + pulse_opacity + ' "></div>';
-                    }
-                    html += '</div>';
+                    /*html += '<div class="logic_pulsesFull_block" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; box-shadow: 0px 10px 0px -2px ' + depth_color + '; width:' + sonar__pulse_w_px + 'px; ">';
+                     for (const pulse of data.pulses) {
+                     let pulse_opacity, pulse_color;
+                     if (pulse.R >= (data.depth_mks - 100)) {
+                     pulse_color = depth_color; //bottom and under
+                     pulse_opacity = 1;
+                     } else {
+                     pulse_color = sonar__getColor_mks(pulse.W, true); //fish over bottom  
+                     pulse_opacity = 1;
+                     }
+                     let mt_px = sonar__mks2px_fullScale(pulse.R);
+                     let h_px = Math.max(sonar__mks2px_fullScale(pulse.W + pulse.R) - mt_px, 2);
+                     html += '<div class="logic_pulseFull" title="R=' + pulse.R + ' W=' + pulse.W + ' ' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; height:' + h_px + 'px; width:' + (sonar__pulse_w_px - 2) + 'px; background-color:' + pulse_color + '; opacity: ' + pulse_opacity + ' "></div>';
+                     }
+                     html += '</div>';*/
 
-                    html += '<div class="sonar__circles" title="' + (Math.round(data.depthM * 100) / 100) + 'm" style="left:' + left_px + 'px; top:' + top_px + 'px; background-color:' + color + '; width:' + sonar__pulse_w_px + 'px; height:' + sonar__pulse_w_px + 'px; ">';
+                    html += '<div class="sonar__circles" title="' + (Math.round(data.depthM * 100) / 100) + 'm" style="left:' + left_px + 'px; top:' + top_px + 'px; background-color:' + depth_color + '; width:' + sonar__pulse_w_px + 'px; height:' + sonar__pulse_w_px + 'px; ">';
                     html += '</div>';
 
                     $('#sonar__3D_block').append(html);
                 }
 
 
-                function sonar__getColor(m) {
-                    let idx = Math.round(m / sonar__getColor_dx);
-                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colors.length - 1)); //constrain from to
-                    return sonar__colors[idx];
+                function sonar__getColor_m(m) {
+                    let idx = Math.round(m / sonar__getColor_m_dx);
+                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colors_depth.length - 1)); //constrain from to
+                    return sonar__colors_depth[idx];
+                }
+
+                function sonar__getColor_mks(mks, isWB) {
+                    let idx = Math.round(mks / sonar__colors_power_dx);
+                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colorsRGB_power.length - 1)); //constrain from to
+                    return isWB ? sonar__colorsWB_power[idx] : sonar__colorsRGB_power[idx];
                 }
 
                 function sonar__mks2px(mks, point_depth_mks) {
@@ -418,41 +452,41 @@
 <style>
     #sonar__2D_block_latconst_lng{
         width: 100%; 
-        height: 130px; 
+        height: 140px; 
         overflow: scroll;
         position: relative;
         border: 1px solid #003580;        
     }
     #sonar__2D_block_lat_lngconst{
         width: 100%; 
-        height: 130px; 
+        height: 140px; 
         overflow: scroll;
         position: relative;
         border: 1px solid #003580;        
     }
     .sonar__2D_pulses{
-        top: 0;
+        top: 106px;
         display: block;
         float: left;        
-        height: 100px; /*sonar__logic_pulsesOverBottom_block_h_px*/
-        box-shadow: 0px 8px 0px 0px black;       
-        position: absolute;        
-        z-index: 500;        
+        height: 8px;         
+        position: absolute;                
         padding: 0;
         margin: 0;
-        overflow: hidden;        
+        overflow: hidden;     
+        z-index: 1;
     }
     .sonar__2D_pulse{     
-        opacity: 0.1;
+        opacity: 1;
         background-color: black;       
         position: absolute;    
         padding: 0;
-        margin: 0;        
+        margin: 0;      
+        height: 4px;
     }     
 
     .palette__item {
-        width:20px; 
-        height:30px; 
+        width: 6px;
+        height: 20px;
         margin: 0;
         padding: 0;
     }
@@ -462,7 +496,7 @@
         overflow: scroll;
         position: relative;
         border: 1px solid #003580;
-        padding-top: 20px;
+        padding-top: 20px;        
     }
     .logic_pulsesOverBottom_block{
         display: block;
@@ -475,6 +509,7 @@
         padding: 0;
         margin: 0;
         overflow: hidden;
+        z-index: 1;
     }
     .logic_pulsesOverBottom_block:hover{
         border-left: 1px solid red;
@@ -484,11 +519,12 @@
         z-index: 600;        
     }
     .logic_pulseOverBottom{     
-        opacity: 0.1;
+        opacity: 0.3;
         background-color: black;       
         position: absolute;    
         padding: 0;
         margin: 0;
+        height: 2px;
     }     
 
 
@@ -504,6 +540,7 @@
         margin: 0;
         transform: rotate(20deg);
         overflow: hidden;
+        z-index: 1;
     }
     .logic_pulsesFull_block:hover{
         border-left: 1px solid red;
