@@ -309,10 +309,15 @@
                             console.log('lngconst', lat_curr, lng_curr);
                         }
                     }
+
+                    const pulseW_mks = parseInt($('#sonar__range_pulse_w').val()) || 0;
+                    $('div.sonar__2D_pulse').show().filter(function () {
+                        return $(this).attr('w_mks') < pulseW_mks;
+                    }).hide();
                 }
                 function sonar__2D_point(lat, lng, data, isVertical) {
                     const color = sonar__getColor(data.depthM);
-                    const left_px = isVertical ? sonar__block_size_px-sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
+                    const left_px = isVertical ? sonar__block_size_px - sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
 
                     let html = '<div class="sonar__2D_pulses" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; box-shadow: 0px 10px 0px -2px ' + color + '; width:' + sonar__pulse_w_px + 'px; ">';
                     for (const pulse of data.pulses) {
