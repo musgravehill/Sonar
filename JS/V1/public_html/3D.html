@@ -217,7 +217,7 @@
                         if (lat > 0 && lng > 0 && depthM >= depth_min_allow && depthM <= depth_max_allow) {
                             const lat5 = Math.round(lat * 100000) / 100000;
                             const lng5 = Math.round(lng * 100000) / 100000;
-                            const idx = lat5 + '_' + lng5;
+                            const idx = lat + '_' + lng;
                             if (sonar__3D_pointsLatLng.hasOwnProperty(idx)) {
                                 //console.log('double1', depthM, sonar__3D_pointsLatLng[idx].depthM);
                                 //console.log('double2', pulses, sonar__3D_pointsLatLng[idx].pulses);
@@ -271,7 +271,9 @@
 
                     for (let index in sonar__3D_pointsLatLng) {
                         const ll = index.split(/_/);
-                        sonar__3D_point(ll[0], ll[1], sonar__3D_pointsLatLng[index]);
+                        const lat_curr = parseFloat(ll[0]) || 0;
+                        const lng_curr = parseFloat(ll[1]) || 0;
+                        sonar__3D_point(lat_curr, lng_curr, sonar__3D_pointsLatLng[index]);
                     }
 
                     $('div.logic_pulsesOverBottom_block').unbind('click').click(function () {
@@ -292,15 +294,17 @@
                     if (lat < 1 || lng < 1) {
                         return;
                     }
+                    const lat5 = Math.round(lat * 100000) / 100000;
+                    const lng5 = Math.round(lng * 100000) / 100000;
                     for (let index in sonar__3D_pointsLatLng) {
                         const ll = index.split(/_/);
                         const lat_curr = parseFloat(ll[0]) || 0;
                         const lng_curr = parseFloat(ll[1]) || 0;
-                        if (lat === lat_curr) {
+                        if (lat5 === Math.round(lat_curr * 100000) / 100000) {
                             $('#sonar__2D_block_latconst_lng').append(sonar__2D_point(lat_curr, lng_curr, sonar__3D_pointsLatLng[index], false));
                             console.log('latconst', lat_curr, lng_curr);
                         }
-                        if (lng === lng_curr) {
+                        if (lng5 === Math.round(lng_curr * 100000) / 100000) {
                             $('#sonar__2D_block_lat_lngconst').append(sonar__2D_point(lat_curr, lng_curr, sonar__3D_pointsLatLng[index], true));
                             console.log('lngconst', lat_curr, lng_curr);
                         }
@@ -308,7 +312,7 @@
                 }
                 function sonar__2D_point(lat, lng, data, isVertical) {
                     const color = sonar__getColor(data.depthM);
-                    const left_px = isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
+                    const left_px = isVertical ? sonar__block_size_px-sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
 
                     let html = '<div class="sonar__2D_pulses" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; box-shadow: 0px 10px 0px -2px ' + color + '; width:' + sonar__pulse_w_px + 'px; ">';
                     for (const pulse of data.pulses) {
