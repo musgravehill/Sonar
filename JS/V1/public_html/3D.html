@@ -215,8 +215,8 @@
                         const lng = parseFloat(raw[35]) || 0;
                         let depthM = depth_mks / sonar__mks2m;
                         if (lat > 0 && lng > 0 && depthM >= depth_min_allow && depthM <= depth_max_allow) {
-                            const lat5 = Math.round(lat * 100000) / 100000;
-                            const lng5 = Math.round(lng * 100000) / 100000;
+                            //const lat5 = Math.round(lat * 100000) / 100000;
+                            //const lng5 = Math.round(lng * 100000) / 100000;
                             const idx = lat + '_' + lng;
                             if (sonar__3D_pointsLatLng.hasOwnProperty(idx)) {
                                 //console.log('double1', depthM, sonar__3D_pointsLatLng[idx].depthM);
