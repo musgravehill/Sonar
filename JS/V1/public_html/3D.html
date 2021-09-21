@@ -80,6 +80,11 @@
                                     <span id="sonar__range_pulse_w_max_val"></span>
                                 </div>                                
                             </div>
+                            <div class="d-block mt-3" style="font-size: 12px;">
+                                <b>В толще воды</b><br>
+                                Наведение на точку: покажет отражения в толще воды, глубину, начало отражения ото дна pulseRising мкс, ширину пульса pulseWidth мкс.
+                                Клик по точке: геопозиция точки будет использоваться для отрисовки толщи воды для данной Ш. и Д. Сечение толщи воды в горизонтальной и вертикальной плоскостях через эту точку.
+                            </div>
                         </div>
                     </div> 
                 </div> 
@@ -222,7 +227,7 @@
                     });
                     if (sonar__colors_power_isBW) {
                         $('div.sonar__2D_pulse').css('opacity', 0.6);
-                       //$('div.logic_pulseOverBottom').css('opacity', 0.6);
+                        //$('div.logic_pulseOverBottom').css('opacity', 0.6);
                     } else {
                         $('div.sonar__2D_pulse').css('opacity', 1);
                         //$('div.logic_pulseOverBottom').css('opacity', 1);
