@@ -112,7 +112,7 @@
                 let sonar__3D_pointsLatLng = [];
                 //
                 let sonar__section_pointsLatLng_clicked = [];
-                let sonar__section_isVertical = 'lat';
+                let sonar__section_isVertical = false;
                 let sonar__section_dLat = 0;
                 let sonar__section_dLng = 0;
                 //
@@ -391,7 +391,7 @@
                 function sonar__section_begin() {
                     $('#sonar__section_block').html('');
                     sonar__section_pointsLatLng_clicked = [];
-                    sonar__section_isVertical = $('input[name="sonar__section_isVertical"]:checked').val();
+                    sonar__section_isVertical = parseInt($('input[name="sonar__section_isVertical"]:checked').val()) === 1 ? true : false;
                     sonar__section_dLat = parseFloat($('#sonar__section_dLat').val()) || 0;
                     sonar__section_dLng = parseFloat($('#sonar__section_dLng').val()) || 0;
 
@@ -428,9 +428,8 @@
                     }).hide();
                 }
                 function sonar__2D_point(lat, lng, data) {
-                    const isVertical = (sonar__section_isVertical === 'lat') ? true : false;
                     const depth_color = sonar__getColor_depth_m(data.depthM);
-                    const left_px = isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
+                    const left_px = sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
                     let mt_px = 5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m);
 
                     let html = '<div class="sonar__2D_pulseBottom" title="' + (Math.round(data.depthM * 100) / 100) + 'm" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__pulse_w_px + 'px; "></div>';
@@ -450,7 +449,7 @@
                     const left_px = sonar__getOffsetLng_px(lng);
                     const top_px = sonar__getOffsetLat_px(lat);
 
-                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm" class="logic_pulsesOverBottom_block" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; box-shadow: 0px 10px 0px -2px ' + depth_color + '; width:' + sonar__pulse_w_px + 'px; ">';
+                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm" class="logic_pulsesOverBottom_block" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; border-bottom: ' + sonar__pulse_w_px + 'px solid ' + depth_color + '; width:' + sonar__pulse_w_px + 'px; ">';
                     for (const pulse of data.pulses) {
                         if (pulse.R >= (data.depth_mks - 100)) {
                             continue; //only fish over bottom                            
@@ -585,8 +584,7 @@
     .logic_pulsesOverBottom_block{
         display: block;
         float: left;        
-        height: 100px; /*sonar__pulses_block_h_px*/
-        box-shadow: 0px 8px 0px 0px black;       
+        height: 100px; /*sonar__pulses_block_h_px*/             
         position: absolute;        
         z-index: 500;
         transform: rotate(45deg);
