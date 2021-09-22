@@ -11,96 +11,92 @@
         <main class="container-fluid">
             <div class="row mt-2">
                 <div class="col-2">
-                    <div class="row">
-                        <div class="col">
-                            <b>
-                                3D bathymetry 
-                                <span id="bathymetry__points_count"></span>
-                            </b>
-                        </div>                
-                    </div>
-                    <div class="row">                        
-                        <div class="col-auto mb-1"> 
-                            <input type="number" id="form_bathymetry__depth_min_input" placeholder="Min depth, m" value="0.5" class="form-control d-inline-block form-control-sm" style="width: 90px">
-                            <input type="number" id="form_bathymetry__depth_max_input" placeholder="Max depth, m" value="5" class="form-control d-inline-block form-control-sm" style="width: 90px">
-                        </div>
-                        <div class="col-auto mb-1">
-                            <textarea id="form_bathymetry__data_input" class="form-control form-control-sm" style="width: 90px; height: 16px;" placeholder="Logic log"></textarea> 
-                        </div>
-                        <div class="col-auto mb-1">
-                            <span id="form_bathymetry__btn_ok" class="btn btn-success btn-sm">Ok</span>
-                        </div>
+                    <div class="d-block">
+                        <b>
+                            3D bathymetry 
+                            <span id="bathymetry__points_count"></span>
+                        </b>
                     </div> 
-                    <div class="row mt-5">
-                        <div class="col">
-                            <div class="d-block">
-                                <b>Захват сечения</b><br>
-                                ±Ш.(lat) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" step="0.000001" id="sonar__section_dLat" style="width: 90px">                                 
-                                <br>
-                                ±Д.(lng) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" step="0.000001" id="sonar__section_dLng" style="width: 90px">   
-                                <br>                                 
-                                <input type="radio" name="sonar__section_isVertical" value="0" checked> --- &nbsp;&nbsp;
-                                <input type="radio" name="sonar__section_isVertical" value="1"> | 
-                                <br>
-                                <span id="sonar__section_ok" class="btn btn-success btn-sm">Применить и начать</span>   
-                            </div>
-                        </div>
+                    <div class="d-block mb-1"> 
+                        <input type="number" id="form_bathymetry__depth_min_input" placeholder="Min depth, m" value="0.5" class="form-control d-inline-block form-control-sm" style="width: 90px">
+                        <input type="number" id="form_bathymetry__depth_max_input" placeholder="Max depth, m" value="5" class="form-control d-inline-block form-control-sm" style="width: 90px">
                     </div>
-                    <div class="row mt-5">
-                        <div class="col">
+                    <div class="d-block mb-1">
+                        <textarea id="form_bathymetry__data_input" class="form-control form-control-sm" style="width: 90px; height: 16px;" placeholder="Logic log"></textarea> 
+                    </div>
+                    <div class="d-block">
+                        <span id="form_bathymetry__btn_ok" class="btn btn-success btn-sm">Ok</span>
+                    </div>
+                    <hr class="my-1">
+                    <div class="d-block">
+                        <b>Захват сечения</b><br>
+                        ±Ш.(lat) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" step="0.000001" id="sonar__section_dLat" style="width: 90px">                                 
+                        <br>
+                        ±Д.(lng) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" step="0.000001" id="sonar__section_dLng" style="width: 90px">   
+                        <br>                                 
+                        <input type="radio" name="sonar__section_isVertical" value="0" checked> --- &nbsp;&nbsp;
+                        <input type="radio" name="sonar__section_isVertical" value="1"> | 
+                        <br>
+                        <span id="sonar__section_ok" class="btn btn-success btn-sm">Применить и начать</span>   
+                    </div>
+                    <hr class="my-1">
+                    <div class="d-block">
+                        <b>Глубина</b><br>
+                        <div id="sonar__palette_depth_min_text" class="d-inline-block" style="width: 50px;"></div>
+                        <div class="d-inline-block"><div id="sonar__palette_depth"></div></div>
+                        <div id="sonar__palette_depth_max_text" class="d-inline-block"></div>
+                    </div>
+                    <div class="d-block">
+                        <input id="sonar__over_bottom" type="checkbox" checked> В толще воды  
+                        <!--input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;-->
+                    </div>
+                    <div class="d-block">
+                        <input id="sonar__plane_point_dot" type="checkbox" checked> Точки  
+                    </div>
+                    <hr class="my-1">
+                    <div class="d-block">
+                        <b>Мощность отражений</b><br>
+                        <input type="range" class="form-range" min="0" max="3000" value="0" id="sonar__range_pulse_w_min_show" title="Мощность отраженок, скрыть слабые"> 
+                        скрыть слабее <span id="sonar__range_pulse_w_min_show_val"></span>
+                        <div class="d-block">
+                            <b>Мощность отражений: палитра</b><br>
                             <div class="d-block">
-                                <b>Глубина</b><br>
-                                <div id="sonar__palette_depth_min_text" class="d-inline-block" style="width: 50px;"></div>
-                                <div class="d-inline-block"><div id="sonar__palette_depth"></div></div>
-                                <div id="sonar__palette_depth_max_text" class="d-inline-block"></div>
+                                <input id="sonar__palette_power_isBW" type="checkbox" checked> BW \ RGB  
                             </div>
-                            <div class="d-block mt-3">
-                                <input id="sonar__over_bottom" type="checkbox" checked> В толще воды  
-                                <!--input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;-->
-                            </div>
-                            <div class="d-block">
-                                <input id="sonar__plane_point_dot" type="checkbox" checked> Точки  
-                            </div>
-                            <div class="d-block mt-3">
-                                <b>Мощность отражений</b><br>
-                                <input type="range" class="form-range" min="0" max="3000" value="0" id="sonar__range_pulse_w_min_show" title="Мощность отраженок, скрыть слабые"> 
-                                скрыть слабее <span id="sonar__range_pulse_w_min_show_val"></span>
-                            </div>
-                            <div class="d-block mt-3">
-                                <div class="d-block">
-                                    <b>Мощность отражений: палитра</b><br>
-                                    <div class="d-block">
-                                        <input id="sonar__palette_power_isBW" type="checkbox" checked> BW \ RGB  
-                                    </div>
-                                    <input type="range" class="form-range" min="0" max="3000" value="2000" id="sonar__range_pulse_w_max" title="Мощность отраженок MAX для палитры"> 
-                                </div>
-                                <div class="d-block align-middle"> 
-                                    <span id="sonar__range_pulse_w_min_val">0mks</span> 
-                                    <div class="d-inline-block align-middle">
-                                        <div class="d-block"><div id="sonar__palette_power_rgb"></div></div>
-                                        <div class="d-block"><div id="sonar__palette_power_bw"></div></div>
-                                    </div>
-                                    <span id="sonar__range_pulse_w_max_val"></span>
-                                </div>                                
-                            </div>
-                            <div class="d-block mt-3" style="font-size: 12px;">
-                                <b>Углы</b><br>
-                                Ш.(lat) min=<span id="sonar__info_latMin"></span>                                
-                                <br>
-                                Ш.(lat) max=<span id="sonar__info_latMax"></span>                                
-                                <br>
-                                Д.(lng) min=<span id="sonar__info_lngMin"></span>                                
-                                <br>
-                                Д.(lng) max=<span id="sonar__info_lngMax"></span>                                
-                                <br>
-                            </div>
-                            <div class="d-block mt-3" style="font-size: 12px;">
-                                <b>Точки</b><br>
-                                Клик: рисует сечение толщи воды в окрестности точки. Наведение: инфо про точку.
-                                <b>В толще воды</b><br>
-                                Наведение на точку или импульс: покажет отражения в толще воды, глубину, начало отражения ото дна pulseRising мкс, ширину пульса pulseWidth мкс.                                
-                            </div>
+                            <input type="range" class="form-range" min="0" max="3000" value="2000" id="sonar__range_pulse_w_max" title="Мощность отраженок MAX для палитры"> 
                         </div>
+                        <div class="d-block align-middle"> 
+                            <span id="sonar__range_pulse_w_min_val">0mks</span> 
+                            <div class="d-inline-block align-middle">
+                                <div class="d-block"><div id="sonar__palette_power_rgb"></div></div>
+                                <div class="d-block"><div id="sonar__palette_power_bw"></div></div>
+                            </div>
+                            <span id="sonar__range_pulse_w_max_val"></span>
+                        </div>                                
+                    </div>
+                    <hr class="my-1">
+                    <div class="d-block">                                
+                        <span id="sonar__extrapolation_ok" class="btn btn-sm btn-success">Extrapolation map</span>                                                              
+                    </div>
+                    <hr class="my-1">
+                    <div class="d-block" style="font-size: 12px;">
+                        <b>Углы</b><br>
+                        Ш.(lat) min=<span id="sonar__info_latMin"></span>                                
+                        <br>
+                        Ш.(lat) max=<span id="sonar__info_latMax"></span>                                
+                        <br>
+                        Д.(lng) min=<span id="sonar__info_lngMin"></span>                                
+                        <br>
+                        Д.(lng) max=<span id="sonar__info_lngMax"></span>                                
+                        <br>
+                    </div>
+                    <hr class="my-1">
+                    <div class="d-block" style="font-size: 12px;">
+                        <b>Точки</b>  
+                        Клик: рисует сечение толщи воды в окрестности точки. Наведение: инфо про точку.
+                        <br>
+                        <b>В толще воды</b> 
+                        Наведение на точку или импульс: покажет отражения в толще воды, глубину, начало отражения ото дна pulseRising мкс, ширину пульса pulseWidth мкс.                                
                     </div> 
                 </div> 
                 <div class="col-10">                      
@@ -108,15 +104,13 @@
                     <div id="sonar__3D_block" class="d-inline-block"></div>
                     <div id="map__bathymetry_block" class="d-inline-block float-right"></div>
                 </div>                
-            </div>  
-
+            </div> 
 
             <script>
                 let sonar__map_pointsLatLng = [];
                 //
                 let sonar__plane_pointsLatLng = [];
-                //
-                let sonar__section_pointsLatLng_clicked = [];
+                //                
                 let sonar__section_pointsLatLng_used = [];
                 let sonar__section_isVertical = false;
                 let sonar__section_dLat = 0;
@@ -176,8 +170,7 @@
                 ]; //9                
                 let sonar__colors_power_dx = (2000 - 0) / sonar__palette_power_rgb.length; //default, change by input-range
                 let sonar__colors_power_isBW = true;
-                //
-                let sonar__extrapolation_pointsLatLng = [];
+                //               
                 const sonar__extrapolation_lat_step = 0.000017;
                 const sonar__extrapolation_lng_step = 0.000017;
                 const sonar__extrapolation_radius_dLat = 0.00007;
@@ -190,6 +183,11 @@
                 });
 
                 function sonar__actions() {
+                    $('#sonar__extrapolation_ok').click(() => {
+                        if (map__mapIsReady) {
+                            sonar__extrapolation_process();
+                        }
+                    });
                     $('#form_bathymetry__btn_ok').click(() => {
                         sonar__bathymetryProcess();
                     });
@@ -400,15 +398,12 @@
                     }
 
                     if (map__mapIsReady) {
-                        sonar__map_render();
+                        sonar__map_reRenderPoints();
                     }
-
-                    sonar__extrapolation_process();
                 }
 
                 function sonar__section_init() {
                     $('#sonar__section_block').html('');
-                    sonar__section_pointsLatLng_clicked = [];
                     sonar__section_pointsLatLng_used = [];
                     sonar__section_isVertical = parseInt($('input[name="sonar__section_isVertical"]:checked').val()) === 1 ? true : false;
                     sonar__section_dLat = parseFloat($('#sonar__section_dLat').val()) || 0;
@@ -416,14 +411,13 @@
                     $('div.sonar__section_radius').remove();
 
                     if (map__mapIsReady) {
-                        sonar__map_render(); //clean red-rect radius
+                        sonar__map_reRenderPoints(); //clean red-rect radius
                     }
 
                     $('div.sonar__plane_point_dot').unbind('click').click(function () {
                         const lat = parseFloat($(this).attr('lat')) || 0;
                         const lng = parseFloat($(this).attr('lng')) || 0;
                         const idx = lat + '_' + lng;
-                        sonar__section_pointsLatLng_clicked[idx] = 1; //todo append to html.list for copy, some use
                         sonar__section_pointsInRadius_draw(lat, lng); //добавим точку, в окрестности которой будем искать                       
                     });
                 }
@@ -603,7 +597,7 @@
                     map__map = new ymaps.Map('map__bathymetry_block', state);
                     map__mapIsReady = true;
                 }
-                function sonar__map_render() {
+                function sonar__map_reRenderPoints() {
                     map__map.geoObjects.removeAll();
 
                     for (let index in sonar__map_pointsLatLng) {
@@ -662,7 +656,8 @@
 
 
                 function sonar__extrapolation_process() {
-                    //sonar__extrapolation_pointsLatLng = [];
+                    map__map.geoObjects.removeAll();
+
                     let lat_curr = sonar__lat_min;
                     while (lat_curr < sonar__lat_max) {
                         let lng_curr = sonar__lng_min;
@@ -672,7 +667,6 @@
                         }
                         lat_curr += sonar__extrapolation_lat_step;
                     }
-                    //console.log(sonar__extrapolation_pointsLatLng);
                 }
 
                 function sonar__extrapolation_point(lat, lng) {
@@ -699,7 +693,6 @@
                         }
                         if (depthM > 0.1) {
                             const idx = lat + '_' + lng;
-                            //sonar__extrapolation_pointsLatLng[idx] = depthM;
                             sonar__map_point(lat, lng, depthM);
                         }
                     }
