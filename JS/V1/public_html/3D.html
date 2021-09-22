@@ -486,7 +486,7 @@
                      }
                      html += '</div>';*/
 
-                    html += '<div class="sonar__circles" lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + top_px + 'px; background-color:' + depth_color + '; width:' + sonar__pulse_w_px + 'px; height:' + sonar__pulse_w_px + 'px; ">';
+                    html += '<div class="sonar__circles" lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + (sonar__pulses_block_h_px + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__pulse_w_px + 'px; height:' + sonar__pulse_w_px + 'px; ">';
                     html += '</div>';
 
                     $('#sonar__3D_block').append(html);
@@ -598,6 +598,7 @@
         position: absolute;        
         z-index: 500;
         transform: rotate(45deg);
+        transform-origin: bottom center;
         padding: 0;
         margin: 0;
         overflow: hidden;
@@ -617,39 +618,7 @@
         padding: 0;
         margin: 0;
         height: 2px;
-    }     
-
-
-    .logic_pulsesFull_block{
-        display: block;
-        float: left;        
-        height: 100px; /*sonar__pulses_block_h_px*/
-        box-shadow: 0px 8px 0px 0px black;     
-        position: absolute;
-        opacity: 0.4;
-        z-index: 500;        
-        padding: 0;
-        margin: 0;
-        transform: rotate(20deg);
-        overflow: hidden;
-        z-index: 1;
-    }
-    .logic_pulsesFull_block:hover{
-        border-left: 1px solid red;
-        border-right: 1px solid red;
-        border-top: 1px solid red;
-        opacity: 1;
-        background-color: white;
-        z-index: 600;       
-
-    }
-    .logic_pulseFull{   
-        opacity: 0.1;
-        background-color: grey;       
-        position: absolute;    
-        padding: 0;
-        margin: 0;        
-    }  
+    }        
 
     .sonar__circles{        
         display: block;
@@ -657,6 +626,6 @@
         position: absolute;
         opacity: 1;        
         padding: 0;
-        margin: 0;        
+        margin: 0;         
     }
 </style>
