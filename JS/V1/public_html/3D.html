@@ -108,9 +108,9 @@
             </div> 
 
             <script>
-                let sonar__map_pointsLatLng = [];
-                //
                 let sonar__real_pointsLatLng = [];
+                let sonar__plane_pointsLatLng = [];
+                let sonar__map_pointsLatLng = [];
                 //                
                 let sonar__section_pointsLatLng_used = [];
                 let sonar__section_isVertical = false;
@@ -229,17 +229,12 @@
 //==================================== START ===============================================================================================================================
 
                 function sonar__real_process() {
-                    sonar__cleanWindows();
-
-                    for (let index in sonar__real_pointsLatLng) {
-                        const ll = index.split(/_/);
-                        const lat_curr = parseFloat(ll[0]) || 0;
-                        const lng_curr = parseFloat(ll[1]) || 0;
-                        sonar__plane_point(lat_curr, lng_curr, sonar__real_pointsLatLng[index]);
-                    }
+                    sonar__plane_points_init(sonar__real_pointsLatLng);
+                    sonar__plane_points_draw();
 
                     sonar__map_points_init(sonar__real_pointsLatLng);
                     sonar__map_points_draw();
+
                     sonar__section_init();
                 }
 
@@ -315,15 +310,19 @@
                     return html;
                 }
 
-//==================================== PLANE  ===============================================================================================================================
-
-
-
-
-                
-
-
-
+//==================================== PLANE  =============================================================================================================================== 
+                function sonar__plane_points_init(pointsLatLng) {
+                    sonar__plane_pointsLatLng = pointsLatLng;
+                }
+                function sonar__plane_points_draw() {
+                    $('#sonar__plane_block').html('');
+                    for (let index in  sonar__plane_pointsLatLng) {
+                        const ll = index.split(/_/);
+                        const lat_curr = parseFloat(ll[0]) || 0;
+                        const lng_curr = parseFloat(ll[1]) || 0;
+                        sonar__plane_point(lat_curr, lng_curr, sonar__real_pointsLatLng[index]);
+                    }
+                }
                 function sonar__plane_point(lat, lng, data) {
                     const depth_color = sonar__getColor_depth_m(data.depthM);
                     const left_px = sonar__getOffsetLng_px(lng);
@@ -363,55 +362,51 @@
 
                 }
 
+//==================================== EXTRAPOLATION ===============================================================================================================================
 
-                function sonar__getColor_depth_m(m) {
-                    let idx = Math.round(m / sonar__getColor_depth_m_dx);
-                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colors_depth.length - 1)); //constrain from to
-                    return sonar__colors_depth[idx];
-                }
-                function sonar__getColor_power_mks(mks, isWB) {
-                    let idx = Math.round(mks / sonar__colors_power_dx);
-                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__palette_power_rgb.length - 1)); //constrain from to
-                    return isWB ? sonar__palette_power_bw[idx] : sonar__palette_power_rgb[idx];
-                }
-                /*function sonar__mks2px(mks, point_depth_mks) {
-                 const sonar__mks2px_dx = point_depth_mks / sonar__pulses_block_h_px;
-                 let px = Math.round(mks / sonar__mks2px_dx);
-                 px = Math.min(Math.max(px, 0), sonar__pulses_block_h_px); //constrain from to
-                 return px;
-                 }*/
-                function sonar__mks2px_fullScale(mks) {
-                    let px = Math.round(mks / sonar__mks2px_fullScale_dx);
-                    px = Math.min(Math.max(px, 0), sonar__pulses_block_h_px); //constrain from to
-                    return px;
-                }
-
-                function sonar__getOffsetLat_px(lat) {
-                    let px = Math.round((sonar__lat_max - lat) / sonar__pulse_w_offset_coef);
-                    return px;
-
-                }
-                function sonar__getOffsetLng_px(lng) {
-                    let px = Math.round((lng - sonar__lng_min) / sonar__pulse_w_offset_coef);
-                    return px;
-                }
-
-                function sonar__palettes() {
-                    for (const color of sonar__colors_depth) {
-                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
-                        $('#sonar__palette_depth').append(dv);
-                    }
-                    for (const color of sonar__palette_power_rgb) {
-                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
-                        $('#sonar__palette_power_rgb').append(dv);
-                    }
-                    for (const color of sonar__palette_power_bw) {
-                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
-                        $('#sonar__palette_power_bw').append(dv);
+                function sonar__extrapolation_process() {
+                    let lat_curr = sonar__lat_min;
+                    while (lat_curr < sonar__lat_max) {
+                        let lng_curr = sonar__lng_min;
+                        while (lng_curr < sonar__lng_max) {
+                            sonar__extrapolation_point(lat_curr, lng_curr);
+                            lng_curr += sonar__extrapolation_lng_step;
+                        }
+                        lat_curr += sonar__extrapolation_lat_step;
                     }
                 }
 
-                /////////////////////////MAP 
+                function sonar__extrapolation_point(lat, lng) {
+                    let depthsWeightingFactors = [];
+                    for (let index in sonar__real_pointsLatLng) {  //sonar__map_pointsLatLng rounded to 5 sign (sonar__real_pointsLatLng is 6 sign)
+                        const ll = index.split(/_/);
+                        const lat_curr = parseFloat(ll[0]) || 0;
+                        const lng_curr = parseFloat(ll[1]) || 0;
+                        const dLat = Math.abs(lat_curr - lat);
+                        const dLng = Math.abs(lng_curr - lng);
+                        if (dLat <= sonar__extrapolation_radius_dLat && dLng <= sonar__extrapolation_radius_dLng) {
+                            const idxDWF = Math.round(1.0 / (dLat + dLng));
+                            depthsWeightingFactors[idxDWF] = sonar__real_pointsLatLng[index].depthM;
+                        }
+                    }
+                    if (depthsWeightingFactors.length) {
+                        let depthM = 0;
+                        let idxDWF_sum = 0;
+                        for (let idxDWF in depthsWeightingFactors) {
+                            idxDWF_sum += parseInt(idxDWF);
+                        }
+                        for (let idxDWF in depthsWeightingFactors) {
+                            depthM += depthsWeightingFactors[idxDWF] * idxDWF / idxDWF_sum;
+                        }
+                        if (depthM > 0.1) {
+                            const idx = lat + '_' + lng;
+                            sonar__extrapolation_pointsLatLng[idx] = depthM;
+                        }
+                    }
+
+                }
+
+//==================================== MAP =============================================================================================================================== 
                 let map__map;
                 let map__mapIsReady = false;
                 document.addEventListener('DOMContentLoaded', function () {
@@ -516,47 +511,52 @@
                     map__map.geoObjects.add(myRectangle);
                 }
 
-
-                function sonar__extrapolation_process() {
-                    let lat_curr = sonar__lat_min;
-                    while (lat_curr < sonar__lat_max) {
-                        let lng_curr = sonar__lng_min;
-                        while (lng_curr < sonar__lng_max) {
-                            sonar__extrapolation_point(lat_curr, lng_curr);
-                            lng_curr += sonar__extrapolation_lng_step;
-                        }
-                        lat_curr += sonar__extrapolation_lat_step;
-                    }
+//==================================== SYS ===============================================================================================================================
+                function sonar__getColor_depth_m(m) {
+                    let idx = Math.round(m / sonar__getColor_depth_m_dx);
+                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colors_depth.length - 1)); //constrain from to
+                    return sonar__colors_depth[idx];
+                }
+                function sonar__getColor_power_mks(mks, isWB) {
+                    let idx = Math.round(mks / sonar__colors_power_dx);
+                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__palette_power_rgb.length - 1)); //constrain from to
+                    return isWB ? sonar__palette_power_bw[idx] : sonar__palette_power_rgb[idx];
+                }
+                /*function sonar__mks2px(mks, point_depth_mks) {
+                 const sonar__mks2px_dx = point_depth_mks / sonar__pulses_block_h_px;
+                 let px = Math.round(mks / sonar__mks2px_dx);
+                 px = Math.min(Math.max(px, 0), sonar__pulses_block_h_px); //constrain from to
+                 return px;
+                 }*/
+                function sonar__mks2px_fullScale(mks) {
+                    let px = Math.round(mks / sonar__mks2px_fullScale_dx);
+                    px = Math.min(Math.max(px, 0), sonar__pulses_block_h_px); //constrain from to
+                    return px;
                 }
 
-                function sonar__extrapolation_point(lat, lng) {
-                    let depthsWeightingFactors = [];
-                    for (let index in sonar__real_pointsLatLng) {  //sonar__map_pointsLatLng rounded to 5 sign (sonar__real_pointsLatLng is 6 sign)
-                        const ll = index.split(/_/);
-                        const lat_curr = parseFloat(ll[0]) || 0;
-                        const lng_curr = parseFloat(ll[1]) || 0;
-                        const dLat = Math.abs(lat_curr - lat);
-                        const dLng = Math.abs(lng_curr - lng);
-                        if (dLat <= sonar__extrapolation_radius_dLat && dLng <= sonar__extrapolation_radius_dLng) {
-                            const idxDWF = Math.round(1.0 / (dLat + dLng));
-                            depthsWeightingFactors[idxDWF] = sonar__real_pointsLatLng[index].depthM;
-                        }
-                    }
-                    if (depthsWeightingFactors.length) {
-                        let depthM = 0;
-                        let idxDWF_sum = 0;
-                        for (let idxDWF in depthsWeightingFactors) {
-                            idxDWF_sum += parseInt(idxDWF);
-                        }
-                        for (let idxDWF in depthsWeightingFactors) {
-                            depthM += depthsWeightingFactors[idxDWF] * idxDWF / idxDWF_sum;
-                        }
-                        if (depthM > 0.1) {
-                            const idx = lat + '_' + lng;
-                            sonar__extrapolation_pointsLatLng[idx] = depthM;
-                        }
-                    }
+                function sonar__getOffsetLat_px(lat) {
+                    let px = Math.round((sonar__lat_max - lat) / sonar__pulse_w_offset_coef);
+                    return px;
 
+                }
+                function sonar__getOffsetLng_px(lng) {
+                    let px = Math.round((lng - sonar__lng_min) / sonar__pulse_w_offset_coef);
+                    return px;
+                }
+
+                function sonar__palettes() {
+                    for (const color of sonar__colors_depth) {
+                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
+                        $('#sonar__palette_depth').append(dv);
+                    }
+                    for (const color of sonar__palette_power_rgb) {
+                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
+                        $('#sonar__palette_power_rgb').append(dv);
+                    }
+                    for (const color of sonar__palette_power_bw) {
+                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
+                        $('#sonar__palette_power_bw').append(dv);
+                    }
                 }
 
                 function sonar__bathymetryProcess() {
@@ -679,13 +679,6 @@
                         return 2500;
                     }
                     return 2600;
-                }
-                function sonar__cleanWindows() {
-                    if (map__mapIsReady) {
-                        map__map.geoObjects.removeAll();
-                    }
-                    $('#sonar__section_block').html('');
-                    $('#sonar__plane_block').html('');
                 }
                 function sonar__pulses_hideWeak() {
                     const pulseW_mks = parseInt($('#sonar__range_pulse_w_min_show').val()) || 0;
