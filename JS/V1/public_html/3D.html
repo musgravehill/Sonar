@@ -112,6 +112,7 @@
                 let sonar__3D_pointsLatLng = [];
                 //
                 let sonar__section_pointsLatLng_clicked = [];
+                let sonar__section_pointsLatLng_used = [];
                 let sonar__section_isVertical = false;
                 let sonar__section_dLat = 0;
                 let sonar__section_dLng = 0;
@@ -401,7 +402,6 @@
                         const idx = lat + '_' + lng;
                         sonar__section_pointsLatLng_clicked[idx] = 1;
                         sonar__section_draw(lat, lng); //добавим точку, в окрестности которой будем искать 
-
                         //todo draw red RECT +_ dlat dlong in 3D-points-block in selected lat-long
                     });
                 }
@@ -416,8 +416,15 @@
                         const lng_curr = parseFloat(ll[1]) || 0;
                         const dLat = Math.abs(lat_curr - lat);
                         const dLng = Math.abs(lng_curr - lng);
+
+                        const idx = lat_curr + '_' + lng_curr;
+                        if (sonar__section_pointsLatLng_used.hasOwnProperty(idx)) {
+                            continue;//dont draw this point -> it already drawn 
+                        }
+
                         if (dLat <= sonar__section_dLat && dLng <= sonar__section_dLng) {
                             $('#sonar__section_block').append(sonar__2D_point(lat_curr, lng_curr, sonar__3D_pointsLatLng[index]));
+                            sonar__section_pointsLatLng_used[idx] = 1;
                         }
                     }
 
