@@ -59,7 +59,7 @@
                                 <!--input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;-->
                             </div>
                             <div class="d-block">
-                                <input id="sonar__circles" type="checkbox" checked> Точки  
+                                <input id="sonar__plane_point_dot" type="checkbox" checked> Точки  
                             </div>
                             <div class="d-block mt-3">
                                 <b>Мощность отражений</b><br>
@@ -106,12 +106,13 @@
                 <div class="col-10">                      
                     <div id="sonar__section_block"></div>  
                     <div id="sonar__3D_block"></div>
+                    <div id="map__bathymetry_block" style="width: 100%; height: 420px;"></div>
                 </div>                
             </div>  
 
 
             <script>
-                let sonar__3D_pointsLatLng = [];
+                let sonar__plane_pointsLatLng = [];
                 //
                 let sonar__section_pointsLatLng_clicked = [];
                 let sonar__section_pointsLatLng_used = [];
@@ -186,9 +187,9 @@
                     });
                     $('#sonar__over_bottom').change(() => {
                         if ($('#sonar__over_bottom').is(":checked")) {
-                            $('div.logic_pulsesOverBottom_block').show();
+                            $('div.sonar__plane_point_pulses').show();
                         } else {
-                            $('div.logic_pulsesOverBottom_block').hide();
+                            $('div.sonar__plane_point_pulses').hide();
                         }
                     });
                     $('#sonar__full_bottom').change(() => {
@@ -198,17 +199,17 @@
                             $('div.logic_pulsesFull_block').hide();
                         }
                     });
-                    $('#sonar__circles').change(() => {
-                        if ($('#sonar__circles').is(":checked")) {
-                            $('div.sonar__circles').show();
+                    $('#sonar__plane_point_dot').change(() => {
+                        if ($('#sonar__plane_point_dot').is(":checked")) {
+                            $('div.sonar__plane_point_dot').show();
                         } else {
-                            $('div.sonar__circles').hide();
+                            $('div.sonar__plane_point_dot').hide();
                         }
                     });
                     $('#sonar__range_pulse_w_min_show').change(() => {
                         const pulseW_mks = parseInt($('#sonar__range_pulse_w_min_show').val()) || 0;
                         if ($('#sonar__over_bottom').is(":checked")) {
-                            $('div.logic_pulseOverBottom').show().filter(function () {
+                            $('div.sonar__plane_point_pulse').show().filter(function () {
                                 return $(this).attr('w_mks') < pulseW_mks;
                             }).hide();
                         }
@@ -245,16 +246,16 @@
                         const w_mks = parseInt($(this).attr('w_mks')) || 0;
                         $(this).css('background-color', sonar__getColor_power_mks(w_mks, sonar__colors_power_isBW));
                     });
-                    $('div.logic_pulseOverBottom').each(function () {
+                    $('div.sonar__plane_point_pulse').each(function () {
                         const w_mks = parseInt($(this).attr('w_mks')) || 0;
                         $(this).css('background-color', sonar__getColor_power_mks(w_mks, sonar__colors_power_isBW));
                     });
                     if (sonar__colors_power_isBW) {
                         $('div.sonar__section_pulse').css('opacity', 0.6);
-                        //$('div.logic_pulseOverBottom').css('opacity', 0.6);
+                        //$('div.sonar__plane_point_pulse').css('opacity', 0.6);
                     } else {
                         $('div.sonar__section_pulse').css('opacity', 1);
-                        //$('div.logic_pulseOverBottom').css('opacity', 1);
+                        //$('div.sonar__plane_point_pulse').css('opacity', 1);
                     }
                 }
 
@@ -269,7 +270,7 @@
                 }
 
                 function sonar__bathymetryProcess() {
-                    sonar__3D_pointsLatLng = [];
+                    sonar__plane_pointsLatLng = [];
                     sonar__depth_min = 0;
                     sonar__depth_max = 0;
                     depth_min_allow = parseFloat($('#form_bathymetry__depth_min_input').val()) || 0;
@@ -330,18 +331,18 @@
                             //const lat5 = Math.round(lat * 100000) / 100000;
                             //const lng5 = Math.round(lng * 100000) / 100000;
                             const idx = lat + '_' + lng;
-                            if (sonar__3D_pointsLatLng.hasOwnProperty(idx)) {
-                                //console.log('double1', depthM, sonar__3D_pointsLatLng[idx].depthM);
-                                //console.log('double2', pulses, sonar__3D_pointsLatLng[idx].pulses);
-                                depthM = (sonar__3D_pointsLatLng[idx].depthM + depthM) / 2.0;
-                                pulses = pulses.concat(sonar__3D_pointsLatLng[idx].pulses);
+                            if (sonar__plane_pointsLatLng.hasOwnProperty(idx)) {
+                                //console.log('double1', depthM, sonar__plane_pointsLatLng[idx].depthM);
+                                //console.log('double2', pulses, sonar__plane_pointsLatLng[idx].pulses);
+                                depthM = (sonar__plane_pointsLatLng[idx].depthM + depthM) / 2.0;
+                                pulses = pulses.concat(sonar__plane_pointsLatLng[idx].pulses);
                             }
                             let point = {
                                 depthM: depthM,
                                 depth_mks: depth_mks,
                                 pulses: pulses
                             };
-                            sonar__3D_pointsLatLng[idx] = point;
+                            sonar__plane_pointsLatLng[idx] = point;
 
                             if (sonar__depth_min > depthM) {
                                 sonar__depth_min = depthM;
@@ -382,11 +383,11 @@
                     sonar__getColor_depth_m_dx = (sonar__depth_max - sonar__depth_min) / sonar__colors_depth.length;
                     sonar__mks2px_fullScale_dx = (depth_max_allow * sonar__mks2m) / sonar__pulses_block_h_px;
 
-                    for (let index in sonar__3D_pointsLatLng) {
+                    for (let index in sonar__plane_pointsLatLng) {
                         const ll = index.split(/_/);
                         const lat_curr = parseFloat(ll[0]) || 0;
                         const lng_curr = parseFloat(ll[1]) || 0;
-                        sonar__3D_point(lat_curr, lng_curr, sonar__3D_pointsLatLng[index]);
+                        sonar__plane_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
                     }
                 }
 
@@ -400,7 +401,7 @@
                     sonar__section_dLng = parseFloat($('#sonar__section_dLng').val()) || 0;
                     $('div.sonar__section_radius').remove();
 
-                    $('div.sonar__circles').unbind('click').click(function () {
+                    $('div.sonar__plane_point_dot').unbind('click').click(function () {
                         const lat = parseFloat($(this).attr('lat')) || 0;
                         const lng = parseFloat($(this).attr('lng')) || 0;
                         const idx = lat + '_' + lng;
@@ -415,15 +416,15 @@
                     }
 
                     //draw red RECT +_ dlat dlong in 3D-points-block in selected lat-long
-                    const radius_w_px = (2 * sonar__section_dLat)/sonar__pulse_w_offset_coef;
-                    const radius_h_px = (2 * sonar__section_dLng)/sonar__pulse_w_offset_coef;
-                    const radius_top_px = sonar__pulses_block_h_px + sonar__getOffsetLat_px(lat) - 0.5*radius_h_px;
-                    const radius_left_px = sonar__getOffsetLng_px(lng) - 0.5*radius_w_px;
+                    const radius_w_px = (2 * sonar__section_dLat) / sonar__pulse_w_offset_coef;
+                    const radius_h_px = (2 * sonar__section_dLng) / sonar__pulse_w_offset_coef;
+                    const radius_top_px = sonar__pulses_block_h_px + sonar__getOffsetLat_px(lat) - 0.5 * radius_h_px;
+                    const radius_left_px = sonar__getOffsetLng_px(lng) - 0.5 * radius_w_px;
                     let html = '<div class="sonar__section_radius" style="left:' + radius_left_px + 'px; top:' + radius_top_px + 'px; width:' + radius_w_px + 'px; height:' + radius_h_px + 'px; ">';
                     html += '</div>';
                     $('#sonar__3D_block').append(html);
 
-                    for (let index in sonar__3D_pointsLatLng) {
+                    for (let index in sonar__plane_pointsLatLng) {
                         const ll = index.split(/_/);
                         const lat_curr = parseFloat(ll[0]) || 0;
                         const lng_curr = parseFloat(ll[1]) || 0;
@@ -436,7 +437,7 @@
                         }
 
                         if (dLat <= sonar__section_dLat && dLng <= sonar__section_dLng) {
-                            $('#sonar__section_block').append(sonar__2D_point(lat_curr, lng_curr, sonar__3D_pointsLatLng[index]));
+                            $('#sonar__section_block').append(sonar__section_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]));
                             sonar__section_pointsLatLng_used[idx] = 1;
                         }
                     }
@@ -447,7 +448,7 @@
                         return $(this).attr('w_mks') < pulseW_mks;
                     }).hide();
                 }
-                function sonar__2D_point(lat, lng, data) {
+                function sonar__section_point(lat, lng, data) {
                     const depth_color = sonar__getColor_depth_m(data.depthM);
                     const left_px = sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
                     let mt_px = 5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m);
@@ -464,19 +465,19 @@
                     return html;
                 }
 
-                function sonar__3D_point(lat, lng, data) {
+                function sonar__plane_point(lat, lng, data) {
                     const depth_color = sonar__getColor_depth_m(data.depthM);
                     const left_px = sonar__getOffsetLng_px(lng);
                     const top_px = sonar__getOffsetLat_px(lat);
 
-                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm" class="logic_pulsesOverBottom_block" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; border-bottom: ' + sonar__pulse_w_px + 'px solid ' + depth_color + '; width:' + sonar__pulse_w_px + 'px; ">';
+                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm" class="sonar__plane_point_pulses" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; border-bottom: ' + sonar__pulse_w_px + 'px solid ' + depth_color + '; width:' + sonar__pulse_w_px + 'px; ">';
                     for (const pulse of data.pulses) {
                         if (pulse.R >= (data.depth_mks - 100)) {
                             continue; //only fish over bottom                            
                         }
                         pulse_color = sonar__getColor_power_mks(pulse.W, sonar__colors_power_isBW); //fish over bottom                         
                         let mt_px = sonar__mks2px_fullScale(pulse.R + (sonar__depth_max - data.depthM) * sonar__mks2m); //прижмем ко дну, а не к поверхности
-                        html += '<div class="logic_pulseOverBottom" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__pulse_w_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
+                        html += '<div class="sonar__plane_point_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__pulse_w_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
                     }
                     html += '</div>';
 
@@ -496,10 +497,11 @@
                      }
                      html += '</div>';*/
 
-                    html += '<div class="sonar__circles" lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + (sonar__pulses_block_h_px + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__pulse_w_px + 'px; height:' + sonar__pulse_w_px + 'px; ">';
+                    html += '<div class="sonar__plane_point_dot" lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + (sonar__pulses_block_h_px + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__pulse_w_px + 'px; height:' + sonar__pulse_w_px + 'px; ">';
                     html += '</div>';
 
-                    $('#sonar__3D_block').append(html);
+                    $('#sonar__3D_block').append(html);                           
+                     
                 }
 
 
@@ -552,10 +554,64 @@
                     }
                 }
 
+                 /////////////////////////MAP 
+                let map__map;
+                let map__mapIsReady = false;
+                document.addEventListener('DOMContentLoaded', function () {
+                    ymaps.ready(map__init);                    
+                });   
+                function map__init() {
+                    ymaps.geolocation.get().then(function (res) {
+                        var mapContainer = $('#map__bathymetry_block'),
+                                bounds = res.geoObjects.get(0).properties.get('boundedBy'),
+                                // Рассчитываем видимую область для текущей положения пользователя.
+                                mapState = ymaps.util.bounds.getCenterAndZoom(
+                                        bounds,
+                                        [mapContainer.width(), mapContainer.height()]
+                                        );
+                        mapState.zoom = 11;
+                        map__createMap(mapState);
+                    }, function (e) {
+                        // Если местоположение невозможно получить, то просто создаем карту.
+                        map__createMap({
+                            center: [57, 39],
+                            zoom: 11
+                        });
+                    });
+                }
+
+                function map__createMap(state) {
+                    map__map = new ymaps.Map('map__bathymetry_block', state);
+                    map__mapIsReady = true;
+                }
+                function map__point(lat, lng, depthM) {
+                    const color = map__getColor(depthM) + 'FF';
+                    let r = 1;
+                    let myCircle = new ymaps.Circle([
+                        [lat, lng], // Координаты центра круга.            
+                        r // Радиус круга в метрах.
+                    ], {
+                        balloonContent: Math.round(depthM * 100) / 100 + "m",
+                        hintContent: Math.round(depthM * 100) / 100 + "m",
+                    }, {
+                        draggable: false,
+                        fillColor: color, // Цвет заливки. Последний байт (77) определяет прозрачность.            
+                        strokeColor: color, // Цвет обводки.            
+                        strokeOpacity: 0, // Прозрачность обводки.           
+                        strokeWidth: 1 // Ширина обводки в пикселях.
+                    });
+                    map__map.geoObjects.add(myCircle);
+                }
+
+
+
+
+
             </script>
         </main>
         <script src="jquery-3.6.0.min.js"></script>
         <script src="bootstrap.bundle.min.js"></script>
+        <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=ea0860a1-d606-43c4-88f4-93529deb4edb" type="text/javascript"></script>
     </body>
 </html>
 <style>
@@ -607,7 +663,7 @@
         padding: 0;
     }
 
-    .logic_pulsesOverBottom_block{
+    .sonar__plane_point_pulses{
         display: block;
         float: left;        
         height: 100px; /*sonar__pulses_block_h_px*/             
@@ -620,14 +676,14 @@
         overflow: hidden;
         z-index: 1;
     }
-    .logic_pulsesOverBottom_block:hover{
+    .sonar__plane_point_pulses:hover{
         border-left: 1px solid red;
         border-right: 1px solid red;
         border-top: 1px solid red;        
         background-color: white;
         z-index: 600;        
     }
-    .logic_pulseOverBottom{     
+    .sonar__plane_point_pulse{     
         opacity: 0.3;
         background-color: black;       
         position: absolute;    
@@ -636,7 +692,7 @@
         height: 2px;
     }        
 
-    .sonar__circles{        
+    .sonar__plane_point_dot{        
         display: block;
         float: left;          
         position: absolute;
