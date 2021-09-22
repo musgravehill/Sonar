@@ -184,27 +184,24 @@
                 });
 
                 function sonar__actions() {
+                    $('#form_bathymetry__btn_ok').click(() => {
+                        sonar__bathymetryProcess();
+                    });
                     $('#sonar__real_ok').click(() => {
                         sonar__real_process();
                     });
                     $('#sonar__extrapolation_ok').click(() => {
                         sonar__extrapolation_process();
                     });
-                    $('#form_bathymetry__btn_ok').click(() => {
-                        sonar__bathymetryProcess();
+                    $('#sonar__section_ok').click(() => {
+                        sonar__section_init();
                     });
+
                     $('#sonar__over_bottom').change(() => {
                         if ($('#sonar__over_bottom').is(":checked")) {
                             $('div.sonar__plane_point_pulses').show();
                         } else {
                             $('div.sonar__plane_point_pulses').hide();
-                        }
-                    });
-                    $('#sonar__full_bottom').change(() => {
-                        if ($('#sonar__full_bottom').is(":checked")) {
-                            $('div.logic_pulsesFull_block').show();
-                        } else {
-                            $('div.logic_pulsesFull_block').hide();
                         }
                     });
                     $('#sonar__plane_point_dot').change(() => {
@@ -215,16 +212,7 @@
                         }
                     });
                     $('#sonar__range_pulse_w_min_show').change(() => {
-                        const pulseW_mks = parseInt($('#sonar__range_pulse_w_min_show').val()) || 0;
-                        if ($('#sonar__over_bottom').is(":checked")) {
-                            $('div.sonar__plane_point_pulse').show().filter(function () {
-                                return $(this).attr('w_mks') < pulseW_mks;
-                            }).hide();
-                        }
-                        $('div.sonar__section_pulse').show().filter(function () {
-                            return $(this).attr('w_mks') < pulseW_mks;
-                        }).hide();
-                        $('#sonar__range_pulse_w_min_show_val').html(pulseW_mks + 'mks');
+                        sonar__pulses_hideWeak();
                     });
                     $('#sonar__palette_power_isBW').change(() => {
                         sonar__colors_power_isBW = $('#sonar__palette_power_isBW').is(":checked");
@@ -236,11 +224,9 @@
                         $('#sonar__range_pulse_w_max_val').html(pulseW_mks + 'mks');
                         sonar__pulses_setColor();
                     });
-
-                    $('#sonar__section_ok').click(() => {
-                        sonar__section_init();
-                    });
                 }
+
+//==================================== START ===============================================================================================================================
 
                 function sonar__real_process() {
                     sonar__cleanWindows();
@@ -254,8 +240,11 @@
 
                     sonar__map_points_init(sonar__real_pointsLatLng);
                     sonar__map_points_draw();
+                    sonar__section_init();
                 }
-                
+
+
+//==================================== SECTION ===============================================================================================================================
                 function sonar__section_init() {
                     $('#sonar__section_block').html('');
                     sonar__section_pointsLatLng_used = [];
@@ -272,42 +261,6 @@
                         sonar__section_pointsInRadius_draw(lat, lng); //точку, в окрестности которой будем искать                       
                     });
                 }
-
-
-
-
-                function sonar__pulses_setColor() {
-                    $('div.sonar__section_pulse').each(function () {
-                        const w_mks = parseInt($(this).attr('w_mks')) || 0;
-                        $(this).css('background-color', sonar__getColor_power_mks(w_mks, sonar__colors_power_isBW));
-                    });
-                    $('div.sonar__plane_point_pulse').each(function () {
-                        const w_mks = parseInt($(this).attr('w_mks')) || 0;
-                        $(this).css('background-color', sonar__getColor_power_mks(w_mks, sonar__colors_power_isBW));
-                    });
-                    if (sonar__colors_power_isBW) {
-                        $('div.sonar__section_pulse').css('opacity', 0.6);
-                        //$('div.sonar__plane_point_pulse').css('opacity', 0.6);
-                    } else {
-                        $('div.sonar__section_pulse').css('opacity', 1);
-                        //$('div.sonar__plane_point_pulse').css('opacity', 1);
-                    }
-                }
-
-                function sonar__getPulse_w_realBottom_mks_min(depth_mks) {
-                    if (depth_mks < 1500) {
-                        return 1200;
-                    }
-                    if (depth_mks < 3000) {
-                        return 2500;
-                    }
-                    return 2600;
-                }
-
-
-
-                
-
                 function sonar__section_pointsInRadius_draw(lat, lng) {
                     if (lat < 1 || lng < 1) {
                         return;
@@ -343,12 +296,7 @@
                             sonar__section_pointsLatLng_used[idx] = 1;
                         }
                     }
-
-                    //hide weak signals
-                    const pulseW_mks = parseInt($('#sonar__range_pulse_w_min_show').val()) || 0;
-                    $('div.sonar__section_pulse').show().filter(function () {
-                        return $(this).attr('w_mks') < pulseW_mks;
-                    }).hide();
+                    sonar__pulses_hideWeak();
                 }
                 function sonar__section_point(lat, lng, data) {
                     const depth_color = sonar__getColor_depth_m(data.depthM);
@@ -366,6 +314,15 @@
                     }
                     return html;
                 }
+
+//==================================== PLANE  ===============================================================================================================================
+
+
+
+
+                
+
+
 
                 function sonar__plane_point(lat, lng, data) {
                     const depth_color = sonar__getColor_depth_m(data.depthM);
@@ -504,6 +461,7 @@
                     if (!map__mapIsReady) {
                         return;
                     }
+                    map__map.geoObjects.removeAll();
                     for (let index in sonar__map_pointsLatLng) {
                         const ll = index.split(/_/);
                         const lat_curr = parseFloat(ll[0]) || 0;
@@ -600,9 +558,6 @@
                     }
 
                 }
-
-
-
 
                 function sonar__bathymetryProcess() {
                     sonar__real_pointsLatLng = [];
@@ -715,15 +670,52 @@
 
                     sonar__getColor_depth_m_dx = (sonar__depth_max - sonar__depth_min) / sonar__colors_depth.length;
                     sonar__mks2px_fullScale_dx = (depth_max_allow * sonar__mks2m) / sonar__pulses_block_h_px;
-
                 }
-
+                function sonar__getPulse_w_realBottom_mks_min(depth_mks) {
+                    if (depth_mks < 1500) {
+                        return 1200;
+                    }
+                    if (depth_mks < 3000) {
+                        return 2500;
+                    }
+                    return 2600;
+                }
                 function sonar__cleanWindows() {
                     if (map__mapIsReady) {
                         map__map.geoObjects.removeAll();
                     }
                     $('#sonar__section_block').html('');
                     $('#sonar__plane_block').html('');
+                }
+                function sonar__pulses_hideWeak() {
+                    const pulseW_mks = parseInt($('#sonar__range_pulse_w_min_show').val()) || 0;
+
+                    $('div.sonar__plane_point_pulse').show().filter(function () {
+                        return $(this).attr('w_mks') < pulseW_mks;
+                    }).hide();
+
+                    $('div.sonar__section_pulse').show().filter(function () {
+                        return $(this).attr('w_mks') < pulseW_mks;
+                    }).hide();
+
+                    $('#sonar__range_pulse_w_min_show_val').html(pulseW_mks + 'mks');
+                }
+                function sonar__pulses_setColor() {
+                    $('div.sonar__section_pulse').each(function () {
+                        const w_mks = parseInt($(this).attr('w_mks')) || 0;
+                        $(this).css('background-color', sonar__getColor_power_mks(w_mks, sonar__colors_power_isBW));
+                    });
+                    $('div.sonar__plane_point_pulse').each(function () {
+                        const w_mks = parseInt($(this).attr('w_mks')) || 0;
+                        $(this).css('background-color', sonar__getColor_power_mks(w_mks, sonar__colors_power_isBW));
+                    });
+                    if (sonar__colors_power_isBW) {
+                        $('div.sonar__section_pulse').css('opacity', 0.6);
+                        //$('div.sonar__plane_point_pulse').css('opacity', 0.6);
+                    } else {
+                        $('div.sonar__section_pulse').css('opacity', 1);
+                        //$('div.sonar__plane_point_pulse').css('opacity', 1);
+                    }
                 }
 
 
