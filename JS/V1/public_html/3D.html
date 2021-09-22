@@ -13,24 +13,37 @@
                 <div class="col-2">
                     <div class="row">
                         <div class="col">
-                            <h2>
+                            <b>
                                 3D bathymetry 
                                 <span id="bathymetry__points_count"></span>
-                            </h2>
+                            </b>
                         </div>                
                     </div>
                     <div class="row">                        
                         <div class="col-auto mb-1"> 
-                            <input type="number" id="form_bathymetry__depth_min_input" placeholder="Min depth, m" value="0.5" class="form-control d-inline-block" style="width: 90px">
-                            <input type="number" id="form_bathymetry__depth_max_input" placeholder="Max depth, m" value="5" class="form-control d-inline-block" style="width: 90px">
+                            <input type="number" id="form_bathymetry__depth_min_input" placeholder="Min depth, m" value="0.5" class="form-control d-inline-block form-control-sm" style="width: 90px">
+                            <input type="number" id="form_bathymetry__depth_max_input" placeholder="Max depth, m" value="5" class="form-control d-inline-block form-control-sm" style="width: 90px">
                         </div>
                         <div class="col-auto mb-1">
-                            <textarea id="form_bathymetry__data_input" class="form-control" style="width: 180px; height: 16px;" placeholder="Logic log"></textarea> 
+                            <textarea id="form_bathymetry__data_input" class="form-control form-control-sm" style="width: 90px; height: 16px;" placeholder="Logic log"></textarea> 
                         </div>
                         <div class="col-auto mb-1">
-                            <span id="form_bathymetry__btn_ok" class="btn btn-success">Ok</span>
+                            <span id="form_bathymetry__btn_ok" class="btn btn-success btn-sm">Ok</span>
                         </div>
                     </div> 
+                    <div class="row mt-5">
+                        <div class="col">
+                            <div class="d-block">
+                                <b>Захват сечения</b><br>
+                                ±Ш.(lat) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" id="sonar__section_dLat" style="width: 90px">                                 
+                                <br>
+                                ±Д.(lng) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" id="sonar__section_dLng" style="width: 90px">   
+                                <br>
+                                <input type="radio" name="sonar__section_axis_type" value="lat"> --lat-->
+                                <input type="radio" name="sonar__section_axis_type" value="lng"> --lng-->
+                            </div>
+                        </div>
+                    </div>
                     <div class="row mt-5">
                         <div class="col">
                             <div class="d-block">
