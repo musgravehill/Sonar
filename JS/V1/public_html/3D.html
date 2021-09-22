@@ -225,9 +225,7 @@
                         sonar__pulses_setColor();
                     });
                 }
-
 //==================================== START ===============================================================================================================================
-
                 function sonar__real_process() {
                     sonar__plane_points_init(sonar__real_pointsLatLng);
                     sonar__plane_points_draw();
@@ -237,8 +235,17 @@
 
                     sonar__section_init();
                 }
+                function sonar__extrapolation_process() {
+                    sonar__extrapolation_init();
 
+                    sonar__plane_points_init(sonar__extrapolation_pointsLatLng);
+                    sonar__plane_points_draw();
 
+                    sonar__map_points_init(sonar__extrapolation_pointsLatLng);
+                    sonar__map_points_draw();
+
+                    sonar__section_init();
+                }
 //==================================== SECTION ===============================================================================================================================
                 function sonar__section_init() {
                     $('#sonar__section_block').html('');
@@ -294,6 +301,9 @@
                     sonar__pulses_hideWeak();
                 }
                 function sonar__section_point(lat, lng, data) {
+                    if (lat < 1 || lng < 1) {
+                        return;
+                    }
                     const depth_color = sonar__getColor_depth_m(data.depthM);
                     const left_px = sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
                     let mt_px = 5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m);
@@ -309,7 +319,6 @@
                     }
                     return html;
                 }
-
 //==================================== PLANE  =============================================================================================================================== 
                 function sonar__plane_points_init(pointsLatLng) {
                     sonar__plane_pointsLatLng = pointsLatLng;
@@ -320,10 +329,13 @@
                         const ll = index.split(/_/);
                         const lat_curr = parseFloat(ll[0]) || 0;
                         const lng_curr = parseFloat(ll[1]) || 0;
-                        sonar__plane_point(lat_curr, lng_curr, sonar__real_pointsLatLng[index]);
+                        sonar__plane_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
                     }
                 }
                 function sonar__plane_point(lat, lng, data) {
+                    if (lat < 1 || lng < 1) {
+                        return;
+                    }
                     const depth_color = sonar__getColor_depth_m(data.depthM);
                     const left_px = sonar__getOffsetLng_px(lng);
                     const top_px = sonar__getOffsetLat_px(lat);
@@ -359,24 +371,20 @@
                     html += '</div>';
 
                     $('#sonar__plane_block').append(html);
-
                 }
-
 //==================================== EXTRAPOLATION ===============================================================================================================================
-
-                function sonar__extrapolation_process() {
+                function sonar__extrapolation_init() {
                     let lat_curr = sonar__lat_min;
                     while (lat_curr < sonar__lat_max) {
                         let lng_curr = sonar__lng_min;
                         while (lng_curr < sonar__lng_max) {
-                            sonar__extrapolation_point(lat_curr, lng_curr);
+                            sonar__extrapolation_point_calc(lat_curr, lng_curr);
                             lng_curr += sonar__extrapolation_lng_step;
                         }
                         lat_curr += sonar__extrapolation_lat_step;
                     }
                 }
-
-                function sonar__extrapolation_point(lat, lng) {
+                function sonar__extrapolation_point_calc(lat, lng) {
                     let depthsWeightingFactors = [];
                     for (let index in sonar__real_pointsLatLng) {  //sonar__map_pointsLatLng rounded to 5 sign (sonar__real_pointsLatLng is 6 sign)
                         const ll = index.split(/_/);
@@ -400,12 +408,15 @@
                         }
                         if (depthM > 0.1) {
                             const idx = lat + '_' + lng;
-                            sonar__extrapolation_pointsLatLng[idx] = depthM;
+                            const point = {
+                                depthM: depthM,
+                                depth_mks: (depthM * sonar__mks2m),
+                                pulses: []
+                            };
+                            sonar__extrapolation_pointsLatLng[idx] = point;
                         }
                     }
-
                 }
-
 //==================================== MAP =============================================================================================================================== 
                 let map__map;
                 let map__mapIsReady = false;
@@ -465,6 +476,9 @@
                     }
                 }
                 function sonar__map_point(lat, lng, depthM) {
+                    if (lat < 1 || lng < 1) {
+                        return;
+                    }
                     const color = sonar__getColor_depth_m(depthM) + 'FF';
                     const r = 1;
                     const myCircle = new ymaps.Circle([
@@ -483,6 +497,9 @@
                     map__map.geoObjects.add(myCircle);
                 }
                 function sonar__map_section_radius(lat, lng) {
+                    if (lat < 1 || lng < 1) {
+                        return;
+                    }
                     const myRectangle = new ymaps.Rectangle([
                         // Задаем координаты диагональных углов прямоугольника.
                         [(lat + sonar__section_dLat), (lng - sonar__section_dLng)],
