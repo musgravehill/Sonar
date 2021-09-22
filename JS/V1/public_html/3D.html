@@ -395,12 +395,7 @@
                     }
 
                     if (map__mapIsReady) {
-                        for (let index in sonar__map_pointsLatLng) {
-                            const ll = index.split(/_/);
-                            const lat_curr = parseFloat(ll[0]) || 0;
-                            const lng_curr = parseFloat(ll[1]) || 0;
-                            sonar__map_point(lat_curr, lng_curr, sonar__map_pointsLatLng[index]);
-                        }
+                        sonar__map_render();
                     }
                 }
 
@@ -413,6 +408,10 @@
                     sonar__section_dLat = parseFloat($('#sonar__section_dLat').val()) || 0;
                     sonar__section_dLng = parseFloat($('#sonar__section_dLng').val()) || 0;
                     $('div.sonar__section_radius').remove();
+
+                    if (map__mapIsReady) {
+                        sonar__map_render();
+                    }
 
                     $('div.sonar__plane_point_dot').unbind('click').click(function () {
                         const lat = parseFloat($(this).attr('lat')) || 0;
@@ -440,7 +439,6 @@
                     if (map__mapIsReady) {
                         sonar__map_section_radius(lat, lng);
                     }
-
 
                     for (let index in sonar__plane_pointsLatLng) {
                         const ll = index.split(/_/);
@@ -602,6 +600,18 @@
                     map__map = new ymaps.Map('map__bathymetry_block', state);
                     map__mapIsReady = true;
                 }
+                function sonar__map_render() {
+                    map__map.geoObjects.removeAll();
+
+                    for (let index in sonar__map_pointsLatLng) {
+                        const ll = index.split(/_/);
+                        const lat_curr = parseFloat(ll[0]) || 0;
+                        const lng_curr = parseFloat(ll[1]) || 0;
+                        sonar__map_point(lat_curr, lng_curr, sonar__map_pointsLatLng[index]);
+                    }
+                }
+
+
                 function sonar__map_point(lat, lng, depthM) {
                     const color = sonar__getColor_depth_m(depthM) + 'FF';
                     const r = 1;
