@@ -38,9 +38,11 @@
                                 ±Ш.(lat) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" id="sonar__section_dLat" style="width: 90px">                                 
                                 <br>
                                 ±Д.(lng) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" id="sonar__section_dLng" style="width: 90px">   
+                                <br>                                 
+                                <input type="radio" name="sonar__section_isVertical" value="0" checked> --- &nbsp;&nbsp;
+                                <input type="radio" name="sonar__section_isVertical" value="1"> | 
                                 <br>
-                                <input type="radio" name="sonar__section_axis_type" value="lat"> --lat-->
-                                <input type="radio" name="sonar__section_axis_type" value="lng"> --lng-->
+                                <span id="sonar__section_ok" class="btn btn-success btn-sm">Начать</span>   
                             </div>
                         </div>
                     </div>
@@ -94,29 +96,26 @@
                             </div>
                             <div class="d-block mt-3" style="font-size: 12px;">
                                 <b>В толще воды</b><br>
-                                Наведение на точку или импульс: покажет отражения в толще воды, глубину, начало отражения ото дна pulseRising мкс, ширину пульса pulseWidth мкс.
-                                Клик по точке: геопозиция точки будет использоваться для отрисовки толщи воды для данной Ш. и Д. Сечение толщи воды в горизонтальной и вертикальной плоскостях через эту точку.
+                                Наведение на точку или импульс: покажет отражения в толще воды, глубину, начало отражения ото дна pulseRising мкс, ширину пульса pulseWidth мкс.                                
                             </div>
                         </div>
                     </div> 
                 </div> 
-                <div class="col-10">
-                    <div style="margin: 0px 0px -17px 4px; font-size: 12px;">
-                        Сечение горизонтальное. 
-                        <span id="sonar__2D_block_latconst_lng_info"></span>
-                    </div>
-                    <div id="sonar__2D_block_latconst_lng"></div>
-                    <div style="margin: 0px 0px -17px 4px; font-size: 12px;">
-                        Сечение вертикальное. 
-                        <span id="sonar__2D_block_lat_lngconst_info"></span>  
-                    </div>
-                    <div id="sonar__2D_block_lat_lngconst"></div>  
+                <div class="col-10">                      
+                    <div id="sonar__section_block"></div>  
                     <div id="sonar__3D_block"></div>
                 </div>                
             </div>  
 
 
             <script>
+                let sonar__3D_pointsLatLng = [];
+                //
+                let sonar__section_pointsLatLng_clicked = [];
+                let sonar__section_isVertical = 'lat';
+                let sonar__section_dLat = 0;
+                let sonar__section_dLng = 0;
+                //
                 let sonar__depth_min = 0;
                 let sonar__depth_max = 0;
                 let depth_min_allow = 0;
@@ -147,7 +146,6 @@
                 const sonar__mks2m = 1367.0;
                 const sonar__pulse_w_px = 8; //px;
                 const sonar__pulse_w_offset_coef = 0.8 * 0.000001;
-                let sonar__3D_pointsLatLng = [];
                 const sonar__palette_power_rgb = [
                     '#0011fa',
                     '#016efa',
@@ -232,7 +230,12 @@
                         $('#sonar__range_pulse_w_max_val').html(pulseW_mks + 'mks');
                         sonar__pulses_setColor();
                     });
+
+                    $('#sonar__section_ok').click(() => {
+                        sonar__section_begin();
+                    });
                 }
+
 
                 function sonar__pulses_setColor() {
                     $('div.sonar__2D_pulse').each(function () {
@@ -382,22 +385,28 @@
                         const lng_curr = parseFloat(ll[1]) || 0;
                         sonar__3D_point(lat_curr, lng_curr, sonar__3D_pointsLatLng[index]);
                     }
+                }
+
+
+                function sonar__section_begin() {
+                    $('#sonar__section_block').html('');
+                    sonar__section_pointsLatLng_clicked = [];
+                    sonar__section_isVertical = $('input[name="sonar__section_isVertical"]:checked').val();
+                    sonar__section_dLat = parseFloat($('#sonar__section_dLat').val()) || 0;
+                    sonar__section_dLng = parseFloat($('#sonar__section_dLng').val()) || 0;
 
                     $('div.logic_pulsesOverBottom_block').unbind('click').click(function () {
                         const lat = parseFloat($(this).attr('lat')) || 0;
                         const lng = parseFloat($(this).attr('lng')) || 0;
-                        sonar__2D_render(lat, lng);
-                    });
-                    $('div.logic_pulsesFull_block').unbind('click').click(function () {
-                        const lat = parseFloat($(this).attr('lat')) || 0;
-                        const lng = parseFloat($(this).attr('lng')) || 0;
-                        sonar__2D_render(lat, lng);
+                        const idx = lat + '_' + lng;
+                        sonar__section_pointsLatLng_clicked[idx] = 1;
+                        sonar__section_draw(lat, lng); //добавим точку, в окрестности которой будем искать 
+
+                        //todo draw red RECT +_ dlat dlong in 3D-points-block in selected lat-long
                     });
                 }
 
-                function sonar__2D_render(lat, lng) {
-                    $('#sonar__2D_block_latconst_lng').html('');
-                    $('#sonar__2D_block_lat_lngconst').html('');
+                function sonar__section_draw(lat, lng) {
                     if (lat < 1 || lng < 1) {
                         return;
                     }
@@ -407,11 +416,8 @@
                         const lng_curr = parseFloat(ll[1]) || 0;
                         const dLat = Math.abs(lat_curr - lat);
                         const dLng = Math.abs(lng_curr - lng);
-                        if (dLat <= 0.00001) {
-                            $('#sonar__2D_block_latconst_lng').append(sonar__2D_point(lat_curr, lng_curr, sonar__3D_pointsLatLng[index], false));
-                        }
-                        if (dLng <= 0.00001) {
-                            $('#sonar__2D_block_lat_lngconst').append(sonar__2D_point(lat_curr, lng_curr, sonar__3D_pointsLatLng[index], true));
+                        if (dLat <= sonar__section_dLat && dLng <= sonar__section_dLng) {
+                            $('#sonar__section_block').append(sonar__2D_point(lat_curr, lng_curr, sonar__3D_pointsLatLng[index]));
                         }
                     }
 
@@ -420,12 +426,9 @@
                     $('div.sonar__2D_pulse').show().filter(function () {
                         return $(this).attr('w_mks') < pulseW_mks;
                     }).hide();
-
-                    //info
-                    $('#sonar__2D_block_latconst_lng_info').html(' Ш.(lat)=' + lat + ' Д.(lng)=' + sonar__lng_min + ' - ' + sonar__lng_max + ' ');
-                    $('#sonar__2D_block_lat_lngconst_info').html(' Ш.(lat)=' + sonar__lat_min + ' - ' + sonar__lat_max + ' Д.(lng)=' + lng + ' ');
                 }
-                function sonar__2D_point(lat, lng, data, isVertical) {
+                function sonar__2D_point(lat, lng, data) {
+                    const isVertical = (sonar__section_isVertical === 'lat') ? true : false;
                     const depth_color = sonar__getColor_depth_m(data.depthM);
                     const left_px = isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
                     let mt_px = 5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m);
@@ -537,20 +540,14 @@
     </body>
 </html>
 <style>
-    #sonar__2D_block_latconst_lng{
+    #sonar__section_block{
         width: 100%; 
         height: 130px; 
         overflow: scroll;
         position: relative;
         border: 1px solid #003580;        
     }
-    #sonar__2D_block_lat_lngconst{
-        width: 100%; 
-        height: 130px; 
-        overflow: scroll;
-        position: relative;
-        border: 1px solid #003580;        
-    }
+
     #sonar__3D_block{ 
         width: 100%; 
         height: 420px; 
