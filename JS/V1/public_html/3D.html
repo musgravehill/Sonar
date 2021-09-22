@@ -42,7 +42,7 @@
                                 <input type="radio" name="sonar__section_isVertical" value="0" checked> --- &nbsp;&nbsp;
                                 <input type="radio" name="sonar__section_isVertical" value="1"> | 
                                 <br>
-                                <span id="sonar__section_ok" class="btn btn-success btn-sm">Начать</span>   
+                                <span id="sonar__section_ok" class="btn btn-success btn-sm">Применить и начать</span>   
                             </div>
                         </div>
                     </div>
@@ -394,6 +394,7 @@
                 function sonar__section_begin() {
                     $('#sonar__section_block').html('');
                     sonar__section_pointsLatLng_clicked = [];
+                    sonar__section_pointsLatLng_used = [];
                     sonar__section_isVertical = parseInt($('input[name="sonar__section_isVertical"]:checked').val()) === 1 ? true : false;
                     sonar__section_dLat = parseFloat($('#sonar__section_dLat').val()) || 0;
                     sonar__section_dLng = parseFloat($('#sonar__section_dLng').val()) || 0;
