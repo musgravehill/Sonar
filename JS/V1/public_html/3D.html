@@ -176,6 +176,12 @@
                 ]; //9                
                 let sonar__colors_power_dx = (2000 - 0) / sonar__palette_power_rgb.length; //default, change by input-range
                 let sonar__colors_power_isBW = true;
+                //
+                let sonar__extrapolation_pointsLatLng = [];
+                const sonar__extrapolation_lat_step = 0.0001;
+                const sonar__extrapolation_lng_step = 0.0001;
+                const sonar__extrapolation_radius_dLat = 0.00007;
+                const sonar__extrapolation_radius_dLng = 0.00007;
 
 
                 document.addEventListener('DOMContentLoaded', function () {
@@ -238,10 +244,9 @@
                     });
 
                     $('#sonar__section_ok').click(() => {
-                        sonar__section_begin();
+                        sonar__section_init();
                     });
                 }
-
 
                 function sonar__pulses_setColor() {
                     $('div.sonar__section_pulse').each(function () {
@@ -399,8 +404,7 @@
                     }
                 }
 
-
-                function sonar__section_begin() {
+                function sonar__section_init() {
                     $('#sonar__section_block').html('');
                     sonar__section_pointsLatLng_clicked = [];
                     sonar__section_pointsLatLng_used = [];
@@ -410,19 +414,19 @@
                     $('div.sonar__section_radius').remove();
 
                     if (map__mapIsReady) {
-                        sonar__map_render();
+                        sonar__map_render(); //clean red-rect radius
                     }
 
                     $('div.sonar__plane_point_dot').unbind('click').click(function () {
                         const lat = parseFloat($(this).attr('lat')) || 0;
                         const lng = parseFloat($(this).attr('lng')) || 0;
                         const idx = lat + '_' + lng;
-                        sonar__section_pointsLatLng_clicked[idx] = 1;
-                        sonar__section_draw(lat, lng); //добавим точку, в окрестности которой будем искать                       
+                        sonar__section_pointsLatLng_clicked[idx] = 1; //todo append to html.list for copy, some use
+                        sonar__section_pointsInRadius_draw(lat, lng); //добавим точку, в окрестности которой будем искать                       
                     });
                 }
 
-                function sonar__section_draw(lat, lng) {
+                function sonar__section_pointsInRadius_draw(lat, lng) {
                     if (lat < 1 || lng < 1) {
                         return;
                     }
@@ -526,13 +530,11 @@
                     idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colors_depth.length - 1)); //constrain from to
                     return sonar__colors_depth[idx];
                 }
-
                 function sonar__getColor_power_mks(mks, isWB) {
                     let idx = Math.round(mks / sonar__colors_power_dx);
                     idx = Math.min(Math.max(parseInt(idx), 0), (sonar__palette_power_rgb.length - 1)); //constrain from to
                     return isWB ? sonar__palette_power_bw[idx] : sonar__palette_power_rgb[idx];
                 }
-
                 /*function sonar__mks2px(mks, point_depth_mks) {
                  const sonar__mks2px_dx = point_depth_mks / sonar__pulses_block_h_px;
                  let px = Math.round(mks / sonar__mks2px_dx);
@@ -595,7 +597,6 @@
                         });
                     });
                 }
-
                 function map__createMap(state) {
                     map__map = new ymaps.Map('map__bathymetry_block', state);
                     map__mapIsReady = true;
@@ -610,8 +611,6 @@
                         sonar__map_point(lat_curr, lng_curr, sonar__map_pointsLatLng[index]);
                     }
                 }
-
-
                 function sonar__map_point(lat, lng, depthM) {
                     const color = sonar__getColor_depth_m(depthM) + 'FF';
                     const r = 1;
@@ -657,6 +656,43 @@
                         borderRadius: 0
                     });
                     map__map.geoObjects.add(myRectangle);
+                }
+
+
+                function sonar__extrapolation_process() {
+                    sonar__extrapolation_pointsLatLng = [];
+
+
+                    let lat_curr = sonar__lat_min;
+                    while (lat_curr < sonar__lat_max) {
+                        let lng_curr = sonar__lng_min;
+                        while (lng_curr < sonar__lng_max) {
+                            sonar__extrapolation_point(lat_curr, lng_curr);
+                            lng_curr += sonar__extrapolation_lng_step;
+                        }
+                        lat_curr += sonar__extrapolation_lat_step;
+                    }
+                }
+
+                function sonar__extrapolation_point(lat, lng) {
+                    let depthM = 0;
+
+                    for (let index in sonar__plane_pointsLatLng) {  //sonar__map_pointsLatLng rounded to 5 sign (sonar__plane_pointsLatLng is 6 sign)
+                        const ll = index.split(/_/);
+                        const lat_curr = parseFloat(ll[0]) || 0;
+                        const lng_curr = parseFloat(ll[1]) || 0;
+                        const dLat = Math.abs(lat_curr - lat);
+                        const dLng = Math.abs(lng_curr - lng);  
+                        if (dLat <= sonar__extrapolation_radius_dLat && dLng <= sonar__extrapolation_radius_dLng) {
+
+                        }
+                    }
+
+                    if (depthM > 0.1) {
+                        const idx = lat + '_' + lng;
+                        sonar__extrapolation_pointsLatLng[idx] = depthM;
+                    }
+
                 }
 
 
