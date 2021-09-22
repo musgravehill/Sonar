@@ -112,6 +112,8 @@
 
 
             <script>
+                let sonar__map_pointsLatLng = [];
+                //
                 let sonar__plane_pointsLatLng = [];
                 //
                 let sonar__section_pointsLatLng_clicked = [];
@@ -328,12 +330,9 @@
                         const lng = parseFloat(raw[35]) || 0;
                         let depthM = depth_mks / sonar__mks2m;
                         if (lat > 0 && lng > 0 && depthM >= depth_min_allow && depthM <= depth_max_allow) {
-                            //const lat5 = Math.round(lat * 100000) / 100000;
-                            //const lng5 = Math.round(lng * 100000) / 100000;
+
                             const idx = lat + '_' + lng;
                             if (sonar__plane_pointsLatLng.hasOwnProperty(idx)) {
-                                //console.log('double1', depthM, sonar__plane_pointsLatLng[idx].depthM);
-                                //console.log('double2', pulses, sonar__plane_pointsLatLng[idx].pulses);
                                 depthM = (sonar__plane_pointsLatLng[idx].depthM + depthM) / 2.0;
                                 pulses = pulses.concat(sonar__plane_pointsLatLng[idx].pulses);
                             }
@@ -343,6 +342,11 @@
                                 pulses: pulses
                             };
                             sonar__plane_pointsLatLng[idx] = point;
+
+                            const lat5 = Math.round(lat * 100000) / 100000;
+                            const lng5 = Math.round(lng * 100000) / 100000;
+                            const idx5 = lat5 + '_' + lng5;
+                            sonar__map_pointsLatLng[idx5] = depthM;
 
                             if (sonar__depth_min > depthM) {
                                 sonar__depth_min = depthM;
@@ -388,6 +392,15 @@
                         const lat_curr = parseFloat(ll[0]) || 0;
                         const lng_curr = parseFloat(ll[1]) || 0;
                         sonar__plane_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
+                    }
+
+                    if (map__mapIsReady) {
+                        for (let index in sonar__map_pointsLatLng) {
+                            const ll = index.split(/_/);
+                            const lat_curr = parseFloat(ll[0]) || 0;
+                            const lng_curr = parseFloat(ll[1]) || 0;
+                            sonar__map_point(lat_curr, lng_curr, sonar__map_pointsLatLng[index]);
+                        }
                     }
                 }
 
@@ -500,8 +513,8 @@
                     html += '<div class="sonar__plane_point_dot" lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + (sonar__pulses_block_h_px + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__pulse_w_px + 'px; height:' + sonar__pulse_w_px + 'px; ">';
                     html += '</div>';
 
-                    $('#sonar__3D_block').append(html);                           
-                     
+                    $('#sonar__3D_block').append(html);
+
                 }
 
 
@@ -554,12 +567,12 @@
                     }
                 }
 
-                 /////////////////////////MAP 
+                /////////////////////////MAP 
                 let map__map;
                 let map__mapIsReady = false;
                 document.addEventListener('DOMContentLoaded', function () {
-                    ymaps.ready(map__init);                    
-                });   
+                    ymaps.ready(map__init);
+                });
                 function map__init() {
                     ymaps.geolocation.get().then(function (res) {
                         var mapContainer = $('#map__bathymetry_block'),
@@ -584,7 +597,7 @@
                     map__map = new ymaps.Map('map__bathymetry_block', state);
                     map__mapIsReady = true;
                 }
-                function map__point(lat, lng, depthM) {
+                function sonar__map_point(lat, lng, depthM) {
                     const color = map__getColor(depthM) + 'FF';
                     let r = 1;
                     let myCircle = new ymaps.Circle([
@@ -602,10 +615,6 @@
                     });
                     map__map.geoObjects.add(myCircle);
                 }
-
-
-
-
 
             </script>
         </main>
