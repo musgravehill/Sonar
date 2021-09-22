@@ -111,6 +111,7 @@
                 let sonar__real_pointsLatLng = [];
                 let sonar__plane_pointsLatLng = [];
                 let sonar__map_pointsLatLng = [];
+                let sonar__section_pointsLatLng = [];
                 //                
                 let sonar__section_pointsLatLng_used = [];
                 let sonar__section_isVertical = false;
@@ -173,8 +174,8 @@
                 let sonar__colors_power_isBW = true;
                 //    
                 let sonar__extrapolation_pointsLatLng = [];
-                const sonar__extrapolation_lat_step = 0.000017;
-                const sonar__extrapolation_lng_step = 0.000017;
+                const sonar__extrapolation_lat_step = 0.000014;
+                const sonar__extrapolation_lng_step = 0.000014;
                 const sonar__extrapolation_radius_dLat = 0.00007;
                 const sonar__extrapolation_radius_dLng = 0.00007;
 
@@ -233,6 +234,7 @@
                     sonar__map_points_init(sonar__real_pointsLatLng);
                     sonar__map_points_draw();
 
+                    sonar__section_points_init(sonar__real_pointsLatLng);
                     sonar__section_init();
                 }
                 function sonar__extrapolation_process() {
@@ -244,9 +246,13 @@
                     sonar__map_points_init(sonar__extrapolation_pointsLatLng);
                     sonar__map_points_draw();
 
+                    sonar__section_points_init(sonar__extrapolation_pointsLatLng);
                     sonar__section_init();
                 }
 //==================================== SECTION ===============================================================================================================================
+                function sonar__section_points_init(pointsLatLng) {
+                    sonar__section_pointsLatLng = pointsLatLng;
+                }
                 function sonar__section_init() {
                     $('#sonar__section_block').html('');
                     sonar__section_pointsLatLng_used = [];
@@ -258,8 +264,7 @@
 
                     $('div.sonar__plane_point_dot').unbind('click').click(function () {
                         const lat = parseFloat($(this).attr('lat')) || 0;
-                        const lng = parseFloat($(this).attr('lng')) || 0;
-                        const idx = lat + '_' + lng;
+                        const lng = parseFloat($(this).attr('lng')) || 0;                        
                         sonar__section_pointsInRadius_draw(lat, lng); //точку, в окрестности которой будем искать                       
                     });
                 }
@@ -281,10 +286,13 @@
                         sonar__map_section_radius(lat, lng);
                     }
 
-                    for (let index in sonar__real_pointsLatLng) {
+                    for (let index in sonar__section_pointsLatLng) {
                         const ll = index.split(/_/);
-                        const lat_curr = parseFloat(ll[0]) || 0;
-                        const lng_curr = parseFloat(ll[1]) || 0;
+                        let lat_curr = parseFloat(ll[0]) || 0;
+                        let lng_curr = parseFloat(ll[1]) || 0;
+                        lat_curr = Math.round(lat_curr * 1000000) / 1000000;//6
+                        lng_curr = Math.round(lng_curr * 1000000) / 1000000;//6
+
                         const dLat = Math.abs(lat_curr - lat);
                         const dLng = Math.abs(lng_curr - lng);
 
@@ -294,7 +302,7 @@
                         }
 
                         if (dLat <= sonar__section_dLat && dLng <= sonar__section_dLng) {
-                            $('#sonar__section_block').append(sonar__section_point(lat_curr, lng_curr, sonar__real_pointsLatLng[index]));
+                            $('#sonar__section_block').append(sonar__section_point(lat_curr, lng_curr, sonar__section_pointsLatLng[index]));
                             sonar__section_pointsLatLng_used[idx] = 1;
                         }
                     }
@@ -378,6 +386,8 @@
                     while (lat_curr < sonar__lat_max) {
                         let lng_curr = sonar__lng_min;
                         while (lng_curr < sonar__lng_max) {
+                            lat_curr = Math.round(lat_curr * 1000000) / 1000000;//6
+                            lng_curr = Math.round(lng_curr * 1000000) / 1000000;//6
                             sonar__extrapolation_point_calc(lat_curr, lng_curr);
                             lng_curr += sonar__extrapolation_lng_step;
                         }
@@ -386,7 +396,7 @@
                 }
                 function sonar__extrapolation_point_calc(lat, lng) {
                     let depthsWeightingFactors = [];
-                    for (let index in sonar__real_pointsLatLng) {  //sonar__map_pointsLatLng rounded to 5 sign (sonar__real_pointsLatLng is 6 sign)
+                    for (let index in sonar__real_pointsLatLng) {  
                         const ll = index.split(/_/);
                         const lat_curr = parseFloat(ll[0]) || 0;
                         const lng_curr = parseFloat(ll[1]) || 0;
@@ -452,8 +462,8 @@
                         const ll = index.split(/_/);
                         const lat = parseFloat(ll[0]) || 0;
                         const lng = parseFloat(ll[1]) || 0;
-                        const lat5 = Math.round(lat * 100000) / 100000;
-                        const lng5 = Math.round(lng * 100000) / 100000;
+                        const lat5 = Math.round(lat * 100000) / 100000;//5
+                        const lng5 = Math.round(lng * 100000) / 100000;//5
                         const idx5 = lat5 + '_' + lng5;
                         const point5 = {
                             depthM: pointsLatLng[index].depthM,
@@ -630,9 +640,12 @@
                             }
                         }
 
-                        //3D
-                        const lat = parseFloat(raw[34]) || 0;
-                        const lng = parseFloat(raw[35]) || 0;
+                        //real point
+                        let lat = parseFloat(raw[34]) || 0;
+                        let lng = parseFloat(raw[35]) || 0;
+                        lat = Math.round(lat * 1000000) / 1000000;//6
+                        lng = Math.round(lng * 1000000) / 1000000;//6
+
                         let depthM = depth_mks / sonar__mks2m;
                         if (lat > 0 && lng > 0 && depthM >= depth_min_allow && depthM <= depth_max_allow) {
 
