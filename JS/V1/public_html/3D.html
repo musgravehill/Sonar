@@ -35,9 +35,9 @@
                         <div class="col">
                             <div class="d-block">
                                 <b>Захват сечения</b><br>
-                                ±Ш.(lat) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" id="sonar__section_dLat" style="width: 90px">                                 
+                                ±Ш.(lat) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" step="0.000001" id="sonar__section_dLat" style="width: 90px">                                 
                                 <br>
-                                ±Д.(lng) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" id="sonar__section_dLng" style="width: 90px">   
+                                ±Д.(lng) <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" step="0.000001" id="sonar__section_dLng" style="width: 90px">   
                                 <br>                                 
                                 <input type="radio" name="sonar__section_isVertical" value="0" checked> --- &nbsp;&nbsp;
                                 <input type="radio" name="sonar__section_isVertical" value="1"> | 
@@ -398,14 +398,14 @@
                     sonar__section_isVertical = parseInt($('input[name="sonar__section_isVertical"]:checked').val()) === 1 ? true : false;
                     sonar__section_dLat = parseFloat($('#sonar__section_dLat').val()) || 0;
                     sonar__section_dLng = parseFloat($('#sonar__section_dLng').val()) || 0;
+                    $('div.sonar__section_radius').remove();
 
                     $('div.sonar__circles').unbind('click').click(function () {
                         const lat = parseFloat($(this).attr('lat')) || 0;
                         const lng = parseFloat($(this).attr('lng')) || 0;
                         const idx = lat + '_' + lng;
                         sonar__section_pointsLatLng_clicked[idx] = 1;
-                        sonar__section_draw(lat, lng); //добавим точку, в окрестности которой будем искать 
-                        //todo draw red RECT +_ dlat dlong in 3D-points-block in selected lat-long
+                        sonar__section_draw(lat, lng); //добавим точку, в окрестности которой будем искать                       
                     });
                 }
 
@@ -413,6 +413,16 @@
                     if (lat < 1 || lng < 1) {
                         return;
                     }
+
+                    //draw red RECT +_ dlat dlong in 3D-points-block in selected lat-long
+                    const radius_w_px = (2 * sonar__section_dLat)/sonar__pulse_w_offset_coef;
+                    const radius_h_px = (2 * sonar__section_dLng)/sonar__pulse_w_offset_coef;
+                    const radius_top_px = sonar__pulses_block_h_px + sonar__getOffsetLat_px(lat) - 0.5*radius_h_px;
+                    const radius_left_px = sonar__getOffsetLng_px(lng) - 0.5*radius_w_px;
+                    let html = '<div class="sonar__section_radius" style="left:' + radius_left_px + 'px; top:' + radius_top_px + 'px; width:' + radius_w_px + 'px; height:' + radius_h_px + 'px; ">';
+                    html += '</div>';
+                    $('#sonar__3D_block').append(html);
+
                     for (let index in sonar__3D_pointsLatLng) {
                         const ll = index.split(/_/);
                         const lat_curr = parseFloat(ll[0]) || 0;
@@ -582,7 +592,13 @@
         padding: 0;
         margin: 0;      
         height: 4px;
-    }     
+    }    
+    .sonar__section_radius{ 
+        border: 1px solid red;
+        position: absolute;    
+        padding: 0;
+        margin: 0; 
+    }
 
     .palette__item {
         width: 6px;
@@ -628,4 +644,6 @@
         padding: 0;
         margin: 0;         
     }
+
+
 </style>
