@@ -178,8 +178,8 @@
                 let sonar__colors_power_isBW = true;
                 //
                 let sonar__extrapolation_pointsLatLng = [];
-                const sonar__extrapolation_lat_step = 0.0001;
-                const sonar__extrapolation_lng_step = 0.0001;
+                const sonar__extrapolation_lat_step = 0.00005;
+                const sonar__extrapolation_lng_step = 0.00005;
                 const sonar__extrapolation_radius_dLat = 0.00007;
                 const sonar__extrapolation_radius_dLng = 0.00007;
 
@@ -402,6 +402,8 @@
                     if (map__mapIsReady) {
                         sonar__map_render();
                     }
+
+                    sonar__extrapolation_process();
                 }
 
                 function sonar__section_init() {
@@ -661,8 +663,6 @@
 
                 function sonar__extrapolation_process() {
                     sonar__extrapolation_pointsLatLng = [];
-
-
                     let lat_curr = sonar__lat_min;
                     while (lat_curr < sonar__lat_max) {
                         let lng_curr = sonar__lng_min;
@@ -672,25 +672,43 @@
                         }
                         lat_curr += sonar__extrapolation_lat_step;
                     }
+                    //console.log(sonar__extrapolation_pointsLatLng);
                 }
 
                 function sonar__extrapolation_point(lat, lng) {
                     let depthM = 0;
+                    let depthsWeightingFactors = [];                 
+                    
 
                     for (let index in sonar__plane_pointsLatLng) {  //sonar__map_pointsLatLng rounded to 5 sign (sonar__plane_pointsLatLng is 6 sign)
                         const ll = index.split(/_/);
                         const lat_curr = parseFloat(ll[0]) || 0;
                         const lng_curr = parseFloat(ll[1]) || 0;
                         const dLat = Math.abs(lat_curr - lat);
-                        const dLng = Math.abs(lng_curr - lng);  
+                        const dLng = Math.abs(lng_curr - lng);
                         if (dLat <= sonar__extrapolation_radius_dLat && dLng <= sonar__extrapolation_radius_dLng) {
-
+                            const idxDWF = 1.0 / (dLat + dLng);
+                            depthsWeightingFactors[idxDWF] = sonar__plane_pointsLatLng[index].depthM;
                         }
                     }
 
-                    if (depthM > 0.1) {
-                        const idx = lat + '_' + lng;
-                        sonar__extrapolation_pointsLatLng[idx] = depthM;
+                    if (depthsWeightingFactors.length) {
+                        let idxDWF_sum = 0;
+                        for (let idxDWF in depthsWeightingFactors) {
+                            idxDWF_sum += idxDWF;
+                        }
+                        for (let idxDWF in depthsWeightingFactors) {
+                            depthM += depthsWeightingFactors[idxDWF] * idxDWF / idxDWF_sum;
+                        }
+
+                        if (depthM > 0.1) {
+                            const idx = lat + '_' + lng;
+                            sonar__extrapolation_pointsLatLng[idx] = depthM;
+                            sonar__map_point(lat, lng, depthM);
+                        }
+
+                        console.log(lat, lng, depthM);
+                        console.log(depthsWeightingFactors);
                     }
 
                 }
