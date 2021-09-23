@@ -45,19 +45,16 @@
                         <span id="sonar__real_ok" class="btn btn-sm btn-success mb-1">2. Real draw</span>                         
                     </div>
                     <hr class="my-1">
-                    <div class="d-block">                                              
+                    <div class="d-block"> 
+                        Radius m                        
+                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.1" value="3" step="0.1" id="sonar__extrapolation_radius_m" style="width: 90px">                                 
+                        <br>
                         Step lat                        
                         <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__extrapolation_lat_step" style="width: 90px">                                 
                         <br>
                         Step lng                      
                         <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__extrapolation_lng_step" style="width: 90px">                                 
-                        <br>
-                        Radius dLat                        
-                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00007" step="0.000001" id="sonar__extrapolation_radius_dLat" style="width: 90px">                                 
-                        <br>
-                        Radius dLng                      
-                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00007" step="0.000001" id="sonar__extrapolation_radius_dLng" style="width: 90px">                                 
-                        <br>                            
+                        <br>                                               
                         <span id="sonar__extrapolation_ok" class="btn btn-sm btn-success">2. Extrapolation draw</span> 
                     </div>
                     <hr class="my-1">
@@ -217,9 +214,8 @@
                 //    
                 let sonar__extrapolation_pointsLatLng = [];
                 let sonar__extrapolation_lat_step = 0;
-                let sonar__extrapolation_lng_step = 0;
-                let sonar__extrapolation_radius_dLat = 0;
-                let sonar__extrapolation_radius_dLng = 0;
+                let sonar__extrapolation_lng_step = 0;                 
+                let sonar__extrapolation_radius_m = 0;
 
                 document.addEventListener('DOMContentLoaded', function () {
                     sonar__palettes();
@@ -443,9 +439,8 @@
                     sonar__extrapolation_pointsLatLng = [];
 
                     sonar__extrapolation_lat_step = parseFloat($('#sonar__extrapolation_lat_step').val()) || 0;
-                    sonar__extrapolation_lng_step = parseFloat($('#sonar__extrapolation_lng_step').val()) || 0;
-                    sonar__extrapolation_radius_dLat = parseFloat($('#sonar__extrapolation_radius_dLat').val()) || 0;
-                    sonar__extrapolation_radius_dLng = parseFloat($('#sonar__extrapolation_radius_dLng').val()) || 0;
+                    sonar__extrapolation_lng_step = parseFloat($('#sonar__extrapolation_lng_step').val()) || 0;                    
+                    sonar__extrapolation_radius_m = parseFloat($('#sonar__extrapolation_radius_m').val()) || 0;
 
                     let lat_curr = sonar__lat_min;
                     while (lat_curr < sonar__lat_max) {
@@ -465,12 +460,13 @@
                         const ll = index.split(/_/);
                         const lat_curr = parseFloat(ll[0]) || 0;
                         const lng_curr = parseFloat(ll[1]) || 0;
-                        const dLat = Math.abs(lat_curr - lat);
-                        const dLng = Math.abs(lng_curr - lng);
-                        if (dLat <= sonar__extrapolation_radius_dLat && dLng <= sonar__extrapolation_radius_dLng) {
-                            const idxDWF = Math.round(1.0 / (dLat + dLng));
+                        const distance_m = sonar__distanceTwoPoints_m(lat, lng, lat_curr, lng_curr);
+                        if (distance_m <= sonar__extrapolation_radius_m) {
+                            const idxDWF = Math.round(1000 / distance_m);
                             depthsWeightingFactors[idxDWF] = sonar__real_pointsLatLng[index].depthM;
                         }
+
+                        
                     }
                     if (depthsWeightingFactors.length) {
                         let depthM = 0;
@@ -842,11 +838,11 @@
                     sonar__pulse_size_offset_coef_lng = sonar__resolution_dLng / sonar__resolution_dot_px;
                 }
 
-                function sonar_distance_m(lat1, lng1, lat2, lng2) {
+                function sonar__distanceTwoPoints_m(lat1, lng1, lat2, lng2) {
                     lat1 = lat1 * 0.01745329251994329576923690768489; //to rad PI/180
                     lat2 = lat2 * 0.01745329251994329576923690768489;
-                    lng1 = ln1 * 0.01745329251994329576923690768489;
-                    lng2 = ln2 * 0.01745329251994329576923690768489;
+                    lng1 = lng1 * 0.01745329251994329576923690768489;
+                    lng2 = lng2 * 0.01745329251994329576923690768489;
                     const x = (lng2 - lng1) * Math.cos((lat1 + lat2) / 2.0);
                     const y = (lat2 - lat1);
                     const d = Math.sqrt(x * x + y * y) * 6371.0;  //R = 6371km
