@@ -277,7 +277,7 @@
                         sonar__colors_power_dx = (pulseW_mks - 0) / sonar__palette_power_rgb.length;
                         $('#sonar__range_pulse_w_max_val').html(pulseW_mks + 'mks');
                         sonar__pulses_setColor();
-                    });                    
+                    });
                     $('#sonar__map_is_allow').change(() => {
                         map__create();
                     });
@@ -371,17 +371,17 @@
                         return;
                     }
                     const depth_color = sonar__getColor_depth_m(data.depthM);
-                    const left_px = Math.round(1.5*(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng))); //resize x1.5
+                    const left_px = Math.round(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng));
                     let mt_px = Math.round(5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m));
 
-                    let html = '<div class="sonar__section_pulseBottom" title="' + (Math.round(data.depthM * 100) / 100) + 'm" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
+                    let html = '<div class="sonar__section_pulseBottom" title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
                     for (const pulse of data.pulses) {
                         if (pulse.R >= (data.depth_mks - 100)) {
                             continue; //only fish over bottom                            
                         }
                         const pulse_color = sonar__getColor_power_mks(pulse.W, sonar__colors_power_isBW);
                         mt_px = sonar__mks2px_fullScale(pulse.R);
-                        html += '<div class="sonar__section_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
+                        html += '<div class="sonar__section_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
                     }
                     return html;
                 }
@@ -406,14 +406,14 @@
                     const left_px = sonar__getOffsetLng_px(lng);
                     const top_px = sonar__getOffsetLat_px(lat);
 
-                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm" class="sonar__plane_point_pulses" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_dot_px + 'px; height: ' + sonar__pulses_block_h_px + 'px; ">'; //border-bottom: ' + sonar__resolution_dot_px + 'px solid ' + depth_color + ';
+                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " class="sonar__plane_point_pulses" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_dot_px + 'px; height: ' + sonar__pulses_block_h_px + 'px; ">'; //border-bottom: ' + sonar__resolution_dot_px + 'px solid ' + depth_color + ';
                     for (const pulse of data.pulses) {
                         if (pulse.R >= (data.depth_mks - 100)) {
                             continue; //only fish over bottom                            
                         }
                         pulse_color = sonar__getColor_power_mks(pulse.W, sonar__colors_power_isBW); //fish over bottom                         
                         let mt_px = sonar__mks2px_fullScale(pulse.R + (sonar__depth_max - data.depthM) * sonar__mks2m); //прижмем ко дну, а не к поверхности
-                        html += '<div class="sonar__plane_point_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
+                        html += '<div class="sonar__plane_point_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
                     }
                     html += '</div>';
 
@@ -841,6 +841,18 @@
                     sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / sonar__resolution_dot_px;
                     sonar__pulse_size_offset_coef_lng = sonar__resolution_dLng / sonar__resolution_dot_px;
                 }
+
+                function sonar_distance_m(lat1, lng1, lat2, lng2) {
+                    lat1 = lat1 * 0.01745329251994329576923690768489; //to rad PI/180
+                    lat2 = lat2 * 0.01745329251994329576923690768489;
+                    lng1 = ln1 * 0.01745329251994329576923690768489;
+                    lng2 = ln2 * 0.01745329251994329576923690768489;
+                    const x = (lng2 - lng1) * Math.cos((lat1 + lat2) / 2.0);
+                    const y = (lat2 - lat1);
+                    const d = Math.sqrt(x * x + y * y) * 6371.0;  //R = 6371km
+                    return Math.round(d * 100000) / 100; // 1.86m
+                }
+
             </script>
         </main>
         <script src="jquery-3.6.0.min.js"></script>
