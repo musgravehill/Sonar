@@ -38,7 +38,7 @@
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
-                        <input id="sonar__map_is_allow" type="checkbox"> draw on map                          
+                        <input id="sonar__map_is_allow" type="checkbox"> use map                          
                     </div>
                     <hr class="my-1">
                     <div class="d-block">  
@@ -277,10 +277,7 @@
                         sonar__colors_power_dx = (pulseW_mks - 0) / sonar__palette_power_rgb.length;
                         $('#sonar__range_pulse_w_max_val').html(pulseW_mks + 'mks');
                         sonar__pulses_setColor();
-                    });
-                    $('#map__bathymetry_block').resize(function () {
-                        map__create();
-                    });
+                    });                    
                     $('#sonar__map_is_allow').change(() => {
                         map__create();
                     });
@@ -374,8 +371,8 @@
                         return;
                     }
                     const depth_color = sonar__getColor_depth_m(data.depthM);
-                    const left_px = sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng);
-                    let mt_px = 5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m);
+                    const left_px = Math.round(1.5*(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng))); //resize x1.5
+                    let mt_px = Math.round(5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m));
 
                     let html = '<div class="sonar__section_pulseBottom" title="' + (Math.round(data.depthM * 100) / 100) + 'm" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
                     for (const pulse of data.pulses) {
