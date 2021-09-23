@@ -183,7 +183,7 @@
                 let sonar__lat_min = 999, sonar__lng_min = 999, sonar__lat_max = 0, sonar__lng_max = 0;
                 let sonar__getColor_depth_m_dx = 1;
                 let sonar__mks2px_fullScale_dx = 1;
-                let sonar__pulses_block_h_px = 200;
+                let sonar__pulses_block_h_px = 100;
                 const sonar__mks2m = 1367.0;
                 let sonar__resolution_dLat = 0;
                 let sonar__resolution_dLng = 0;
@@ -738,12 +738,12 @@
 
                         let depth_mks = 0;
                         for (const pulse of pulses) {
-                            const pulse_w_realBottom_mks_min = sonar__getPulse_w_realBottom_mks_min(pulse.R);
+                            const pulse_w_realBottom_mks_min = sonar__getPulse_w_realBottom_mks_min(pulse.R);                            
                             if (pulse.W >= pulse_w_realBottom_mks_min) {
-                                depth_mks = pulse.R;
+                                depth_mks = pulse.R;                                
                                 break;
                             }
-                        }
+                        }                        
 
                         //real point
                         let lat = parseFloat(raw[34]) || 0;
@@ -806,14 +806,14 @@
                     sonar__getColor_depth_m_dx = (sonar__depth_max - sonar__depth_min) / sonar__colors_depth.length;
                     sonar__mks2px_fullScale_dx = (depth_max_limit * sonar__mks2m) / sonar__pulses_block_h_px;
                 }
-                function sonar__getPulse_w_realBottom_mks_min(depth_mks) {
+                function sonar__getPulse_w_realBottom_mks_min(depth_mks) {                    
                     if (depth_mks < 1500) {
                         return 1200;
                     }
                     if (depth_mks < 3000) {
-                        return 2500;
+                        return 1800;
                     }
-                    return 2600;
+                    return 1800;
                 }
                 function sonar__pulses_hideWeak() {
                     const pulseW_mks = parseInt($('#sonar__range_pulse_w_min_show').val()) || 0;
