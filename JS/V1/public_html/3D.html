@@ -12,6 +12,10 @@
             <div class="row mt-2">
                 <div class="col-2" style="height: 743px; overflow: scroll;">
                     <div class="d-block">
+                        <span id="sonar__point_selected_latlng" style="font-size: 12px;"></span>
+                    </div> 
+                    <hr class="my-1">
+                    <div class="d-block">
                         <b>
                             3D bathymetry 
                             <span id="bathymetry__points_count"></span>
@@ -214,7 +218,7 @@
                 //    
                 let sonar__extrapolation_pointsLatLng = [];
                 let sonar__extrapolation_lat_step = 0;
-                let sonar__extrapolation_lng_step = 0;                 
+                let sonar__extrapolation_lng_step = 0;
                 let sonar__extrapolation_radius_m = 0;
 
                 document.addEventListener('DOMContentLoaded', function () {
@@ -223,7 +227,6 @@
                 });
 
                 function sonar__actions() {
-
                     $('#sonar__section_block').css('height', parseInt(30 + sonar__pulses_block_h_px) + 'px');
 
                     $('#form_bathymetry__btn_ok').click(() => {
@@ -278,6 +281,12 @@
                         map__create();
                     });
                 }
+                function sonar__point_selected_latlng() {
+                    $('[sonar__point_selected_latlng]').click(function () {
+                        const el = $(this);
+                        $('#sonar__point_selected_latlng').html(el.attr('title'));
+                    });
+                }
 //==================================== START ===============================================================================================================================
                 function sonar__real_process() {
                     sonar__resolution_calc();
@@ -290,6 +299,8 @@
 
                     sonar__section_points_init(sonar__real_pointsLatLng);
                     sonar__section_init();
+
+                    sonar__point_selected_latlng();
                 }
                 function sonar__extrapolation_process() {
                     sonar__resolution_calc();
@@ -304,6 +315,8 @@
 
                     sonar__section_points_init(sonar__extrapolation_pointsLatLng);
                     sonar__section_init();
+
+                    sonar__point_selected_latlng();
                 }
 //==================================== SECTION ===============================================================================================================================
                 function sonar__section_points_init(pointsLatLng) {
@@ -361,6 +374,7 @@
                         }
                     }
                     sonar__pulses_hideWeak();
+                    sonar__point_selected_latlng();
                 }
                 function sonar__section_point(lat, lng, data) {
                     if (lat < 1 || lng < 1) {
@@ -370,14 +384,14 @@
                     const left_px = Math.round(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng));
                     let mt_px = Math.round(5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m));
 
-                    let html = '<div class="sonar__section_pulseBottom" title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
+                    let html = '<div class="sonar__section_pulseBottom" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
                     for (const pulse of data.pulses) {
                         if (pulse.R >= (data.depth_mks - 100)) {
                             continue; //only fish over bottom                            
                         }
                         const pulse_color = sonar__getColor_power_mks(pulse.W, sonar__colors_power_isBW);
                         mt_px = sonar__mks2px_fullScale(pulse.R);
-                        html += '<div class="sonar__section_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
+                        html += '<div class="sonar__section_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
                     }
                     return html;
                 }
@@ -393,6 +407,7 @@
                         const lng_curr = parseFloat(ll[1]) || 0;
                         sonar__plane_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
                     }
+                    sonar__point_selected_latlng();
                 }
                 function sonar__plane_point(lat, lng, data) {
                     if (lat < 1 || lng < 1) {
@@ -402,14 +417,14 @@
                     const left_px = sonar__getOffsetLng_px(lng);
                     const top_px = sonar__getOffsetLat_px(lat);
 
-                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " class="sonar__plane_point_pulses" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_dot_px + 'px; height: ' + sonar__pulses_block_h_px + 'px; ">'; //border-bottom: ' + sonar__resolution_dot_px + 'px solid ' + depth_color + ';
+                    let html = '<div sonar__point_selected_latlng title="' + (Math.round((data.depthM) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " class="sonar__plane_point_pulses" lat="' + lat + '" lng="' + lng + '" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_dot_px + 'px; height: ' + sonar__pulses_block_h_px + 'px; ">'; //border-bottom: ' + sonar__resolution_dot_px + 'px solid ' + depth_color + ';
                     for (const pulse of data.pulses) {
                         if (pulse.R >= (data.depth_mks - 100)) {
                             continue; //only fish over bottom                            
                         }
                         pulse_color = sonar__getColor_power_mks(pulse.W, sonar__colors_power_isBW); //fish over bottom                         
                         let mt_px = sonar__mks2px_fullScale(pulse.R + (sonar__depth_max - data.depthM) * sonar__mks2m); //прижмем ко дну, а не к поверхности
-                        html += '<div class="sonar__plane_point_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
+                        html += '<div class="sonar__plane_point_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
                     }
                     html += '</div>';
 
@@ -429,7 +444,7 @@
                      }
                      html += '</div>';*/
 
-                    html += '<div class="sonar__plane_point_dot" lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + (sonar__pulses_block_h_px + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; height:' + sonar__resolution_dot_px + 'px; ">';
+                    html += '<div class="sonar__plane_point_dot" sonar__point_selected_latlng lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + (sonar__pulses_block_h_px + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; height:' + sonar__resolution_dot_px + 'px; ">';
                     html += '</div>';
 
                     $('#sonar__plane_block').append(html);
@@ -439,7 +454,7 @@
                     sonar__extrapolation_pointsLatLng = [];
 
                     sonar__extrapolation_lat_step = parseFloat($('#sonar__extrapolation_lat_step').val()) || 0;
-                    sonar__extrapolation_lng_step = parseFloat($('#sonar__extrapolation_lng_step').val()) || 0;                    
+                    sonar__extrapolation_lng_step = parseFloat($('#sonar__extrapolation_lng_step').val()) || 0;
                     sonar__extrapolation_radius_m = parseFloat($('#sonar__extrapolation_radius_m').val()) || 0;
 
                     let lat_curr = sonar__lat_min;
@@ -466,7 +481,7 @@
                             depthsWeightingFactors[idxDWF] = sonar__real_pointsLatLng[index].depthM;
                         }
 
-                        
+
                     }
                     if (depthsWeightingFactors.length) {
                         let depthM = 0;
