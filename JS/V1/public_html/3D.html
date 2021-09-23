@@ -36,12 +36,26 @@
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
-                        <input id="sonar__map_is_allow" type="checkbox"> draw on map 
-                        <!--input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;-->
+                        <input id="sonar__map_is_allow" type="checkbox"> draw on map                          
                     </div>
+                    <hr class="my-1">
                     <div class="d-block">  
-                        <span id="sonar__real_ok" class="btn btn-sm btn-success mb-1">2. Real draw</span> 
+                        <span id="sonar__real_ok" class="btn btn-sm btn-success mb-1">2. Real draw</span>                         
+                    </div>
+                    <hr class="my-1">
+                    <div class="d-block">                                              
+                        Step lat                        
+                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__extrapolation_lat_step" style="width: 90px">                                 
                         <br>
+                        Step lng                      
+                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__extrapolation_lng_step" style="width: 90px">                                 
+                        <br>
+                        Radius dLat                        
+                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00007" step="0.000001" id="sonar__extrapolation_radius_dLat" style="width: 90px">                                 
+                        <br>
+                        Radius dLng                      
+                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00007" step="0.000001" id="sonar__extrapolation_radius_dLng" style="width: 90px">                                 
+                        <br>                            
                         <span id="sonar__extrapolation_ok" class="btn btn-sm btn-success">2. Extrapolation draw</span> 
                     </div>
                     <hr class="my-1">
@@ -190,10 +204,10 @@
                 let sonar__colors_power_isBW = true;
                 //    
                 let sonar__extrapolation_pointsLatLng = [];
-                const sonar__extrapolation_lat_step = 0.000008;
-                const sonar__extrapolation_lng_step = 0.000008;
-                const sonar__extrapolation_radius_dLat = 0.00007;
-                const sonar__extrapolation_radius_dLng = 0.00007;
+                let sonar__extrapolation_lat_step = 0;
+                let sonar__extrapolation_lng_step = 0;
+                let sonar__extrapolation_radius_dLat = 0;
+                let sonar__extrapolation_radius_dLng = 0;
 
                 document.addEventListener('DOMContentLoaded', function () {
                     sonar__palettes();
@@ -414,6 +428,11 @@
                 }
 //==================================== EXTRAPOLATION ===============================================================================================================================
                 function sonar__extrapolation_init() {
+                    sonar__extrapolation_lat_step = parseFloat($('#sonar__extrapolation_lat_step').val()) || 0;
+                    sonar__extrapolation_lng_step = parseFloat($('#sonar__extrapolation_lng_step').val()) || 0;
+                    sonar__extrapolation_radius_dLat = parseFloat($('#sonar__extrapolation_radius_dLat').val()) || 0;
+                    sonar__extrapolation_radius_dLng = parseFloat($('#sonar__extrapolation_radius_dLng').val()) || 0;
+                    
                     let lat_curr = sonar__lat_min;
                     while (lat_curr < sonar__lat_max) {
                         let lng_curr = sonar__lng_min;
