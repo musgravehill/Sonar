@@ -32,7 +32,7 @@
                         <b>Resolution for plane</b><br>                        
                         dШ.(lat) <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__resolution_dLat" style="width: 90px">                                 
                         <br>
-                        dД.(lng) <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__resolution_dLng" style="width: 90px">   
+                        dД.(lng) <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.000016" step="0.000001" id="sonar__resolution_dLng" style="width: 90px">   
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
@@ -271,10 +271,8 @@
                     sonar__plane_points_init(sonar__real_pointsLatLng);
                     sonar__plane_points_draw();
 
-                    if ($('#sonar__map_is_allow').is(":checked")) {
-                        sonar__map_points_init(sonar__real_pointsLatLng);
-                        sonar__map_points_draw();
-                    }
+                    sonar__map_points_init(sonar__real_pointsLatLng);
+                    sonar__map_points_draw();
 
                     sonar__section_points_init(sonar__real_pointsLatLng);
                     sonar__section_init();
@@ -287,10 +285,8 @@
                     sonar__plane_points_init(sonar__extrapolation_pointsLatLng);
                     sonar__plane_points_draw();
 
-                    if ($('#sonar__map_is_allow').is(":checked")) {
-                        sonar__map_points_init(sonar__extrapolation_pointsLatLng);
-                        sonar__map_points_draw();
-                    }
+                    sonar__map_points_init(sonar__extrapolation_pointsLatLng);
+                    sonar__map_points_draw();
 
                     sonar__section_points_init(sonar__extrapolation_pointsLatLng);
                     sonar__section_init();
@@ -328,9 +324,7 @@
                     html += '</div>';
                     $('#sonar__plane_block').append(html);
 
-                    if (map__mapIsReady) {
-                        sonar__map_section_radius(lat, lng);
-                    }
+                    sonar__map_section_radius(lat, lng);
 
                     for (let index in sonar__section_pointsLatLng) {
                         const ll = index.split(/_/);
@@ -428,11 +422,13 @@
                 }
 //==================================== EXTRAPOLATION ===============================================================================================================================
                 function sonar__extrapolation_init() {
+                    sonar__extrapolation_pointsLatLng = [];
+
                     sonar__extrapolation_lat_step = parseFloat($('#sonar__extrapolation_lat_step').val()) || 0;
                     sonar__extrapolation_lng_step = parseFloat($('#sonar__extrapolation_lng_step').val()) || 0;
                     sonar__extrapolation_radius_dLat = parseFloat($('#sonar__extrapolation_radius_dLat').val()) || 0;
                     sonar__extrapolation_radius_dLng = parseFloat($('#sonar__extrapolation_radius_dLng').val()) || 0;
-                    
+
                     let lat_curr = sonar__lat_min;
                     while (lat_curr < sonar__lat_max) {
                         let lng_curr = sonar__lng_min;
@@ -512,6 +508,12 @@
                     }
                 }
                 function sonar__map_points_init(pointsLatLng) {
+                    if (!map__mapIsReady) {
+                        return;
+                    }
+                    if (!$('#sonar__map_is_allow').is(":checked")) {
+                        return;
+                    }
                     sonar__map_pointsLatLng = [];
                     for (let index in pointsLatLng) {
                         const ll = index.split(/_/);
@@ -530,6 +532,9 @@
                 }
                 function sonar__map_points_draw() {
                     if (!map__mapIsReady) {
+                        return;
+                    }
+                    if (!$('#sonar__map_is_allow').is(":checked")) {
                         return;
                     }
                     map__map.geoObjects.removeAll();
@@ -562,6 +567,12 @@
                     map__map.geoObjects.add(myCircle);
                 }
                 function sonar__map_section_radius(lat, lng) {
+                    if (!map__mapIsReady) {
+                        return;
+                    }
+                    if (!$('#sonar__map_is_allow').is(":checked")) {
+                        return;
+                    }
                     if (lat < 1 || lng < 1) {
                         return;
                     }
