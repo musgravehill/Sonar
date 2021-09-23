@@ -29,12 +29,16 @@
                     </div>
                     <hr class="my-1">
                     <div class="d-block"> 
-                        <b>Шаг экрана</b><br>                        
+                        <b>Resolution for plane</b><br>                        
                         dШ.(lat) <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__resolution_dLat" style="width: 90px">                                 
                         <br>
                         dД.(lng) <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__resolution_dLng" style="width: 90px">   
                     </div>
                     <hr class="my-1">
+                    <div class="d-block">
+                        <input id="sonar__map_is_allow" type="checkbox"> draw on map 
+                        <!--input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;-->
+                    </div>
                     <div class="d-block">  
                         <span id="sonar__real_ok" class="btn btn-sm btn-success mb-1">2. Real draw</span> 
                         <br>
@@ -50,7 +54,7 @@
                         <input type="radio" name="sonar__section_isVertical" value="0" checked> --- &nbsp;&nbsp;
                         <input type="radio" name="sonar__section_isVertical" value="1"> | 
                         <br>
-                        <span id="sonar__section_ok" class="btn btn-success btn-sm">3. Применить и начать</span>   
+                        <span id="sonar__section_ok" class="btn btn-success btn-sm">3. Apply & init</span>   
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
@@ -60,23 +64,23 @@
                         <div id="sonar__palette_depth_max_text" class="d-inline-block"></div>
                     </div>
                     <div class="d-block">
-                        <input id="sonar__over_bottom" type="checkbox" checked> В толще воды  
+                        <input id="sonar__over_bottom" type="checkbox" checked> impulses over bottom  
                         <!--input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;-->
                     </div>
                     <div class="d-block">
-                        <input id="sonar__plane_point_dot" type="checkbox" checked> Точки  
+                        <input id="sonar__plane_point_dot" type="checkbox" checked> bottom dots 
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
-                        <b>Мощность отражений</b><br>
-                        <input type="range" class="form-range" min="0" max="3000" value="0" id="sonar__range_pulse_w_min_show" title="Мощность отраженок, скрыть слабые"> 
-                        скрыть слабее <span id="sonar__range_pulse_w_min_show_val"></span>
+                        <b>Reflection power</b><br>
+                        <input type="range" class="form-range" min="0" max="3000" value="0" id="sonar__range_pulse_w_min_show"> 
+                        hide weak <span id="sonar__range_pulse_w_min_show_val"></span>
                         <div class="d-block">
-                            <b>Мощность отражений: палитра</b><br>
+                            <b>Palette</b><br>
                             <div class="d-block">
                                 <input id="sonar__palette_power_isBW" type="checkbox" checked> BW \ RGB  
                             </div>
-                            <input type="range" class="form-range" min="0" max="3000" value="2000" id="sonar__range_pulse_w_max" title="Мощность отраженок MAX для палитры"> 
+                            <input type="range" class="form-range" min="0" max="3000" value="2000" id="sonar__range_pulse_w_max"> 
                         </div>
                         <div class="d-block align-middle"> 
                             <span id="sonar__range_pulse_w_min_val">0mks</span> 
@@ -89,7 +93,7 @@
                     </div>                    
                     <hr class="my-1">
                     <div class="d-block" style="font-size: 12px;">
-                        <b>Углы</b><br>
+                        <b>Min-Max</b><br>
                         Ш.(lat) min=<span id="sonar__info_latMin"></span>                                
                         <br>
                         Ш.(lat) max=<span id="sonar__info_latMax"></span>                                
@@ -217,6 +221,7 @@
                         sonar__resolution_calc();
                     });
 
+
                     $('#sonar__over_bottom').change(() => {
                         if ($('#sonar__over_bottom').is(":checked")) {
                             $('div.sonar__plane_point_pulses').show();
@@ -252,8 +257,10 @@
                     sonar__plane_points_init(sonar__real_pointsLatLng);
                     sonar__plane_points_draw();
 
-                    sonar__map_points_init(sonar__real_pointsLatLng);
-                    sonar__map_points_draw();
+                    if ($('#sonar__map_is_allow').is(":checked")) {
+                        sonar__map_points_init(sonar__real_pointsLatLng);
+                        sonar__map_points_draw();
+                    }
 
                     sonar__section_points_init(sonar__real_pointsLatLng);
                     sonar__section_init();
@@ -266,8 +273,10 @@
                     sonar__plane_points_init(sonar__extrapolation_pointsLatLng);
                     sonar__plane_points_draw();
 
-                    sonar__map_points_init(sonar__extrapolation_pointsLatLng);
-                    sonar__map_points_draw();
+                    if ($('#sonar__map_is_allow').is(":checked")) {
+                        sonar__map_points_init(sonar__extrapolation_pointsLatLng);
+                        sonar__map_points_draw();
+                    }
 
                     sonar__section_points_init(sonar__extrapolation_pointsLatLng);
                     sonar__section_init();
@@ -454,7 +463,9 @@
                 let map__map;
                 let map__mapIsReady = false;
                 document.addEventListener('DOMContentLoaded', function () {
-                    ymaps.ready(map__init);
+                    if (typeof ymaps !== 'undefined') {
+                        ymaps.ready(map__init);
+                    }
                 });
                 function map__init() {
                     ymaps.geolocation.get().then(function (res) {
@@ -476,8 +487,10 @@
                     });
                 }
                 function map__createMap(state) {
-                    map__map = new ymaps.Map('map__bathymetry_block', state);
-                    map__mapIsReady = true;
+                    if (typeof ymaps !== 'undefined') {
+                        map__map = new ymaps.Map('map__bathymetry_block', state);
+                        map__mapIsReady = true;
+                    }
                 }
                 function sonar__map_points_init(pointsLatLng) {
                     sonar__map_pointsLatLng = [];
