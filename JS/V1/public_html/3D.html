@@ -95,15 +95,18 @@
                         <div class="d-block">
                             <b>Palette</b><br>
                             <div class="d-block">
-                                <input id="sonar__palette_power_isBW" type="checkbox" checked> BW \ RGB  
+                                <input name="sonar__palette_power_idx" type="radio" checked value="1"> Sepia &nbsp;
+                                <input name="sonar__palette_power_idx" type="radio" value="2"> BW &nbsp;
+                                <input name="sonar__palette_power_idx" type="radio" value="3"> RGB 
                             </div>
                             <input type="range" class="form-range" min="0" max="8000" value="2000" id="sonar__range_pulse_w_max"> 
                         </div>
                         <div class="d-block align-middle"> 
                             <span id="sonar__range_pulse_w_min_val">0mks</span> 
                             <div class="d-inline-block align-middle">
-                                <div class="d-block"><div id="sonar__palette_power_rgb"></div></div>
+                                <div class="d-block"><div id="sonar__palette_power_sepia"></div></div>
                                 <div class="d-block"><div id="sonar__palette_power_bw"></div></div>
+                                <div class="d-block"><div id="sonar__palette_power_rgb"></div></div>                                
                             </div>
                             <span id="sonar__range_pulse_w_max_val"></span>
                         </div>                                
@@ -175,7 +178,7 @@
                     '#20ad31',
                     '#1f9a45',
                     '#1e8759',
-                    '#00d9ff',
+                    '#0fd0d3',
                     '#109df5',
                     '#2061ec',
                     '#3125e3'
@@ -215,9 +218,13 @@
                     '#3f4041',
                     '#222223',
                     '#050505'
-                ]; //9                
+                ]; //9  
+                const sonar__palette_power_sepia = [
+                    '#f1d98f', '#ddc57d', '#c9b26b', '#b69f59', '#a28c47', '#8e7835', '#7b6523', '#675211', '#543f00'
+                ]; //9  
+
                 let sonar__colors_power_dx = (2000 - 0) / sonar__palette_power_rgb.length; //default, change by input-range
-                let sonar__colors_power_isBW = true;
+                let sonar__palette_power_idx = 1;
                 //    
                 let sonar__extrapolation_pointsLatLng = [];
                 let sonar__extrapolation_lat_step = 0;
@@ -270,8 +277,8 @@
                     $('#sonar__range_pulse_w_min_show').change(() => {
                         sonar__pulses_hideWeak();
                     });
-                    $('#sonar__palette_power_isBW').change(() => {
-                        sonar__colors_power_isBW = $('#sonar__palette_power_isBW').is(":checked");
+                    $('input[name=sonar__palette_power_idx]').change(() => {
+                        sonar__palette_power_idx = parseInt($('input[name=sonar__palette_power_idx]:checked').val());
                         sonar__pulses_setColor();
                     });
                     $('#sonar__range_pulse_w_max').change(() => {
@@ -399,14 +406,14 @@
                     const left_px = Math.round(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng));
                     let mt_px = Math.round(5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m));
 
-                    let html = '<div class="sonar__section_pulseBottom" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
+                    let html = '<div class="sonar__section_dot_bottom" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
                     for (const pulse of data.pulses) {
                         if (pulse.R <= (data.depth_mks + 150)) {
                             mt_px = sonar__mks2px_fullScale(pulse.R); //fish over bottom                           
                         } else {
                             mt_px = sonar__mks2px_fullScale((pulse.R / sonar__pulse_underBottom_compression_vertical) + data.depth_mks); //under bottom  уплотняем картинку в Х раз 
                         }
-                        const pulse_color = sonar__getColor_power_mks(pulse.W, sonar__colors_power_isBW);
+                        const pulse_color = sonar__getColor_power_mks(pulse.W);
                         html += '<div class="sonar__section_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
                     }
                     return html;
@@ -441,7 +448,7 @@
                         } else {
                             continue; //under bottom
                         }
-                        const pulse_color = sonar__getColor_power_mks(pulse.W, sonar__colors_power_isBW); //fish over bottom                         
+                        const pulse_color = sonar__getColor_power_mks(pulse.W); //fish over bottom                         
                         const mt_px = Math.round(sonar__mks2px_fullScale(pulse.R) / sonar__plane_compression_vertical);
                         html += '<div class="sonar__plane_point_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
                     }
@@ -652,10 +659,18 @@
                     idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colors_depth.length - 1)); //constrain from to
                     return sonar__colors_depth[idx];
                 }
-                function sonar__getColor_power_mks(mks, isWB) {
+                function sonar__getColor_power_mks(mks) {
                     let idx = Math.round(mks / sonar__colors_power_dx);
                     idx = Math.min(Math.max(parseInt(idx), 0), (sonar__palette_power_rgb.length - 1)); //constrain from to
-                    return isWB ? sonar__palette_power_bw[idx] : sonar__palette_power_rgb[idx];
+                    switch (sonar__palette_power_idx) {
+                        case 1:
+                            return  sonar__palette_power_sepia[idx];
+                        case 2:
+                            return  sonar__palette_power_bw[idx];
+                        case 3:
+                            return  sonar__palette_power_rgb[idx];
+                    }
+                    return  sonar__palette_power_bw[idx];
                 }
                 /*function sonar__mks2px(mks, point_depth_mks) {
                  const sonar__mks2px_dx = point_depth_mks / sonar__pulses_block_h_px;
@@ -691,6 +706,10 @@
                     for (const color of sonar__palette_power_bw) {
                         const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
                         $('#sonar__palette_power_bw').append(dv);
+                    }
+                    for (const color of sonar__palette_power_sepia) {
+                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
+                        $('#sonar__palette_power_sepia').append(dv);
                     }
                 }
 
@@ -834,18 +853,16 @@
                 function sonar__pulses_setColor() {
                     $('div.sonar__section_pulse').each(function () {
                         const w_mks = parseInt($(this).attr('w_mks')) || 0;
-                        $(this).css('background-color', sonar__getColor_power_mks(w_mks, sonar__colors_power_isBW));
+                        $(this).css('background-color', sonar__getColor_power_mks(w_mks));
                     });
                     $('div.sonar__plane_point_pulse').each(function () {
                         const w_mks = parseInt($(this).attr('w_mks')) || 0;
-                        $(this).css('background-color', sonar__getColor_power_mks(w_mks, sonar__colors_power_isBW));
+                        $(this).css('background-color', sonar__getColor_power_mks(w_mks));
                     });
-                    if (sonar__colors_power_isBW) {
+                    if (sonar__palette_power_idx === 1 || sonar__palette_power_idx === 2) {
                         $('div.sonar__section_pulse').css('opacity', 0.6);
-                        //$('div.sonar__plane_point_pulse').css('opacity', 0.6);
                     } else {
                         $('div.sonar__section_pulse').css('opacity', 1);
-                        //$('div.sonar__plane_point_pulse').css('opacity', 1);
                     }
                 }
                 function sonar__resolution_calc() {
@@ -900,7 +917,7 @@
         resize: both;
     }  
 
-    .sonar__section_pulseBottom{        
+    .sonar__section_dot_bottom{        
         display: block;
         float: left;        
         height: 8px;         
@@ -908,15 +925,15 @@
         padding: 0;
         margin: 0;
         overflow: hidden;     
-        z-index: 1;
+        z-index: 99999;
     }
     .sonar__section_pulse{     
-        opacity: 1;
+        opacity: 0.6;
         background-color: black;       
         position: absolute;    
         padding: 0;
         margin: 0;      
-        height: 4px;
+        height: 4px;        
     }    
     .sonar__section_radius{ 
         border: 1px solid red;
