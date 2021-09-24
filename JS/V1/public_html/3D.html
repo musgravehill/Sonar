@@ -377,15 +377,15 @@
                     //draw red RECT +_ dlat dlong                      
                     const h_px = parseInt((2 * sonar__section_dLat_limit) / sonar__pulse_size_offset_coef_lat);
                     const w_px = parseInt((2 * sonar__section_dLng_limit) / sonar__pulse_size_offset_coef_lng);
-                    const top_px = parseInt((sonar__pulses_block_h_px / sonar__plane_compression_vertical) + sonar__getOffsetLat_px(lat) - 0.5 * h_px);
-                    const left_px = parseInt(sonar__getOffsetLng_px(lng) - 0.5 * w_px);
+                    const top_px = parseInt((sonar__pulses_block_h_px / sonar__plane_compression_vertical) + sonar__getOffsetLat_px(lat) - 0.5 * h_px + 0.5 * sonar__resolution_dot_px);
+                    const left_px = parseInt(sonar__getOffsetLng_px(lng) - 0.5 * w_px + 0.5 * sonar__resolution_dot_px);
                     let html = '<div class="sonar__section_area" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + w_px + 'px; height:1px; ">';
                     html += '</div>';
                     html += '<div class="sonar__section_area" style="left:' + left_px + 'px; top:' + parseInt(top_px + h_px) + 'px; width:' + w_px + 'px; height:1px; ">';
                     html += '</div>';
                     html += '<div class="sonar__section_area" style="left:' + left_px + 'px; top:' + top_px + 'px; width:1px; height:' + h_px + 'px; ">';
                     html += '</div>';
-                    html += '<div class="sonar__section_area" style="left:' + parseInt(left_px + w_px) + 'px; top:' + top_px + 'px; width:' + w_px + 'px; height:1px; ">';
+                    html += '<div class="sonar__section_area" style="left:' + parseInt(left_px + w_px) + 'px; top:' + top_px + 'px; width:1px; height:' + h_px + 'px; ">';
                     html += '</div>';
                     $('#sonar__plane_block').append(html);
                 }
