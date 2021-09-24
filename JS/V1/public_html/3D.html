@@ -33,12 +33,12 @@
                     </div>                     
                     <hr class="my-1">
                     <div class="d-block"> 
-                        <b>Resolution for plane</b><br>                        
+                        <b>Resolution of plane/section</b><br>                        
                         dLat &nbsp;<input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__resolution_dLat" style="width: 90px">                                 
                         <br>
                         dLng <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.000016" step="0.000001" id="sonar__resolution_dLng" style="width: 90px">   
                         <br>
-                        Dot, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="10" step="1" id="sonar__resolution_dot_px" style="width: 90px">   
+                        Dot, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="6" step="1" id="sonar__resolution_dot_px" style="width: 90px">   
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
@@ -188,9 +188,9 @@
                 let sonar__lat_min = 999, sonar__lng_min = 999, sonar__lat_max = 0, sonar__lng_max = 0;
                 let sonar__getColor_depth_m_dx = 1;
                 let sonar__mks2px_fullScale_dx = 1;
-                let sonar__pulses_block_h_px = 300;
+                let sonar__pulses_block_h_px = 200;
                 const sonar__mks2px_fullScale_multiplier_vertical = 2.0; //draw on block height = x * depth_max_limit 
-                const sonar__pulse_underBottom_compression_vertical = 6.0; //compress pulses under bottom
+                const sonar__pulse_underBottom_compression_vertical = 5.0; //compress pulses under bottom
                 const sonar__plane_compression_vertical = 5.0; //compress pulses block
                 const sonar__mks2m = 1367.0;
                 let sonar__resolution_dLat = 0;
@@ -239,7 +239,7 @@
                 });
 
                 function sonar__actions() {
-                    $('#sonar__section_block').css('height', parseInt(30 + sonar__pulses_block_h_px) + 'px');
+                    $('#sonar__section_block').css('height', parseInt(50 + sonar__pulses_block_h_px) + 'px');
 
                     $('#form_bathymetry__btn_ok').click(() => {
                         sonar__bathymetryProcess();
@@ -298,7 +298,7 @@
                             $('div.sonar__section_dotBottomDepth').show();
                         } else {
                             $('div.sonar__section_dotBottomDepth').hide();
-                        }                        
+                        }
                     });
 
                 }
@@ -415,9 +415,9 @@
                     }
                     const depth_color = sonar__getColor_depth_m(data.depthM);
                     const left_px = Math.round(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng));
-                    let mt_px = Math.round(5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m));
+                    let mt_px = Math.round(6 + sonar__mks2px_fullScale(data.depth_mks));
 
-                    let html = '<div class="sonar__section_dotBottomDepth" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
+                    let html = '<div class="sonar__section_dotBottomDepth" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; height: '+sonar__resolution_dot_px+'px; "></div>';
                     for (const pulse of data.pulses) {
                         if (pulse.R <= (data.depth_mks + 150)) {
                             mt_px = sonar__mks2px_fullScale(pulse.R); //fish over bottom                           
@@ -425,8 +425,11 @@
                             mt_px = sonar__mks2px_fullScale((pulse.R / sonar__pulse_underBottom_compression_vertical) + data.depth_mks); //under bottom  уплотняем картинку в Х раз 
                         }
                         const pulse_color = sonar__getColor_power_mks(pulse.W);
-                        html += '<div class="sonar__section_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
+                        html += '<div class="sonar__section_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + sonar__resolution_dot_px + 'px;  height: '+sonar__resolution_dot_px+'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
                     }
+
+                    html += '<div class="sonar__section_dotBottomDepth_line" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + (6 + sonar__pulses_block_h_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px;  "></div>';
+
                     return html;
                 }
 //==================================== PLANE  =============================================================================================================================== 
@@ -930,8 +933,7 @@
 
     .sonar__section_dotBottomDepth{        
         display: block;
-        float: left;        
-        height: 8px;         
+        float: left;                
         position: absolute;                
         padding: 0;
         margin: 0;
@@ -943,9 +945,18 @@
         background-color: black;       
         position: absolute;    
         padding: 0;
-        margin: 0;      
-        height: 4px;        
-    }    
+        margin: 0;              
+    }  
+    .sonar__section_dotBottomDepth_line{        
+        display: block;
+        float: left;        
+        height: 16px;         
+        position: absolute;                
+        padding: 0;
+        margin: 0;
+        overflow: hidden;     
+        z-index: 99999;
+    }
     .sonar__section_radius{ 
         border: 1px solid red;
         position: absolute;    
