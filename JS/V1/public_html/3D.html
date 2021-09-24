@@ -71,7 +71,9 @@
                         <input type="radio" name="sonar__section_isVertical" value="0" checked> --- &nbsp;&nbsp;
                         <input type="radio" name="sonar__section_isVertical" value="1"> | 
                         <br>
-                        <span id="sonar__section_ok" class="btn btn-success btn-sm">3. Apply & begin</span>   
+                        <span id="sonar__section_ok" class="btn btn-success btn-sm">3. Apply & begin</span> 
+                        <br>                                 
+                        <input type="checkbox" id="sonar__section_dotBottomDepth_isShow" value="1" checked> show bottom depth dots 
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
@@ -90,7 +92,7 @@
                     <hr class="my-1">
                     <div class="d-block">
                         <b>Reflection power</b><br>
-                        <input type="range" class="form-range" min="0" max="8000" value="0" id="sonar__range_pulse_w_min_show"> 
+                        <input type="range" class="form-range" min="0" max="15000" value="0" id="sonar__range_pulse_w_min_show"> 
                         hide weak <span id="sonar__range_pulse_w_min_show_val"></span>
                         <div class="d-block">
                             <b>Palette</b><br>
@@ -99,7 +101,7 @@
                                 <input name="sonar__palette_power_idx" type="radio" value="2"> BW &nbsp;
                                 <input name="sonar__palette_power_idx" type="radio" value="3"> RGB 
                             </div>
-                            <input type="range" class="form-range" min="0" max="8000" value="2000" id="sonar__range_pulse_w_max"> 
+                            <input type="range" class="form-range" min="0" max="15000" value="2000" id="sonar__range_pulse_w_max"> 
                         </div>
                         <div class="d-block align-middle"> 
                             <span id="sonar__range_pulse_w_min_val">0mks</span> 
@@ -290,6 +292,15 @@
                     $('#sonar__map_is_allow').change(() => {
                         map__create();
                     });
+
+                    $('#sonar__section_dotBottomDepth_isShow').change(() => {
+                        if ($('#sonar__section_dotBottomDepth_isShow').is(":checked")) {
+                            $('div.sonar__section_dotBottomDepth').show();
+                        } else {
+                            $('div.sonar__section_dotBottomDepth').hide();
+                        }                        
+                    });
+
                 }
                 function sonar__point_selected_latlng() {
                     /*$('[sonar__point_selected_latlng][todo]').click(function () {
@@ -406,7 +417,7 @@
                     const left_px = Math.round(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng));
                     let mt_px = Math.round(5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m));
 
-                    let html = '<div class="sonar__section_dot_bottom" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
+                    let html = '<div class="sonar__section_dotBottomDepth" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
                     for (const pulse of data.pulses) {
                         if (pulse.R <= (data.depth_mks + 150)) {
                             mt_px = sonar__mks2px_fullScale(pulse.R); //fish over bottom                           
@@ -917,7 +928,7 @@
         resize: both;
     }  
 
-    .sonar__section_dot_bottom{        
+    .sonar__section_dotBottomDepth{        
         display: block;
         float: left;        
         height: 8px;         
