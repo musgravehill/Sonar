@@ -66,7 +66,7 @@
                         <b>Section</b><br>
                         ±lat &nbsp;<input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" step="0.000001" id="sonar__section_dLat_limit" style="width: 90px">                                 
                         <br>
-                        ±lng <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" step="0.000001" id="sonar__section_dLng_limit" style="width: 90px">   
+                        ±lng <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.000030" step="0.000001" id="sonar__section_dLng_limit" style="width: 90px">   
                         <br>                                 
                         <input type="radio" name="sonar__section_isVertical" value="0" checked> --- &nbsp;&nbsp;
                         <input type="radio" name="sonar__section_isVertical" value="1"> | 
@@ -90,14 +90,14 @@
                     <hr class="my-1">
                     <div class="d-block">
                         <b>Reflection power</b><br>
-                        <input type="range" class="form-range" min="0" max="3000" value="0" id="sonar__range_pulse_w_min_show"> 
+                        <input type="range" class="form-range" min="0" max="8000" value="0" id="sonar__range_pulse_w_min_show"> 
                         hide weak <span id="sonar__range_pulse_w_min_show_val"></span>
                         <div class="d-block">
                             <b>Palette</b><br>
                             <div class="d-block">
                                 <input id="sonar__palette_power_isBW" type="checkbox" checked> BW \ RGB  
                             </div>
-                            <input type="range" class="form-range" min="0" max="3000" value="2000" id="sonar__range_pulse_w_max"> 
+                            <input type="range" class="form-range" min="0" max="8000" value="2000" id="sonar__range_pulse_w_max"> 
                         </div>
                         <div class="d-block align-middle"> 
                             <span id="sonar__range_pulse_w_min_val">0mks</span> 
@@ -401,7 +401,7 @@
                         if (pulse.R <= (data.depth_mks + 150)) {
                             mt_px = sonar__mks2px_fullScale(pulse.R); //fish over bottom                           
                         } else {
-                            mt_px = sonar__mks2px_fullScale(0.5 * pulse.R + data.depth_mks); //under bottom
+                            mt_px = sonar__mks2px_fullScale(0.2 * pulse.R + data.depth_mks); //under bottom  уплотняем картинку в Х раз 
                         }
                         const pulse_color = sonar__getColor_power_mks(pulse.W, sonar__colors_power_isBW);
                         html += '<div class="sonar__section_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
