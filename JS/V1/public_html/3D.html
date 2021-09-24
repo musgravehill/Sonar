@@ -303,10 +303,10 @@
 
                 }
                 function sonar__point_selected_latlng() {
-                    /*$('[sonar__point_selected_latlng][todo]').click(function () {
-                     const el = $(this);
-                     $('#sonar__point_selected_latlng').html(el.attr('title'));
-                     });*/
+                    $('[sonar__point_selected_latlng][todo]').click(function () {
+                        const el = $(this);
+                        $('#sonar__point_selected_latlng').html(el.attr('title'));
+                    });
                 }
 //==================================== START ===============================================================================================================================
                 function sonar__real_process() {
@@ -406,6 +406,7 @@
                             sonar__section_pointsLatLng_used[idx] = 1;
                         }
                     }
+                    sonar__section_applyMenuParams();
                     sonar__pulses_hideWeak();
                     sonar__point_selected_latlng();
                 }
@@ -417,7 +418,7 @@
                     const left_px = Math.round(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng));
                     let mt_px = Math.round(6 + sonar__mks2px_fullScale(data.depth_mks));
 
-                    let html = '<div class="sonar__section_dotBottomDepth" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; height: '+sonar__resolution_dot_px+'px; "></div>';
+                    let html = '<div class="sonar__section_dotBottomDepth" title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; height: ' + sonar__resolution_dot_px + 'px; "></div>';
                     for (const pulse of data.pulses) {
                         if (pulse.R <= (data.depth_mks + 150)) {
                             mt_px = sonar__mks2px_fullScale(pulse.R); //fish over bottom                           
@@ -425,12 +426,19 @@
                             mt_px = sonar__mks2px_fullScale((pulse.R / sonar__pulse_underBottom_compression_vertical) + data.depth_mks); //under bottom  уплотняем картинку в Х раз 
                         }
                         const pulse_color = sonar__getColor_power_mks(pulse.W);
-                        html += '<div class="sonar__section_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + sonar__resolution_dot_px + 'px;  height: '+sonar__resolution_dot_px+'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
+                        html += '<div class="sonar__section_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + sonar__resolution_dot_px + 'px;  height: ' + sonar__resolution_dot_px + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
                     }
 
                     html += '<div class="sonar__section_dotBottomDepth_line" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + (6 + sonar__pulses_block_h_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px;  "></div>';
 
                     return html;
+                }
+                function sonar__section_applyMenuParams() {
+                    if ($('#sonar__section_dotBottomDepth_isShow').is(":checked")) {
+                        $('div.sonar__section_dotBottomDepth').show();
+                    } else {
+                        $('div.sonar__section_dotBottomDepth').hide();
+                    }
                 }
 //==================================== PLANE  =============================================================================================================================== 
                 function sonar__plane_points_init(pointsLatLng) {
@@ -464,7 +472,7 @@
                         }
                         const pulse_color = sonar__getColor_power_mks(pulse.W); //fish over bottom                         
                         const mt_px = Math.round(sonar__mks2px_fullScale(pulse.R) / sonar__plane_compression_vertical);
-                        html += '<div class="sonar__plane_point_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
+                        html += '<div class="sonar__plane_point_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
                     }
                     html += '</div>';
 
@@ -879,6 +887,7 @@
                         $('div.sonar__section_pulse').css('opacity', 1);
                     }
                 }
+
                 function sonar__resolution_calc() {
                     sonar__resolution_dot_px = parseInt($('#sonar__resolution_dot_px').val()) || 0;
                     sonar__resolution_dLat = parseFloat($('#sonar__resolution_dLat').val()) || 0;
@@ -886,7 +895,6 @@
                     sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / sonar__resolution_dot_px;
                     sonar__pulse_size_offset_coef_lng = sonar__resolution_dLng / sonar__resolution_dot_px;
                 }
-
                 function sonar__distanceTwoPoints_m(lat1, lng1, lat2, lng2) {
                     lat1 = lat1 * 0.01745329251994329576923690768489; //to rad PI/180
                     lat2 = lat2 * 0.01745329251994329576923690768489;
