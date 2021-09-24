@@ -183,7 +183,7 @@
                 let sonar__lat_min = 999, sonar__lng_min = 999, sonar__lat_max = 0, sonar__lng_max = 0;
                 let sonar__getColor_depth_m_dx = 1;
                 let sonar__mks2px_fullScale_dx = 1;
-                let sonar__pulses_block_h_px = 400;
+                let sonar__pulses_block_h_px = 300;
                 const sonar__mks2m = 1367.0;
                 let sonar__resolution_dLat = 0;
                 let sonar__resolution_dLng = 0;
@@ -394,17 +394,16 @@
                     }
                     const depth_color = sonar__getColor_depth_m(data.depthM);
                     const left_px = Math.round(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng));
-                    let mt_px = Math.round(5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m));                    
+                    let mt_px = Math.round(5 + sonar__mks2px_fullScale(data.depth_mks, sonar__depth_max * sonar__mks2m));
 
                     let html = '<div class="sonar__section_pulseBottom" sonar__point_selected_latlng title="' + (Math.round(data.depthM * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; "></div>';
                     for (const pulse of data.pulses) {
-                        if (pulse.R <= (data.depth_mks+150)) {
+                        if (pulse.R <= (data.depth_mks + 150)) {
                             mt_px = sonar__mks2px_fullScale(pulse.R); //fish over bottom                           
                         } else {
-                            mt_px = sonar__mks2px_fullScale(0.3*pulse.R + data.depth_mks); //under bottom
+                            mt_px = sonar__mks2px_fullScale(0.5 * pulse.R + data.depth_mks); //under bottom
                         }
                         const pulse_color = sonar__getColor_power_mks(pulse.W, sonar__colors_power_isBW);
-                        
                         html += '<div class="sonar__section_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
                     }
                     return html;
@@ -430,17 +429,16 @@
                     const depth_color = sonar__getColor_depth_m(data.depthM);
                     const left_px = sonar__getOffsetLng_px(lng);
                     const top_px = sonar__getOffsetLat_px(lat);
-                    let mt_px_coef_overUnderBottom = 1;
-
+                    
                     let html = '<div sonar__point_selected_latlng title="' + (Math.round((data.depthM) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + ' " class="sonar__plane_point_pulses" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_dot_px + 'px; height: ' + sonar__pulses_block_h_px + 'px; ">'; //border-bottom: ' + sonar__resolution_dot_px + 'px solid ' + depth_color + ';
                     for (const pulse of data.pulses) {
-                        if (pulse.R <= (data.depth_mks+150)) {
-                            mt_px_coef_overUnderBottom = 1; //fish over bottom                            
+                        if (pulse.R <= (data.depth_mks + 150)) {
+                            //fish over bottom                           
                         } else {
-                            mt_px_coef_overUnderBottom = 0.5; //under bottom
+                            continue; //under bottom
                         }
                         const pulse_color = sonar__getColor_power_mks(pulse.W, sonar__colors_power_isBW); //fish over bottom                         
-                        const mt_px = mt_px_coef_overUnderBottom * sonar__mks2px_fullScale(pulse.R); //+ (sonar__depth_max - data.depthM) * sonar__mks2m прижмем ко дну, а не к поверхности
+                        const mt_px = sonar__mks2px_fullScale(pulse.R); //+ (sonar__depth_max - data.depthM) * sonar__mks2m прижмем ко дну, а не к поверхности
                         html += '<div class="sonar__plane_point_pulse" sonar__point_selected_latlng title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm  lat=' + lat + ' lng=' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
                     }
                     html += '</div>';
@@ -805,7 +803,7 @@
                     $('#sonar__palette_depth_max_text').html(Math.round(sonar__depth_max * 100) / 100 + 'm');
 
                     sonar__getColor_depth_m_dx = (sonar__depth_max - sonar__depth_min) / sonar__colors_depth.length;
-                    sonar__mks2px_fullScale_dx = (3 * sonar__depth_max * sonar__mks2m) / sonar__pulses_block_h_px;
+                    sonar__mks2px_fullScale_dx = (2 * sonar__depth_max * sonar__mks2m) / sonar__pulses_block_h_px;
                 }
                 function sonar__getPulse_w_realBottom_mks_min(depth_mks) {
                     if (depth_mks < 1500) {
