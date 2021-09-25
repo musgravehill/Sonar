@@ -814,7 +814,7 @@
                             const idx = lat + '_' + lng;
                             if (sonar__real_pointsLatLng.hasOwnProperty(idx)) {
                                 depthM = (sonar__real_pointsLatLng[idx].depthM + depthM) / 2.0;
-                                pulses = pulses.concat(sonar__real_pointsLatLng[idx].pulses); //  Если складывать, то уплотняется картинка, хотя реально там такой плотности нет.
+                                //pulses = pulses.concat(sonar__real_pointsLatLng[idx].pulses); //  Если складывать, то уплотняется картинка, хотя реально там такой плотности нет.
                             }
                             const point = {
                                 depthM: depthM,
