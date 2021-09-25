@@ -21,8 +21,8 @@
                         <input type="number" id="form_bathymetry__depth_min_input" placeholder="Min depth, m" value="0.5" class="form-control d-inline-block form-control-sm" style="width: 90px">
                         <input type="number" id="form_bathymetry__depth_max_input" placeholder="Max depth, m" value="5" class="form-control d-inline-block form-control-sm" style="width: 90px">
                     </div>
-                    <div class="d-block mb-1">
-                        <textarea id="form_bathymetry__data_input" class="form-control form-control-sm" style="width: 90px; height: 16px;" placeholder="Logic log"></textarea> 
+                    <div class="d-block mb-1">                         
+                        <input id="form_bathymetry__data_input_file" type="file" title="utf-8 txt" style="font-size: 10px;" />
                     </div>                    
                     <div class="d-block">
                         <span id="form_bathymetry__btn_ok" class="btn btn-success btn-sm">1. Ok</span>
@@ -243,7 +243,7 @@
                     $('#sonar__section_block').css('height', parseInt(50 + sonar__pulses_block_h_px) + 'px');
 
                     $('#form_bathymetry__btn_ok').click(() => {
-                        sonar__bathymetryProcess();
+                        sonar__bathymetryProcessInit();
                     });
                     $('#sonar__real_ok').click(() => {
                         sonar__real_process();
@@ -263,6 +263,11 @@
                         sonar__resolution_calc();
                         sonar__axisDraw();
                     });
+                    $('#sonar__resolution_dot_px').change(() => {
+                        sonar__resolution_calc();
+                        sonar__axisDraw();
+                    });
+
 
 
                     $('#sonar__over_bottom').change(() => {
@@ -752,15 +757,25 @@
                     }
                 }
 
-                function sonar__bathymetryProcess() {
+                function sonar__bathymetryProcessInit() {
                     sonar__real_pointsLatLng = [];
                     sonar__depth_min_m = 999;
                     sonar__depth_max_m = 0;
                     sonar__depth_min_limit = parseFloat($('#form_bathymetry__depth_min_input').val()) || 0;
                     sonar__depth_max_limit = parseFloat($('#form_bathymetry__depth_max_input').val()) || 0;
 
-                    const lines = $('#form_bathymetry__data_input').val().split(/\n/);
-                    $('#form_bathymetry__data_input').val('');
+                    const file = document.getElementById('form_bathymetry__data_input_file').files[0];
+                    let reader = new FileReader();
+                    reader.readAsText(file);
+                    reader.onload = function () {
+                        sonar__bathymetryProcess(reader.result);
+                    };
+                    reader.onerror = function () {
+                        alert(reader.error);
+                    };
+                }
+                function sonar__bathymetryProcess(dataTxt) {
+                    const lines = dataTxt.split(/\n/);
 
                     for (const line of lines) {
                         let pulses = [];
