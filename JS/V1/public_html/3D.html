@@ -77,9 +77,10 @@
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
-                        <b>Depth</b><br>
-                        <div id="sonar__palette_depth_min_text" class="d-inline-block" style="width: 50px;"></div>
-                        <div class="d-inline-block"><div id="sonar__palette_depth"></div></div>
+                        <b>Depth</b> 
+                        <div class="d-inline-block"><div id="sonar__palette_depth"></div></div> 
+                        <br>  
+                        <div id="sonar__palette_depth_min_text" class="d-inline-block" style="width: 50px;"></div>                         
                         <div id="sonar__palette_depth_max_text" class="d-inline-block"></div>
                     </div>
                     <div class="d-block">
@@ -162,10 +163,11 @@
                 let sonar__section_dLat_limit = 0;
                 let sonar__section_dLng_limit = 0;
                 //
-                let sonar__depth_min = 0;
-                let sonar__depth_max = 0;
-                let depth_min_limit = 0;
-                let depth_max_limit = 0;
+                let sonar__depth_min_m = 999;
+                let sonar__depth_max_m = 0;
+                let sonar__depth_max_latlng = [0, 0];
+                let sonar__depth_min_limit = 0;
+                let sonar__depth_max_limit = 0;
                 let sonar__dataItemsCount = 0;
                 const sonar__colors_depth = [
                     '#f51c03',
@@ -189,7 +191,7 @@
                 let sonar__getColor_depth_m_dx = 1;
                 let sonar__mks2px_fullScale_dx = 1;
                 let sonar__pulses_block_h_px = 200;
-                const sonar__mks2px_fullScale_multiplier_vertical = 2.0; //draw on block height = x * depth_max_limit 
+                const sonar__mks2px_fullScale_multiplier_vertical = 2.0; //draw on block height = x * sonar__depth_max_limit 
                 const sonar__pulse_underBottom_compression_vertical = 5.0; //compress pulses under bottom
                 const sonar__plane_compression_vertical = 5.0; //compress pulses block
                 const sonar__mks2m = 1367.0;
@@ -749,12 +751,14 @@
 
                 function sonar__bathymetryProcess() {
                     sonar__real_pointsLatLng = [];
-                    sonar__depth_min = 0;
-                    sonar__depth_max = 0;
-                    depth_min_limit = parseFloat($('#form_bathymetry__depth_min_input').val()) || 0;
-                    depth_max_limit = parseFloat($('#form_bathymetry__depth_max_input').val()) || 0;
+                    sonar__depth_min_m = 999;
+                    sonar__depth_max_m = 0;
+                    sonar__depth_min_limit = parseFloat($('#form_bathymetry__depth_min_input').val()) || 0;
+                    sonar__depth_max_limit = parseFloat($('#form_bathymetry__depth_max_input').val()) || 0;
 
                     const lines = $('#form_bathymetry__data_input').val().split(/\n/);
+                    $('#form_bathymetry__data_input').val('');
+
                     for (const line of lines) {
                         let pulses = [];
                         let RR = [], FF = [];
@@ -808,7 +812,7 @@
                         lng = Math.round(lng * 1000000) / 1000000;//6
 
                         let depthM = depth_mks / sonar__mks2m;
-                        if (lat > 0 && lng > 0 && depthM >= depth_min_limit && depthM <= depth_max_limit) {
+                        if (lat > 0 && lng > 0 && depthM >= sonar__depth_min_limit && depthM <= sonar__depth_max_limit) {
 
                             //point real
                             const idx = lat + '_' + lng;
@@ -823,11 +827,12 @@
                             };
                             sonar__real_pointsLatLng[idx] = point;
 
-                            if (sonar__depth_min > depthM) {
-                                sonar__depth_min = depthM;
+                            if (sonar__depth_min_m > depthM) {
+                                sonar__depth_min_m = depthM;
                             }
-                            if (sonar__depth_max < depthM) {
-                                sonar__depth_max = depthM;
+                            if (sonar__depth_max_m < depthM) {
+                                sonar__depth_max_m = depthM;
+                                sonar__depth_max_latlng = [lat, lng];
                             }
 
                             if (sonar__lat_min > lat) {
@@ -856,11 +861,11 @@
                     $('#sonar__info_lngMax').html(sonar__lng_max);
 
                     $('#bathymetry__points_count').html(sonar__dataItemsCount + ' points');
-                    $('#sonar__palette_depth_min_text').html(Math.round(sonar__depth_min * 100) / 100 + 'm');
-                    $('#sonar__palette_depth_max_text').html(Math.round(sonar__depth_max * 100) / 100 + 'm');
+                    $('#sonar__palette_depth_min_text').html(Math.round(sonar__depth_min_m * 100) / 100 + 'm');
+                    $('#sonar__palette_depth_max_text').html(Math.round(sonar__depth_max_m * 100) / 100 + 'm ' + '<span style="font-size:12px;">' + sonar__depth_max_latlng[0] + ' ' + sonar__depth_max_latlng[1] + '</span>');
 
-                    sonar__getColor_depth_m_dx = (sonar__depth_max - sonar__depth_min) / sonar__colors_depth.length;
-                    sonar__mks2px_fullScale_dx = (sonar__mks2px_fullScale_multiplier_vertical * sonar__depth_max * sonar__mks2m) / sonar__pulses_block_h_px;
+                    sonar__getColor_depth_m_dx = (sonar__depth_max_m - sonar__depth_min_m) / sonar__colors_depth.length;
+                    sonar__mks2px_fullScale_dx = (sonar__mks2px_fullScale_multiplier_vertical * sonar__depth_max_m * sonar__mks2m) / sonar__pulses_block_h_px;
                 }
                 function sonar__getPulse_w_realBottom_mks_min(depth_mks) {
                     if (depth_mks < 2000) {
