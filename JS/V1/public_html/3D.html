@@ -10,11 +10,7 @@
     <body>
         <main class="container-fluid">
             <div class="row mt-2">
-                <div class="col-2" style="height: 743px; overflow: scroll;">
-                    <div class="d-block">
-                        <span id="sonar__point_selected_latlng" style="font-size: 12px;"></span>
-                    </div> 
-                    <hr class="my-1">
+                <div class="col-2" style="height: 743px; overflow: scroll;">                    
                     <div class="d-block">
                         <b>
                             3D bathymetry 
@@ -77,11 +73,7 @@
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
-                        <b>Depth</b> 
-                        <div class="d-inline-block"><div id="sonar__palette_depth"></div></div> 
-                        <br>  
-                        <div id="sonar__palette_depth_min_text" class="d-inline-block" style="width: 50px;"></div>                         
-                        <div id="sonar__palette_depth_max_text" class="d-inline-block"></div>
+                        <b>Impulses</b>                         
                     </div>
                     <div class="d-block">
                         <input id="sonar__over_bottom" type="checkbox" checked> impulses over bottom  
@@ -94,7 +86,7 @@
                     <div class="d-block">
                         <b>Reflection power</b><br>
                         <input type="range" class="form-range" min="0" max="15000" value="0" id="sonar__range_pulse_w_min_show"> 
-                        hide weak <span id="sonar__range_pulse_w_min_show_val"></span>
+                        hide weak < <span id="sonar__range_pulse_w_min_show_val"></span>
                         <div class="d-block">
                             <b>Palette</b><br>
                             <div class="d-block">
@@ -143,6 +135,13 @@
                     </div>
                     <div class="row">
                         <div class="col-auto">
+                            <div class="d-block mt-1">
+                                <b>Depth</b>                                   
+                                <div id="sonar__palette_depth_min_text" class="d-inline-block" style="width: 50px;"></div> 
+                                <div class="d-inline-block"><div id="sonar__palette_depth"></div></div> 
+                                <div id="sonar__palette_depth_max_text" class="d-inline-block"></div>
+                                <b>Point</b> <span id="sonar__point_selected_latlng" style="font-size: 12px;"></span>
+                            </div>
                             <div id="sonar__plane_block"></div>
                         </div>
                         <div class="col-auto">
