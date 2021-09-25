@@ -257,9 +257,11 @@
 
                     $('#sonar__resolution_dLat').change(() => {
                         sonar__resolution_calc();
+                        sonar__axisDraw();
                     });
                     $('#sonar__resolution_dLng').change(() => {
                         sonar__resolution_calc();
+                        sonar__axisDraw();
                     });
 
 
@@ -330,6 +332,7 @@
                     sonar__section_init();
 
                     sonar__point_selected_latlng();
+                    sonar__axisDraw();
                 }
                 function sonar__extrapolation_process() {
                     sonar__plane_pointsLatLng = [];
@@ -352,6 +355,7 @@
                     sonar__section_init();
 
                     sonar__point_selected_latlng();
+                    sonar__axisDraw();
                 }
 //==================================== SECTION ===============================================================================================================================
                 function sonar__section_points_init(pointsLatLng) {
@@ -865,6 +869,9 @@
 
                     sonar__getColor_depth_m_dx = (sonar__depth_max_m - sonar__depth_min_m) / sonar__colors_depth.length;
                     sonar__mks2px_fullScale_dx = (sonar__mks2px_fullScale_multiplier_vertical * sonar__depth_max_m * sonar__mks2m) / sonar__pulses_block_h_px;
+
+                    sonar__resolution_calc();
+                    sonar__axisDraw();
                 }
                 function sonar__getPulse_w_realBottom_mks_min(depth_mks) {
                     if (depth_mks < 2000) {
@@ -909,7 +916,7 @@
                     sonar__resolution_dLat = parseFloat($('#sonar__resolution_dLat').val()) || 0;
                     sonar__resolution_dLng = parseFloat($('#sonar__resolution_dLng').val()) || 0;
                     sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / sonar__resolution_dot_px;
-                    sonar__pulse_size_offset_coef_lng = sonar__resolution_dLng / sonar__resolution_dot_px;
+                    sonar__pulse_size_offset_coef_lng = sonar__resolution_dLng / sonar__resolution_dot_px;                    
                 }
                 function sonar__distanceTwoPoints_m(lat1, lng1, lat2, lng2) {
                     lat1 = lat1 * 0.01745329251994329576923690768489; //to rad PI/180
@@ -921,6 +928,20 @@
                     const d = Math.sqrt(x * x + y * y) * 6371.0;  //R = 6371km
                     return Math.round(d * 100000) / 100; // 1.86m
                 }
+                function sonar__axisDraw() {
+                    $('div.sonar__axis').remove();
+                    const lat_max_m = sonar__distanceTwoPoints_m(sonar__lat_min, parseFloat((sonar__lng_max - sonar__lng_min) / 2.0), sonar__lat_max, parseFloat((sonar__lng_max - sonar__lng_min) / 2.0));
+                    const lng_max_m = sonar__distanceTwoPoints_m(parseFloat((sonar__lat_max - sonar__lat_min) / 2.0), sonar__lng_min, parseFloat((sonar__lat_max - sonar__lat_min) / 2.0), sonar__lng_max);
+                    const lat_max_px = sonar__getOffsetLat_px(sonar__lat_min); //!sonar__lat_min 
+                    const lng_max_px = sonar__getOffsetLng_px(sonar__lng_max);
+                    const lat_10m_px = Math.round(10.0 * lat_max_px / lat_max_m);
+                    const lng_10m_px = Math.round(10.0 * lng_max_px / lng_max_m);
+                    const h_line = '<div style=" width:' + lng_10m_px + 'px; left:1px; top:1px; " class="sonar__axis" title="10m"></div>'; //lng=horis
+                    const v_line = '<div style=" height:' + lat_10m_px + 'px; left:1px; top:1px; " class="sonar__axis" title="10m"></div>';//lat=vertical
+                    $('#sonar__plane_block').append(h_line).append(v_line);
+                    $('#sonar__section_block').append(h_line).append(v_line);
+                }
+
 
             </script>
         </main>
@@ -930,6 +951,15 @@
     </body>
 </html>
 <style>  
+    .sonar__axis{
+        opacity: 0.8;
+        background-color: black;       
+        position: absolute;    
+        padding: 0;
+        margin: 0; 
+        width: 2px;
+        height: 2px;
+    }
     #sonar__section_block{                
         overflow: scroll;
         position: relative;
