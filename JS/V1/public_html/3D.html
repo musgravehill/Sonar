@@ -117,25 +117,18 @@
                         function (texture) {
                             const material = new THREE.MeshBasicMaterial({
                                 map: texture
-                            });
-                            //get height data from img
-                            var data = getHeightData(img);
-
-                            //const geometry = new THREE.PlaneGeometry(7500, 7500, worldWidth - 1, worldDepth - 1);
-                            //geometry.rotateX(-Math.PI / 2);      
-
-                            //const texture = new THREE.TextureLoader().load('heightmap2.png');
-                            texture.wrapS = THREE.ClampToEdgeWrapping;
-                            texture.wrapT = THREE.ClampToEdgeWrapping;
-                            //const material = new THREE.MeshLambertMaterial({map: texture});                 
+                            });                            
+                            var data = getHeightData(img);                               
+                            //texture.wrapS = THREE.ClampToEdgeWrapping;?
+                            //texture.wrapT = THREE.ClampToEdgeWrapping;?                                            
                             const geometry = new THREE.PlaneGeometry(worldWidth, worldDepth, worldWidth - 1, worldDepth - 1);
-                            geometry.rotateX(-Math.PI / 3);    
+                            geometry.rotateX(-Math.PI / 6);
                             //const material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
                             const vertices = geometry.attributes.position.array;
                             for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
-                                // vertices[ j + 1 ] = Math.round(data[i] * 10);
+                                vertices[ j + 1 ] = Math.round(data[i] * 10);
                             }
-                            
+
                             const plane = new THREE.Mesh(geometry, material);
 
                             scene.add(plane);
@@ -144,9 +137,9 @@
 
                             //plane = new THREE.Mesh(geometry, material);
                             //set height of vertices
-                           // const vertices = geometry.attributes.position.array;
+                            // const vertices = geometry.attributes.position.array;
                             //for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
-                                // vertices[ j + 1 ] = Math.round(data[i] * 10);
+                            // vertices[ j + 1 ] = Math.round(data[i] * 10);
                             //}
                             //scene.add(plane);
 
