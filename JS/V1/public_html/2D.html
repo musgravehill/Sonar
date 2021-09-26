@@ -1122,19 +1122,19 @@
                 let D3__w = 256, D3__h = 256;
 
                 document.addEventListener('DOMContentLoaded', function () {
-                    
+
                 });
 
                 function D3__init() {
                     let canvTexture = document.getElementById('D3__canvasTexture');
                     canvTexture.width = D3__w;
-                    canvTexture.height = D3__h;                    
+                    canvTexture.height = D3__h;
                     let ctx = canvTexture.getContext('2d');
                     ctx.fillStyle = '#22FF33';
-                    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);                     
-                    
-                    
-                    
+                    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+
+
                     const container = document.getElementById('D3__container');
                     container.innerHTML = '';
 
@@ -1165,7 +1165,6 @@
                     //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
                     const vertices = D3__geometry.attributes.position.array;
                     for (let i = 0, j = 4, l = vertices.length; i < l; i++, j += 3) {
-                        //vertices[ j +1 ] = data[i]*2;
                         D3__geometry.attributes.position.array[j + 1] = Math.random() * 10; // data[i] / 6;
                     }
                     //D3__geometry.computeVertexNormals();
