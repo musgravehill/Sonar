@@ -117,31 +117,19 @@
                         function (texture) {
                             const material = new THREE.MeshBasicMaterial({
                                 map: texture
-                            });                            
-                            var data = getHeightData(img);                               
+                            });
+                            var data = getHeightData(img);
                             //texture.wrapS = THREE.ClampToEdgeWrapping;?
                             //texture.wrapT = THREE.ClampToEdgeWrapping;?                                            
                             const geometry = new THREE.PlaneGeometry(worldWidth, worldDepth, worldWidth - 1, worldDepth - 1);
                             geometry.rotateX(-Math.PI / 6);
-                            //const material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
+                            //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
                             const vertices = geometry.attributes.position.array;
                             for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
-                                vertices[ j + 1 ] = Math.round(data[i] * 10);
+                                vertices[ j + 1 ] = Math.round(data[i] * 5);
                             }
-
                             const plane = new THREE.Mesh(geometry, material);
-
-                            scene.add(plane);
-
-
-
-                            //plane = new THREE.Mesh(geometry, material);
-                            //set height of vertices
-                            // const vertices = geometry.attributes.position.array;
-                            //for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
-                            // vertices[ j + 1 ] = Math.round(data[i] * 10);
-                            //}
-                            //scene.add(plane);
+                            scene.add(plane);                            
 
                             render();
                         },
