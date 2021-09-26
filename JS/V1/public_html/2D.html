@@ -963,6 +963,16 @@
         <script src="jquery-3.6.0.min.js"></script>
         <script src="bootstrap.bundle.min.js"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=ea0860a1-d606-43c4-88f4-93529deb4edb" type="text/javascript"></script>
+
+
+
+
+
+
+        <div id="D3__container"></div>
+        <script src="three.js"></script>
+
+
     </body>
 </html>
 <style>  
@@ -1082,3 +1092,142 @@
 
 
 </style>
+
+
+<script>
+                const D3__colors_depth = [
+                    '#ffffff',
+                    '#eeeeee',
+                    '#dddddd',
+                    '#cccccc',
+                    '#bbbbbb',
+                    '#aaaaaa',
+                    '#999999',
+                    '#888888',
+                    '#777777',
+                    '#666666',
+                    '#555555',
+                    '#444444',
+                    '#323232',
+                    '#212121',
+                    '#101010',
+                    '#000000'
+                ];
+
+
+                let D3__camera, D3__scene, D3__renderer;
+                let D3__mesh, D3__texture, D3__geometry;
+                let D3__w = 256, D3__h = 256;
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    D3__init();
+                });
+
+                function D3__init() {
+                    const container = document.getElementById('D3__container');
+
+                    D3__camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 10000);
+
+                    D3__scene = new THREE.Scene();
+                    //D3__scene.background = new THREE.Color(0xefd1b5);
+                    //D3__scene.fog = new THREE.FogExp2(0xefd1b5, 0.0025);
+
+                    D3__camera.position.set(0, 0, 300);
+
+                    D3__renderer = new THREE.WebGLRenderer();
+                    D3__renderer.setPixelRatio(window.devicePixelRatio);
+                    D3__renderer.setSize(D3__w, D3__h);
+                    container.appendChild(D3__renderer.domElement);
+                }
+
+
+                function render() {
+                    D3__renderer.render(D3__scene, D3__camera);
+                }
+
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    plane.rotation.x += 0.01;
+                    //plane.rotation.y += 0.01;
+                    //plane.rotation.z += 0.01;
+                    render();
+                }
+
+
+                var img = new Image();
+                img.onload = function () {
+
+                    const loader = new THREE.TextureLoader();
+                    loader.load(
+                            'zmap.png',
+                            function (D3__texture) {
+                                const material = new THREE.MeshBasicMaterial({
+                                    map: D3__texture
+                                });
+                                var data = getHeightData(img);
+                                D3__texture.wrapS = THREE.ClampToEdgeWrapping;
+                                D3__texture.wrapT = THREE.ClampToEdgeWrapping;
+                                D3__geometry = new THREE.PlaneGeometry(D3__w, D3__h, D3__w - 1, D3__h - 1);
+                                //D3__geometry.rotateX(-Math.PI / 2);
+                                //D3__geometry.rotateY(-Math.PI / 2);
+                                //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
+                                const vertices = D3__geometry.attributes.position.array;
+                                for (let i = 0, j = 4, l = vertices.length; i < l; i++, j += 3) {
+                                    //vertices[ j +1 ] = data[i]*2;
+                                    D3__geometry.attributes.position.array[j + 1] = data[i] / 6;
+                                }
+                                //D3__geometry.computeVertexNormals();
+                                plane = new THREE.Mesh(D3__geometry, material);
+
+
+                                D3__scene.add(plane);
+
+                                animate();
+                            },
+                            undefined,
+                            function (err) {
+                                console.error('An error happened.');
+                            }
+                    );
+
+
+
+
+
+                };
+                img.src = "zmap.png";
+
+                function getHeightData(img) {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    var context = canvas.getContext('2d');
+
+                    var size = img.width * img.height;
+                    var data = new Float32Array(size);
+
+                    context.drawImage(img, 0, 0);
+
+                    for (var i = 0; i < size; i++) {
+                        data[i] = 0;
+                    }
+
+                    var data = canvas.getContext('2d').getImageData(0, 0, img.width, img.height).data;
+
+                    var normPixels = [];
+
+                    for (var i = 0, n = data.length; i < n; i += 4) {
+                        // get the average value of R, G and B.
+                        normPixels.push((data[i] + data[i + 1] + data[i + 2]) / 3);
+                    }
+
+                    return normPixels;
+                }
+
+
+
+
+
+
+</script>

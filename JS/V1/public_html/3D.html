@@ -12,6 +12,32 @@
         <script src="three.js"></script>
         <script>
 
+            /*
+             const width = 512;
+             const height = 512;
+             
+             const size = width * height;
+             const data = new Uint8Array( 3 * size );
+             const color = new THREE.Color( 0xffffff );
+             
+             const r = Math.floor( color.r * 255 );
+             const g = Math.floor( color.g * 255 );
+             const b = Math.floor( color.b * 255 );
+             
+             for ( let i = 0; i < size; i ++ ) {
+             
+             const stride = i * 3;
+             
+             data[ stride ] = r;
+             data[ stride + 1 ] = g;
+             data[ stride + 2 ] = b;
+             
+             }
+             
+             // used the buffer to create a DataTexture
+             
+             const texture = new THREE.DataTexture( data, width, height, THREE.RGBFormat ); */
+
             let container, stats;
             let camera, controls, scene, renderer;
             let mesh, texture;
@@ -30,39 +56,13 @@
                 scene = new THREE.Scene();
                 //scene.background = new THREE.Color(0xefd1b5);
                 //scene.fog = new THREE.FogExp2(0xefd1b5, 0.0025);
-
-
-
-                camera.position.set(0, 0, 300);
-                //camera.lookAt(0, 0, 300);
-                //camera.position.z = 300;
-
-                /*const data = generateHeight(worldWidth, worldDepth);
-                 //const geometry = new THREE.PlaneGeometry(7500, 7500, worldWidth - 1, worldDepth - 1);
-                 //geometry.rotateX(-Math.PI / 2);
-                 const geometry = new THREE.PlaneGeometry(7500, 7500, worldWidth - 1, worldDepth - 1);
-                 
-                 const vertices = geometry.attributes.position.array;
-                 for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
-                 vertices[ j + 1 ] = data[ i ] * 10;
-                 }
-                 
-                 texture = new THREE.CanvasTexture(generateTextureRGB(data, worldWidth, worldDepth));
-                 texture.wrapS = THREE.ClampToEdgeWrapping;
-                 texture.wrapT = THREE.ClampToEdgeWrapping;
-                 
-                 mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({map: texture}));
-                 scene.add(mesh); */
-
-
-
+                
+                camera.position.set(0, 0, 300); 
 
                 renderer = new THREE.WebGLRenderer();
                 renderer.setPixelRatio(window.devicePixelRatio);
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 container.appendChild(renderer.domElement);
-
-
             }
 
 
@@ -74,8 +74,8 @@
             function animate() {
                 requestAnimationFrame(animate);
                 plane.rotation.x += 0.01;
-                plane.rotation.y += 0.01;
-                plane.rotation.z += 0.01;
+                //plane.rotation.y += 0.01;
+                //plane.rotation.z += 0.01;
                 render();
             }
 
@@ -100,11 +100,11 @@
                             const vertices = geometry.attributes.position.array;
                             for (let i = 0, j = 4, l = vertices.length; i < l; i++, j += 3) {
                                 //vertices[ j +1 ] = data[i]*2;
-                                geometry.attributes.position.array[j+1]= data[i]/6;
+                                geometry.attributes.position.array[j + 1] = data[i] / 6;
                             }
                             //geometry.computeVertexNormals();
                             plane = new THREE.Mesh(geometry, material);
-                           
+
 
                             scene.add(plane);
 
