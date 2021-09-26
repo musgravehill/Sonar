@@ -15,12 +15,13 @@
             let container, stats;
             let camera, controls, scene, renderer;
             let mesh, texture;
+            let plane, geometry;
 
             const worldWidth = 256, worldDepth = 256;
 
-
             init();
-            //animate();
+
+
             function init() {
                 container = document.getElementById('container');
 
@@ -32,9 +33,9 @@
 
 
 
-                //camera.position.set(100, 100, -800);
-                //camera.lookAt(-100, 110, -100);
-                camera.position.z = 800;
+                camera.position.set(0, 0, 300);
+                //camera.lookAt(0, 0, 300);
+                //camera.position.z = 300;
 
                 /*const data = generateHeight(worldWidth, worldDepth);
                  //const geometry = new THREE.PlaneGeometry(7500, 7500, worldWidth - 1, worldDepth - 1);
@@ -64,46 +65,17 @@
 
             }
 
-            function generateHeight(width, height) {
-                const size = width * height;
-                const data = new Uint8Array(size);
-
-                for (let j = 0; j < 4; j++) {
-                    for (let i = 0; i < size; i++) {
-                        data[i] += Math.abs(Math.random() * 10);
-                    }
-                }
-                return data;
-            }
 
             function render() {
                 renderer.render(scene, camera);
             }
 
-            function generateTextureRGB(zzzzdata, width, height) {
-                const depth = 100;
-                const size = width * height;
-                const data = new Uint8Array(3 * size * depth);
-                for (let i = 0; i < depth; i++) {
-                    const color = new THREE.Color(Math.random(), Math.random(), Math.random());
-                    const r = Math.floor(color.r * 255);
-                    const g = Math.floor(color.g * 255);
-                    const b = Math.floor(color.b * 255);
-                    for (let j = 0; j < size; j++) {
-                        const stride = (i * size + j) * 3;
-                        data[ stride ] = r;
-                        data[ stride + 1 ] = g;
-                        data[ stride + 2 ] = b;
-                    }
-                }
-                // used the buffer to create a DataTexture2DArray
-                const texture = new THREE.DataTexture2DArray(data, width, height, depth);
-                texture.format = THREE.RGBFormat;
-                texture.type = THREE.UnsignedByteType;
-            }
 
             function animate() {
                 requestAnimationFrame(animate);
+                plane.rotation.x += 0.01;
+                plane.rotation.y += 0.01;
+                plane.rotation.z += 0.01;
                 render();
             }
 
@@ -113,7 +85,7 @@
 
                 const loader = new THREE.TextureLoader();
                 loader.load(
-                        'heightmap2.png',
+                        'zmap.png',
                         function (texture) {
                             const material = new THREE.MeshBasicMaterial({
                                 map: texture
@@ -121,17 +93,18 @@
                             var data = getHeightData(img);
                             //texture.wrapS = THREE.ClampToEdgeWrapping;?
                             //texture.wrapT = THREE.ClampToEdgeWrapping;?                                            
-                            const geometry = new THREE.PlaneGeometry(worldWidth, worldDepth, worldWidth - 1, worldDepth - 1);
-                            geometry.rotateX(-Math.PI / 6);
+                            geometry = new THREE.PlaneGeometry(worldWidth, worldDepth, worldWidth - 1, worldDepth - 1);
+                            //geometry.rotateX(-Math.PI / 2);
+                            //geometry.rotateY(-Math.PI / 2);
                             //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
                             const vertices = geometry.attributes.position.array;
                             for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
-                                vertices[ j + 1 ] = Math.round(data[i] * 5);
+                                vertices[ j + 1 ] = Math.round(data[i]);
                             }
-                            const plane = new THREE.Mesh(geometry, material);
-                            scene.add(plane);                            
+                            plane = new THREE.Mesh(geometry, material);
+                            scene.add(plane);
 
-                            render();
+                            animate();
                         },
                         undefined,
                         function (err) {
@@ -144,7 +117,7 @@
 
 
             };
-            img.src = "heightmap2.png";
+            img.src = "zmap.png";
 
             function getHeightData(img, scale) {
 
@@ -166,16 +139,16 @@
                     data[i] = 0;
                 }
 
-                var imgd = context.getImageData(0, 0, img.width, img.height);
-                var pix = imgd.data;
+                var data = canvas.getContext('2d').getImageData(0, 0, img.width, img.height).data;
 
-                var j = 0;
-                for (var i = 0; i < pix.length; i += 4) {
-                    var all = pix[i] + pix[i + 1] + pix[i + 2];
-                    data[j++] = all / (12 * scale);
+                var normPixels = [];
+
+                for (var i = 0, n = data.length; i < n; i += 4) {
+                    // get the average value of R, G and B.
+                    normPixels.push((data[i] + data[i + 1] + data[i + 2]) / 3);
                 }
 
-                return data;
+                return normPixels;
             }
 
 
