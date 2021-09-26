@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>My first three.js app</title>
+        <style>
+            body { margin: 0; }
+        </style>
+    </head>
+    <body>
+        <script src="three.js"></script>
+        <script>
+            const render__w = 650;
+            const render__h = 480;
+            /////
+            /*const depth = 100;
+             const size = render__w * render__h;
+             const data = new Uint8Array(3 * size * depth);
+             for (let i = 0; i < depth; i++) {
+             const color = new THREE.Color(Math.random(), Math.random(), Math.random());
+             const r = Math.floor(color.r * 255);
+             const g = Math.floor(color.g * 255);
+             const b = Math.floor(color.b * 255);
+             for (let j = 0; j < size; j++) {
+             const stride = (i * size + j) * 3;
+             data[ stride ] = r;
+             data[ stride + 1 ] = g;
+             data[ stride + 2 ] = b;
+             }
+             }
+             // used the buffer to create a DataTexture2DArray
+             const texture = new THREE.DataTexture2DArray(data, render__w, render__h, depth);
+             texture.format = THREE.RGBFormat;
+             texture.type = THREE.UnsignedByteType;
+             /////*/
+
+
+
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, render__w / render__h, 0.1, 1000);
+
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(render__w, render__h);
+            document.body.appendChild(renderer.domElement);
+
+
+
+            camera.position.z = 5;
+            renderer.render(scene, camera);
+
+            let terrain;
+
+            const animate = function () {
+                requestAnimationFrame(animate);               
+
+                renderer.render(scene, camera);
+            };
+
+
+
+
+            function getHeightData(img, scale) {
+                if (scale == undefined) {
+                    scale = 1;
+                }
+
+                var canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                var context = canvas.getContext('2d');
+
+                var size = img.width * img.height;
+                var data = new Float32Array(size);
+
+                context.drawImage(img, 0, 0);
+
+                for (var i = 0; i < size; i++) {
+                    data[i] = 0;
+                }
+
+                var imgd = context.getImageData(0, 0, img.width, img.height);
+                var data = imgd.data;
+
+                var normPixels = [];
+
+                for (var i = 0, n = data.length; i < n; i += 4) {
+                    // get the average value of R, G and B.
+                    normPixels.push((data[i] + data[i + 1] + data[i + 2]) / 3);
+                }
+
+                return normPixels;
+            }
+
+            //Apply height data to plane
+            // terrain
+            var img = new Image();
+            img.onload = function () {
+                var data = getHeightData(img);
+                let geometry = new THREE.PlaneGeometry(10, 10, 9, 9);
+                //set height of vertices
+                const vertices = geometry.attributes.position.array;
+                for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
+                    vertices[ j + 1 ] = data[i];
+                }
+                //geometry.normalsNeedUpdate = true;
+
+                let material = new THREE.MeshLambertMaterial({color: new THREE.Color(0.9, 0.55, 0.4)});
+                terrain = new THREE.Mesh(geometry, material);
+                //terrain.position.x = -10;
+                //terrain.position.z = -10;
+                //terrain.updateMatrixWorld(true);
+                scene.add(terrain);       
+                renderer.render(scene, camera);
+
+            };
+            // load img source
+            img.src = "heightmap2.png";
+            
+            animate();
+        </script>
+    </body>
+</html>

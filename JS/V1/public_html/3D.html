@@ -1,1084 +1,203 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
     <head>
-        <!-- Required meta tags -->
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="bootstrap.min.css" rel="stylesheet">
-        <title>3D bathymetry</title>
+        <title>My first three.js app</title>
+        <style>
+            body { margin: 0; }
+        </style>
     </head>
     <body>
-        <main class="container-fluid">
-            <div class="row mt-2">
-                <div class="col-2" style="height: 743px; overflow: scroll;">                    
-                    <div class="d-block">
-                        <b>
-                            3D bathymetry 
-                            <span id="bathymetry__points_count"></span>
-                        </b>
-                    </div> 
-                    <div class="d-block mb-1"> 
-                        <input type="number" id="form_bathymetry__depth_min_input" placeholder="Min depth, m" value="0.5" class="form-control d-inline-block form-control-sm" style="width: 90px">
-                        <input type="number" id="form_bathymetry__depth_max_input" placeholder="Max depth, m" value="5" class="form-control d-inline-block form-control-sm" style="width: 90px">
-                    </div>
-                    <div class="d-block mb-1">                         
-                        <input id="form_bathymetry__data_input_file" type="file" title="utf-8 txt" style="font-size: 10px;" />
-                    </div>                    
-                    <div class="d-block">
-                        <span id="form_bathymetry__btn_ok" class="btn btn-success btn-sm">1. Ok</span>
-                    </div>                     
-                    <hr class="my-1">
-                    <div class="d-block"> 
-                        <b>Resolution of plane/section</b><br>                        
-                        dLat &nbsp;<input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.000005" step="0.000001" id="sonar__resolution_dLat" style="width: 90px">                                 
-                        <br>
-                        dLng <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.000011" step="0.000001" id="sonar__resolution_dLng" style="width: 90px">   
-                        <br>
-                        Dot, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="6" step="1" id="sonar__resolution_dot_px" style="width: 90px">   
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-block">
-                        <input id="sonar__map_is_allow" type="checkbox"> use map                          
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-block">  
-                        <span id="sonar__real_ok" class="btn btn-sm btn-success mb-1">2. Real draw</span>                         
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-block"> 
-                        Radius m                        
-                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.1" value="3" step="0.1" id="sonar__extrapolation_radius_m" style="width: 90px">                                 
-                        <br>
-                        Step lat &nbsp;                       
-                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__extrapolation_lat_step" style="width: 90px">                                 
-                        <br>
-                        Step lng                      
-                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__extrapolation_lng_step" style="width: 90px">                                 
-                        <br>                                               
-                        <span id="sonar__extrapolation_ok" class="btn btn-sm btn-success">2. Extrapolation draw</span> 
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-block">
-                        <b>Section</b><br>
-                        ±lat &nbsp;<input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.00001" step="0.000001" id="sonar__section_dLat_limit" style="width: 90px">                                 
-                        <br>
-                        ±lng <input type="number" class="form-control d-inline-block form-control-sm" min="0" value="0.000030" step="0.000001" id="sonar__section_dLng_limit" style="width: 90px">   
-                        <br>                                 
-                        <input type="radio" name="sonar__section_isVertical" value="0" checked> --- &nbsp;&nbsp;
-                        <input type="radio" name="sonar__section_isVertical" value="1"> | 
-                        <br>
-                        <span id="sonar__section_ok" class="btn btn-success btn-sm">3. Apply & begin</span> 
-                        <br>                                 
-                        <input type="checkbox" id="sonar__section_dotBottomDepth_isShow" value="1" checked> show bottom depth dots 
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-block">
-                        <b>Impulses</b>                         
-                    </div>
-                    <div class="d-block">
-                        <input id="sonar__over_bottom" type="checkbox" checked> impulses over bottom  
-                        <!--input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;-->
-                    </div>
-                    <div class="d-block">
-                        <input id="sonar__plane_point_dot" type="checkbox" checked> bottom dots 
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-block">
-                        <b>Reflection power</b><br>
-                        <input type="range" class="form-range" min="0" max="15000" value="0" id="sonar__range_pulse_w_min_show"> 
-                        hide weak < <span id="sonar__range_pulse_w_min_show_val"></span>
-                        <div class="d-block">
-                            <b>Palette</b><br>
-                            <div class="d-block">
-                                <input name="sonar__palette_power_idx" type="radio" checked value="1"> Sepia &nbsp;
-                                <input name="sonar__palette_power_idx" type="radio" value="2"> BW &nbsp;
-                                <input name="sonar__palette_power_idx" type="radio" value="3"> RGB 
-                            </div>
-                            <input type="range" class="form-range" min="0" max="15000" value="2000" id="sonar__range_pulse_w_max"> 
-                        </div>
-                        <div class="d-block align-middle"> 
-                            <span id="sonar__range_pulse_w_min_val">0mks</span> 
-                            <div class="d-inline-block align-middle">
-                                <div class="d-block"><div id="sonar__palette_power_sepia"></div></div>
-                                <div class="d-block"><div id="sonar__palette_power_bw"></div></div>
-                                <div class="d-block"><div id="sonar__palette_power_rgb"></div></div>                                
-                            </div>
-                            <span id="sonar__range_pulse_w_max_val"></span>
-                        </div>                                
-                    </div>                    
-                    <hr class="my-1">
-                    <div class="d-block" style="font-size: 12px;">
-                        <b>Min-Max</b><br>
-                        Ш.(lat) min=<span id="sonar__info_latMin"></span>                                
-                        <br>
-                        Ш.(lat) max=<span id="sonar__info_latMax"></span>                                
-                        <br>
-                        Д.(lng) min=<span id="sonar__info_lngMin"></span>                                
-                        <br>
-                        Д.(lng) max=<span id="sonar__info_lngMax"></span>                                
-                        <br>
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-block" style="font-size: 12px;">
-                        <b>Точки</b>  
-                        Клик: рисует сечение толщи воды в окрестности точки. Наведение: инфо про точку.
-                        <br>
-                        <b>В толще воды</b> 
-                        Наведение на точку или импульс: покажет отражения в толще воды, глубину, начало отражения ото дна pulseRising мкс, ширину пульса pulseWidth мкс.                                
-                    </div> 
-                </div> 
-                <div class="col-10">       
-                    <div class="row">
-                        <div class="col-auto">
-                            <div id="sonar__section_block"></div> 
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-auto">
-                            <div class="d-block mt-1">
-                                <b>Depth</b>                                   
-                                <div id="sonar__palette_depth_min_text" class="d-inline-block" style="width: 50px;"></div> 
-                                <div class="d-inline-block"><div id="sonar__palette_depth"></div></div> 
-                                <div id="sonar__palette_depth_max_text" class="d-inline-block"></div>
-                                <b>Point</b> <span id="sonar__point_selected_latlng" style="font-size: 13px;"></span>
-                            </div>
-                            <div id="sonar__plane_block"></div>
-                        </div>
-                        <div class="col-auto">
-                            <div id="map__bathymetry_block"></div>
-                        </div>
-                    </div>                     
-                </div>                
-            </div> 
+        <div id="container"></div>
+        <script src="three.js"></script>
+        <script>
 
-            <script>
-                let sonar__real_pointsLatLng = [];
-                let sonar__plane_pointsLatLng = [];
-                let sonar__map_pointsLatLng = [];
-                let sonar__section_pointsLatLng = [];
-                //                
-                let sonar__section_pointsLatLng_used = [];
-                let sonar__section_isVertical = false;
-                let sonar__section_dLat_limit = 0;
-                let sonar__section_dLng_limit = 0;
-                //
-                let sonar__depth_min_m = 999;
-                let sonar__depth_max_m = 0;
-                let sonar__depth_max_latlng = [0, 0];
-                let sonar__depth_min_limit = 0;
-                let sonar__depth_max_limit = 0;
-                let sonar__dataItemsCount = 0;
-                const sonar__colors_depth = [
-                    '#f51c03',
-                    '#f45202',
-                    '#f38802',
-                    '#f2be01',
-                    '#f1f501',
-                    '#bde708',
-                    '#89da0f',
-                    '#55cd16',
-                    '#21c01d',
-                    '#20ad31',
-                    '#1f9a45',
-                    '#1e8759',
-                    '#0fd0d3',
-                    '#109df5',
-                    '#2061ec',
-                    '#3125e3'
-                ];
-                let sonar__lat_min = 999, sonar__lng_min = 999, sonar__lat_max = 0, sonar__lng_max = 0;
-                let sonar__getColor_depth_m_dx = 1;
-                let sonar__mks2px_fullScale_dx = 1;
-                let sonar__pulses_block_h_px = 200;
-                const sonar__mks2px_fullScale_multiplier_vertical = 2.0; //draw on block height = x * sonar__depth_max_limit 
-                const sonar__pulse_underBottom_compression_vertical = 5.0; //compress pulses under bottom
-                const sonar__plane_compression_vertical = 5.0; //compress pulses block
-                const sonar__mks2m = 1367.0;
-                let sonar__resolution_dLat = 0;
-                let sonar__resolution_dLng = 0;
-                let sonar__resolution_dot_px = 0; //px; 
-                let sonar__pulse_size_offset_coef_lat = 0;
-                let sonar__pulse_size_offset_coef_lng = 0;
+            let container, stats;
+            let camera, controls, scene, renderer;
+            let mesh, texture;
 
-                const sonar__palette_power_rgb = [
-                    '#0011fa',
-                    '#016efa',
-                    '#03cbfa',
-                    '#009716',
-                    '#45c80c',
-                    '#8afa03',
-                    '#fa8803',
-                    '#fa4503',
-                    '#fa0303'
-                ]; //9                    
-                const sonar__palette_power_bw = [
-                    '#f0f1f5',
-                    '#d2d3d7',
-                    '#b5b6b9',
-                    '#97989b',
-                    '#7a7b7d',
-                    '#5d5d5f',
-                    '#3f4041',
-                    '#222223',
-                    '#050505'
-                ]; //9  
-                const sonar__palette_power_sepia = [
-                    '#f1d98f', '#ddc57d', '#c9b26b', '#b69f59', '#a28c47', '#8e7835', '#7b6523', '#675211', '#543f00'
-                ]; //9  
+            const worldWidth = 256, worldDepth = 256;
 
-                let sonar__colors_power_dx = (2000 - 0) / sonar__palette_power_rgb.length; //default, change by input-range
-                let sonar__palette_power_idx = 1;
-                //    
-                let sonar__extrapolation_pointsLatLng = [];
-                let sonar__extrapolation_lat_step = 0;
-                let sonar__extrapolation_lng_step = 0;
-                let sonar__extrapolation_radius_m = 0;
 
-                document.addEventListener('DOMContentLoaded', function () {
-                    sonar__palettes();
-                    sonar__actions();
-                });
+            init();
+            //animate();
+            function init() {
+                container = document.getElementById('container');
 
-                function sonar__actions() {
-                    $('#sonar__section_block').css('height', parseInt(50 + sonar__pulses_block_h_px) + 'px');
+                camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 10000);
 
-                    $('#form_bathymetry__btn_ok').click(() => {
-                        sonar__bathymetryProcessInit();
-                    });
-                    $('#sonar__real_ok').click(() => {
-                        sonar__real_process();
-                    });
-                    $('#sonar__extrapolation_ok').click(() => {
-                        sonar__extrapolation_process();
-                    });
-                    $('#sonar__section_ok').click(() => {
-                        sonar__section_init();
-                    });
-
-                    $('#sonar__resolution_dLat').change(() => {
-                        sonar__resolution_calc();
-                        sonar__axisDraw();
-                    });
-                    $('#sonar__resolution_dLng').change(() => {
-                        sonar__resolution_calc();
-                        sonar__axisDraw();
-                    });
-                    $('#sonar__resolution_dot_px').change(() => {
-                        sonar__resolution_calc();
-                        sonar__axisDraw();
-                    });
+                scene = new THREE.Scene();
+                //scene.background = new THREE.Color(0xefd1b5);
+                //scene.fog = new THREE.FogExp2(0xefd1b5, 0.0025);
 
 
 
-                    $('#sonar__over_bottom').change(() => {
-                        if ($('#sonar__over_bottom').is(":checked")) {
-                            $('div.sonar__plane_point_pulses').show();
-                        } else {
-                            $('div.sonar__plane_point_pulses').hide();
-                        }
-                    });
-                    $('#sonar__plane_point_dot').change(() => {
-                        if ($('#sonar__plane_point_dot').is(":checked")) {
-                            $('div.sonar__plane_point_dot').show();
-                        } else {
-                            $('div.sonar__plane_point_dot').hide();
-                        }
-                    });
-                    $('#sonar__range_pulse_w_min_show').change(() => {
-                        sonar__pulses_hideWeak();
-                    });
-                    $('input[name=sonar__palette_power_idx]').change(() => {
-                        sonar__palette_power_idx = parseInt($('input[name=sonar__palette_power_idx]:checked').val());
-                        sonar__pulses_setColor();
-                    });
-                    $('#sonar__range_pulse_w_max').change(() => {
-                        const pulseW_mks = parseInt($('#sonar__range_pulse_w_max').val()) || 0;
-                        sonar__colors_power_dx = (pulseW_mks - 0) / sonar__palette_power_rgb.length;
-                        $('#sonar__range_pulse_w_max_val').html(pulseW_mks + 'mks');
-                        sonar__pulses_setColor();
-                    });
-                    $('#sonar__map_is_allow').change(() => {
-                        map__create();
-                    });
+                //camera.position.set(100, 100, -800);
+                //camera.lookAt(-100, 110, -100);
+                camera.position.z = 800;
 
-                    $('#sonar__section_dotBottomDepth_isShow').change(() => {
-                        if ($('#sonar__section_dotBottomDepth_isShow').is(":checked")) {
-                            $('div.sonar__section_dotBottomDepth').show();
-                        } else {
-                            $('div.sonar__section_dotBottomDepth').hide();
-                        }
-                    });
-
-                }
-                function sonar__point_selected_latlng() {
-                    $('[sonar__point_selected_latlng][todo]').click(function () {
-                        const el = $(this);
-                        el.removeAttr('todo');
-                        $('#sonar__point_selected_latlng').html(el.attr('title'));
-                    });
-                }
-//==================================== START ===============================================================================================================================
-                function sonar__real_process() {
-                    sonar__plane_pointsLatLng = [];
-                    sonar__map_pointsLatLng = [];
-                    sonar__section_pointsLatLng = [];
-                    sonar__extrapolation_pointsLatLng = [];
-                    sonar__section_pointsLatLng_used = [];
-
-                    sonar__resolution_calc();
-
-                    sonar__plane_points_init(sonar__real_pointsLatLng);
-                    sonar__plane_points_draw();
-
-                    sonar__map_points_init(sonar__real_pointsLatLng);
-                    sonar__map_points_draw();
-
-                    sonar__section_points_init(sonar__real_pointsLatLng);
-                    sonar__section_init();
-
-                    sonar__point_selected_latlng();
-                    sonar__axisDraw();
-                }
-                function sonar__extrapolation_process() {
-                    sonar__plane_pointsLatLng = [];
-                    sonar__map_pointsLatLng = [];
-                    sonar__section_pointsLatLng = [];
-                    sonar__extrapolation_pointsLatLng = [];
-                    sonar__section_pointsLatLng_used = [];
-
-                    sonar__resolution_calc();
-
-                    sonar__extrapolation_init();
-
-                    sonar__plane_points_init(sonar__extrapolation_pointsLatLng);
-                    sonar__plane_points_draw();
-
-                    sonar__map_points_init(sonar__extrapolation_pointsLatLng);
-                    sonar__map_points_draw();
-
-                    sonar__section_points_init(sonar__extrapolation_pointsLatLng);
-                    sonar__section_init();
-
-                    sonar__point_selected_latlng();
-                    sonar__axisDraw();
-                }
-//==================================== SECTION ===============================================================================================================================
-                function sonar__section_points_init(pointsLatLng) {
-                    sonar__section_pointsLatLng = pointsLatLng;
-                }
-                function sonar__section_init() {
-                    $('#sonar__section_block').html('');
-                    sonar__section_pointsLatLng_used = [];
-                    sonar__section_isVertical = parseInt($('input[name="sonar__section_isVertical"]:checked').val()) === 1 ? true : false;
-                    sonar__section_dLat_limit = parseFloat($('#sonar__section_dLat_limit').val()) || 0;
-                    sonar__section_dLng_limit = parseFloat($('#sonar__section_dLng_limit').val()) || 0;
-                    $('div.sonar__section_area').remove();
-                    sonar__map_points_draw();//clean red-rect radius                     
-
-                    $('div.sonar__plane_point_dot').unbind('click').click(function () {
-                        const lat = parseFloat($(this).attr('lat')) || 0;
-                        const lng = parseFloat($(this).attr('lng')) || 0;
-                        sonar__section_pointsInArea_process(lat, lng); //точку, в окрестности которой будем искать                       
-                    });
-                }
-                function sonar__section_area_draw(lat, lng) {
-                    if (lat < 1 || lng < 1) {
-                        return;
-                    }
-                    //draw red RECT +_ dlat dlong                      
-                    const h_px = parseInt((2 * sonar__section_dLat_limit) / sonar__pulse_size_offset_coef_lat);
-                    const w_px = parseInt((2 * sonar__section_dLng_limit) / sonar__pulse_size_offset_coef_lng);
-                    const top_px = parseInt((sonar__pulses_block_h_px / sonar__plane_compression_vertical) + sonar__getOffsetLat_px(lat) - 0.5 * h_px + 0.5 * sonar__resolution_dot_px);
-                    const left_px = parseInt(sonar__getOffsetLng_px(lng) - 0.5 * w_px + 0.5 * sonar__resolution_dot_px);
-                    let html = '<div class="sonar__section_area" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + w_px + 'px; height:1px; ">';
-                    html += '</div>';
-                    html += '<div class="sonar__section_area" style="left:' + left_px + 'px; top:' + parseInt(top_px + h_px) + 'px; width:' + w_px + 'px; height:1px; ">';
-                    html += '</div>';
-                    html += '<div class="sonar__section_area" style="left:' + left_px + 'px; top:' + top_px + 'px; width:1px; height:' + h_px + 'px; ">';
-                    html += '</div>';
-                    html += '<div class="sonar__section_area" style="left:' + parseInt(left_px + w_px) + 'px; top:' + top_px + 'px; width:1px; height:' + h_px + 'px; ">';
-                    html += '</div>';
-                    $('#sonar__plane_block').append(html);
-                }
-                function sonar__section_pointsInArea_process(lat, lng) {
-                    if (lat < 1 || lng < 1) {
-                        return;
-                    }
-
-                    sonar__section_area_draw(lat, lng);
-                    sonar__map_section_area(lat, lng);
-
-                    for (let index in sonar__section_pointsLatLng) {
-                        const ll = index.split(/_/);
-                        let lat_curr = parseFloat(ll[0]) || 0;
-                        let lng_curr = parseFloat(ll[1]) || 0;
-                        lat_curr = Math.round(lat_curr * 1000000) / 1000000;//6
-                        lng_curr = Math.round(lng_curr * 1000000) / 1000000;//6
-
-                        const dLat = Math.abs(lat_curr - lat);
-                        const dLng = Math.abs(lng_curr - lng);
-
-                        const idx = lat_curr + '_' + lng_curr;
-                        if (sonar__section_pointsLatLng_used.hasOwnProperty(idx)) {
-                            continue;//dont draw this point -> it already drawn 
-                        }
-
-                        if (dLat <= sonar__section_dLat_limit && dLng <= sonar__section_dLng_limit) {
-                            $('#sonar__section_block').append(sonar__section_point(lat_curr, lng_curr, sonar__section_pointsLatLng[index]));
-                            sonar__section_pointsLatLng_used[idx] = 1;
-                        }
-                    }
-                    sonar__section_applyMenuParams();
-                    sonar__pulses_hideWeak();
-                    sonar__point_selected_latlng();
-                }
-                function sonar__section_point(lat, lng, data) {
-                    if (lat < 1 || lng < 1) {
-                        return;
-                    }
-                    const depth_color = sonar__getColor_depth_m(data.depthM);
-                    const left_px = Math.round(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng));
-                    let mt_px = Math.round(6 + sonar__mks2px_fullScale(data.depth_mks));
-
-                    let html = '<div class="sonar__section_dotBottomDepth" title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; height: ' + sonar__resolution_dot_px + 'px; "></div>';
-                    for (const pulse of data.pulses) {
-                        if (pulse.R <= (data.depth_mks + 150)) {
-                            mt_px = sonar__mks2px_fullScale(pulse.R); //fish over bottom                           
-                        } else {
-                            mt_px = sonar__mks2px_fullScale((pulse.R / sonar__pulse_underBottom_compression_vertical) + data.depth_mks); //under bottom  уплотняем картинку в Х раз 
-                        }
-                        const pulse_color = sonar__getColor_power_mks(pulse.W);
-                        html += '<div class="sonar__section_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm ' + lat + ' ' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + sonar__resolution_dot_px + 'px;  height: ' + sonar__resolution_dot_px + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
-                    }
-
-                    html += '<div class="sonar__section_dotBottomDepth_line" sonar__point_selected_latlng todo title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + (6 + sonar__pulses_block_h_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px;  "></div>';
-
-                    return html;
-                }
-                function sonar__section_applyMenuParams() {
-                    if ($('#sonar__section_dotBottomDepth_isShow').is(":checked")) {
-                        $('div.sonar__section_dotBottomDepth').show();
-                    } else {
-                        $('div.sonar__section_dotBottomDepth').hide();
-                    }
-                }
-//==================================== PLANE  =============================================================================================================================== 
-                function sonar__plane_points_init(pointsLatLng) {
-                    sonar__plane_pointsLatLng = pointsLatLng;
-                }
-                function sonar__plane_points_draw() {
-                    $('#sonar__plane_block').html('');
-                    for (let index in  sonar__plane_pointsLatLng) {
-                        const ll = index.split(/_/);
-                        const lat_curr = parseFloat(ll[0]) || 0;
-                        const lng_curr = parseFloat(ll[1]) || 0;
-                        sonar__plane_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
-                    }
-                    sonar__point_selected_latlng();
-                }
-                function sonar__plane_point(lat, lng, data) {
-                    if (lat < 1 || lng < 1) {
-                        return;
-                    }
-                    const depth_color = sonar__getColor_depth_m(data.depthM);
-                    const left_px = sonar__getOffsetLng_px(lng);
-                    const top_px = sonar__getOffsetLat_px(lat);
-
-
-                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm ' + lat + ' ' + lng + ' " class="sonar__plane_point_pulses" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_dot_px + 'px; height: ' + Math.round(sonar__pulses_block_h_px / sonar__plane_compression_vertical) + 'px; ">'; //border-bottom: ' + sonar__resolution_dot_px + 'px solid ' + depth_color + ';
-                    for (const pulse of data.pulses) {
-                        if (pulse.R <= (data.depth_mks + 150)) {
-                            //fish over bottom                           
-                        } else {
-                            continue; //under bottom
-                        }
-                        const pulse_color = sonar__getColor_power_mks(pulse.W); //fish over bottom                         
-                        const mt_px = Math.round(sonar__mks2px_fullScale(pulse.R) / sonar__plane_compression_vertical);
-                        html += '<div class="sonar__plane_point_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm ' + lat + ' ' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
-                    }
-                    html += '</div>';
-
-                    html += '<div class="sonar__plane_point_dot" sonar__point_selected_latlng todo lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + Math.round((sonar__pulses_block_h_px / sonar__plane_compression_vertical) + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; height:' + sonar__resolution_dot_px + 'px; ">';
-                    html += '</div>';
-
-                    $('#sonar__plane_block').append(html);
-                }
-//==================================== EXTRAPOLATION ===============================================================================================================================
-                function sonar__extrapolation_init() {
-                    sonar__extrapolation_pointsLatLng = [];
-
-                    sonar__extrapolation_lat_step = parseFloat($('#sonar__extrapolation_lat_step').val()) || 0;
-                    sonar__extrapolation_lng_step = parseFloat($('#sonar__extrapolation_lng_step').val()) || 0;
-                    sonar__extrapolation_radius_m = parseFloat($('#sonar__extrapolation_radius_m').val()) || 0;
-
-                    let lat_curr = sonar__lat_min;
-                    while (lat_curr < sonar__lat_max) {
-                        let lng_curr = sonar__lng_min;
-                        while (lng_curr < sonar__lng_max) {
-                            lat_curr = Math.round(lat_curr * 1000000) / 1000000;//6
-                            lng_curr = Math.round(lng_curr * 1000000) / 1000000;//6
-                            sonar__extrapolation_point_calc(lat_curr, lng_curr);
-                            lng_curr += sonar__extrapolation_lng_step;
-                        }
-                        lat_curr += sonar__extrapolation_lat_step;
-                    }
-                }
-                function sonar__extrapolation_point_calc(lat, lng) {
-                    let depthsWeightingFactors = [];
-                    for (let index in sonar__real_pointsLatLng) {
-                        const ll = index.split(/_/);
-                        const lat_curr = parseFloat(ll[0]) || 0;
-                        const lng_curr = parseFloat(ll[1]) || 0;
-                        const distance_m = sonar__distanceTwoPoints_m(lat, lng, lat_curr, lng_curr);
-                        if (distance_m <= sonar__extrapolation_radius_m) {
-                            const idxDWF = Math.round(1000 / distance_m);
-                            depthsWeightingFactors[idxDWF] = sonar__real_pointsLatLng[index].depthM;
-                        }
-
-
-                    }
-                    if (depthsWeightingFactors.length) {
-                        let depthM = 0;
-                        let idxDWF_sum = 0;
-                        for (let idxDWF in depthsWeightingFactors) {
-                            idxDWF_sum += parseInt(idxDWF);
-                        }
-                        for (let idxDWF in depthsWeightingFactors) {
-                            depthM += depthsWeightingFactors[idxDWF] * idxDWF / idxDWF_sum;
-                        }
-                        if (depthM > 0.1) {
-                            const idx = lat + '_' + lng;
-                            const point = {
-                                depthM: depthM,
-                                depth_mks: (depthM * sonar__mks2m),
-                                pulses: []
-                            };
-                            sonar__extrapolation_pointsLatLng[idx] = point;
-                        }
-                    }
-                }
-//==================================== MAP =============================================================================================================================== 
-                function map__create() {
-                    if (!$('#sonar__map_is_allow').is(":checked")) {
-                        return;
-                    }
-                    if (typeof ymaps !== 'undefined') {
-                        ymaps.ready(map__init);
-                    }
-                }
-
-                let map__map;
-                let map__mapIsReady = false;
-                /*document.addEventListener('DOMContentLoaded', function () {
-                 if (typeof ymaps !== 'undefined') {
-                 ymaps.ready(map__init);
+                /*const data = generateHeight(worldWidth, worldDepth);
+                 //const geometry = new THREE.PlaneGeometry(7500, 7500, worldWidth - 1, worldDepth - 1);
+                 //geometry.rotateX(-Math.PI / 2);
+                 const geometry = new THREE.PlaneGeometry(7500, 7500, worldWidth - 1, worldDepth - 1);
+                 
+                 const vertices = geometry.attributes.position.array;
+                 for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
+                 vertices[ j + 1 ] = data[ i ] * 10;
                  }
-                 });*/
-                function map__init() {
-                    $('#map__bathymetry_block').html('');
-                    ymaps.geolocation.get().then(function (res) {
-                        var mapContainer = $('#map__bathymetry_block'),
-                                bounds = res.geoObjects.get(0).properties.get('boundedBy'),
-                                // Рассчитываем видимую область для текущей положения пользователя.
-                                mapState = ymaps.util.bounds.getCenterAndZoom(
-                                        bounds,
-                                        [mapContainer.width(), mapContainer.height()]
-                                        );
-                        mapState.zoom = 11;
-                        map__createMap(mapState);
-                    }, function (e) {
-                        // Если местоположение невозможно получить, то просто создаем карту.
-                        map__createMap({
-                            center: [57, 39],
-                            zoom: 11
-                        });
-                    });
-                }
-                function map__createMap(state) {
-                    if (typeof ymaps !== 'undefined') {
-                        map__map = new ymaps.Map('map__bathymetry_block', state);
-                        map__mapIsReady = true;
-                    }
-                }
-                function sonar__map_points_init(pointsLatLng) {
-                    if (!map__mapIsReady) {
-                        return;
-                    }
-                    if (!$('#sonar__map_is_allow').is(":checked")) {
-                        return;
-                    }
-                    sonar__map_pointsLatLng = [];
-                    for (let index in pointsLatLng) {
-                        const ll = index.split(/_/);
-                        const lat = parseFloat(ll[0]) || 0;
-                        const lng = parseFloat(ll[1]) || 0;
-                        const lat5 = Math.round(lat * 100000) / 100000;//5
-                        const lng5 = Math.round(lng * 100000) / 100000;//5
-                        const idx5 = lat5 + '_' + lng5;
-                        const point5 = {
-                            depthM: pointsLatLng[index].depthM,
-                            depth_mks: pointsLatLng[index].depth_mks,
-                            pulses: []
-                        };
-                        sonar__map_pointsLatLng[idx5] = point5;
-                    }
-                }
-                function sonar__map_points_draw() {
-                    if (!map__mapIsReady) {
-                        return;
-                    }
-                    if (!$('#sonar__map_is_allow').is(":checked")) {
-                        return;
-                    }
-                    map__map.geoObjects.removeAll();
-                    for (let index in sonar__map_pointsLatLng) {
-                        const ll = index.split(/_/);
-                        const lat_curr = parseFloat(ll[0]) || 0;
-                        const lng_curr = parseFloat(ll[1]) || 0;
-                        sonar__map_point(lat_curr, lng_curr, sonar__map_pointsLatLng[index].depthM);
-                    }
-                }
-                function sonar__map_point(lat, lng, depthM) {
-                    if (lat < 1 || lng < 1) {
-                        return;
-                    }
-                    const color = sonar__getColor_depth_m(depthM) + 'FF';
-                    const r = 1;
-                    const myCircle = new ymaps.Circle([
-                        [lat, lng], // Координаты центра круга.            
-                        r // Радиус круга в метрах.
-                    ], {
-                        balloonContent: Math.round(depthM * 100) / 100 + "m",
-                        hintContent: Math.round(depthM * 100) / 100 + "m",
-                    }, {
-                        draggable: false,
-                        fillColor: color, // Цвет заливки. Последний байт (77) определяет прозрачность.            
-                        strokeColor: color, // Цвет обводки.            
-                        strokeOpacity: 0, // Прозрачность обводки.           
-                        strokeWidth: 1 // Ширина обводки в пикселях.
-                    });
-                    map__map.geoObjects.add(myCircle);
-                }
-                function sonar__map_section_area(lat, lng) {
-                    if (!map__mapIsReady) {
-                        return;
-                    }
-                    if (!$('#sonar__map_is_allow').is(":checked")) {
-                        return;
-                    }
-                    if (lat < 1 || lng < 1) {
-                        return;
-                    }
-                    const myRectangle = new ymaps.Rectangle([
-                        // Задаем координаты диагональных углов прямоугольника.
-                        [(lat + sonar__section_dLat_limit), (lng - sonar__section_dLng_limit)],
-                        [(lat - sonar__section_dLat_limit), (lng + sonar__section_dLng_limit)]
-                    ], {
-                        //Свойства
-                        hintContent: '',
-                        balloonContent: ''
-                    }, {
-                        // Опции.
-                        // Цвет и прозрачность заливки.
-                        fillColor: '#00000000',
-                        // Дополнительная прозрачность заливки..
-                        // Итоговая прозрачность будет не #33(0.2), а 0.1(0.2*0.5).
-                        fillOpacity: 0.5,
-                        // Цвет обводки.
-                        strokeColor: '#FF0000',
-                        // Прозрачность обводки.
-                        strokeOpacity: 0.8,
-                        // Ширина линии.
-                        strokeWidth: 1,
-                        // Радиус скругления углов.
-                        // Данная опция принимается только прямоугольником.
-                        borderRadius: 0
-                    });
-                    map__map.geoObjects.add(myRectangle);
-                }
+                 
+                 texture = new THREE.CanvasTexture(generateTextureRGB(data, worldWidth, worldDepth));
+                 texture.wrapS = THREE.ClampToEdgeWrapping;
+                 texture.wrapT = THREE.ClampToEdgeWrapping;
+                 
+                 mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({map: texture}));
+                 scene.add(mesh); */
 
-//==================================== SYS ===============================================================================================================================
-                function sonar__getColor_depth_m(m) {
-                    let idx = Math.round(m / sonar__getColor_depth_m_dx);
-                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colors_depth.length - 1)); //constrain from to
-                    return sonar__colors_depth[idx];
-                }
-                function sonar__getColor_power_mks(mks) {
-                    let idx = Math.round(mks / sonar__colors_power_dx);
-                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__palette_power_rgb.length - 1)); //constrain from to
-                    switch (sonar__palette_power_idx) {
-                        case 1:
-                            return  sonar__palette_power_sepia[idx];
-                        case 2:
-                            return  sonar__palette_power_bw[idx];
-                        case 3:
-                            return  sonar__palette_power_rgb[idx];
-                    }
-                    return  sonar__palette_power_bw[idx];
-                }
-                /*function sonar__mks2px(mks, point_depth_mks) {
-                 const sonar__mks2px_dx = point_depth_mks / sonar__pulses_block_h_px;
-                 let px = Math.round(mks / sonar__mks2px_dx);
-                 px = Math.min(Math.max(px, 0), sonar__pulses_block_h_px); //constrain from to
-                 return px;
-                 }*/
-                function sonar__mks2px_fullScale(mks) {
-                    let px = Math.round(mks / sonar__mks2px_fullScale_dx);
-                    px = Math.min(Math.max(px, 0), sonar__pulses_block_h_px); //constrain from to
-                    return px;
-                }
 
-                function sonar__getOffsetLat_px(lat) {
-                    let px = Math.round((sonar__lat_max - lat) / sonar__pulse_size_offset_coef_lat);
-                    return px;
 
-                }
-                function sonar__getOffsetLng_px(lng) {
-                    let px = Math.round((lng - sonar__lng_min) / sonar__pulse_size_offset_coef_lng);
-                    return px;
-                }
 
-                function sonar__palettes() {
-                    for (const color of sonar__colors_depth) {
-                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
-                        $('#sonar__palette_depth').append(dv);
-                    }
-                    for (const color of sonar__palette_power_rgb) {
-                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
-                        $('#sonar__palette_power_rgb').append(dv);
-                    }
-                    for (const color of sonar__palette_power_bw) {
-                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
-                        $('#sonar__palette_power_bw').append(dv);
-                    }
-                    for (const color of sonar__palette_power_sepia) {
-                        const dv = '<div class="palette__item d-inline-block" style="background-color:' + color + '"></div>';
-                        $('#sonar__palette_power_sepia').append(dv);
+                renderer = new THREE.WebGLRenderer();
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                container.appendChild(renderer.domElement);
+
+
+            }
+
+            function generateHeight(width, height) {
+                const size = width * height;
+                const data = new Uint8Array(size);
+
+                for (let j = 0; j < 4; j++) {
+                    for (let i = 0; i < size; i++) {
+                        data[i] += Math.abs(Math.random() * 10);
                     }
                 }
+                return data;
+            }
 
-                function sonar__bathymetryProcessInit() {
-                    sonar__real_pointsLatLng = [];
-                    sonar__depth_min_m = 999;
-                    sonar__depth_max_m = 0;
-                    sonar__depth_min_limit = parseFloat($('#form_bathymetry__depth_min_input').val()) || 0;
-                    sonar__depth_max_limit = parseFloat($('#form_bathymetry__depth_max_input').val()) || 0;
+            function render() {
+                renderer.render(scene, camera);
+            }
 
-                    const file = document.getElementById('form_bathymetry__data_input_file').files[0];
-                    let reader = new FileReader();
-                    reader.readAsText(file);
-                    reader.onload = function () {
-                        sonar__bathymetryProcess(reader.result);
-                    };
-                    reader.onerror = function () {
-                        alert(reader.error);
-                    };
+            function generateTextureRGB(zzzzdata, width, height) {
+                const depth = 100;
+                const size = width * height;
+                const data = new Uint8Array(3 * size * depth);
+                for (let i = 0; i < depth; i++) {
+                    const color = new THREE.Color(Math.random(), Math.random(), Math.random());
+                    const r = Math.floor(color.r * 255);
+                    const g = Math.floor(color.g * 255);
+                    const b = Math.floor(color.b * 255);
+                    for (let j = 0; j < size; j++) {
+                        const stride = (i * size + j) * 3;
+                        data[ stride ] = r;
+                        data[ stride + 1 ] = g;
+                        data[ stride + 2 ] = b;
+                    }
                 }
-                function sonar__bathymetryProcess(dataTxt) {
-                    const lines = dataTxt.split(/\n/);
+                // used the buffer to create a DataTexture2DArray
+                const texture = new THREE.DataTexture2DArray(data, width, height, depth);
+                texture.format = THREE.RGBFormat;
+                texture.type = THREE.UnsignedByteType;
+            }
 
-                    for (const line of lines) {
-                        let pulses = [];
-                        let RR = [], FF = [];
-                        const raw = line.split(';');
+            function animate() {
+                requestAnimationFrame(animate);
+                render();
+            }
 
-                        for (var i = 1; i <= 16; i++) {
-                            const mks = parseInt(raw[i]) || 0;
-                            if (mks > 0) {
-                                RR.push(mks);
+
+            var img = new Image();
+            img.onload = function () {
+
+                const loader = new THREE.TextureLoader();
+                loader.load(
+                        'heightmap2.png',
+                        function (texture) {
+                            const material = new THREE.MeshBasicMaterial({
+                                map: texture
+                            });
+                            //get height data from img
+                            var data = getHeightData(img);
+
+                            //const geometry = new THREE.PlaneGeometry(7500, 7500, worldWidth - 1, worldDepth - 1);
+                            //geometry.rotateX(-Math.PI / 2);      
+
+                            //const texture = new THREE.TextureLoader().load('heightmap2.png');
+                            texture.wrapS = THREE.ClampToEdgeWrapping;
+                            texture.wrapT = THREE.ClampToEdgeWrapping;
+                            //const material = new THREE.MeshLambertMaterial({map: texture});                 
+                            const geometry = new THREE.PlaneGeometry(worldWidth, worldDepth, worldWidth - 1, worldDepth - 1);
+                            geometry.rotateX(-Math.PI / 3);    
+                            //const material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
+                            const vertices = geometry.attributes.position.array;
+                            for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
+                                // vertices[ j + 1 ] = Math.round(data[i] * 10);
                             }
+                            
+                            const plane = new THREE.Mesh(geometry, material);
+
+                            scene.add(plane);
+
+
+
+                            //plane = new THREE.Mesh(geometry, material);
+                            //set height of vertices
+                           // const vertices = geometry.attributes.position.array;
+                            //for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
+                                // vertices[ j + 1 ] = Math.round(data[i] * 10);
+                            //}
+                            //scene.add(plane);
+
+                            render();
+                        },
+                        undefined,
+                        function (err) {
+                            console.error('An error happened.');
                         }
-                        for (var i = 18; i <= 33; i++) {
-                            const mks = parseInt(raw[i]) || 0;
-                            if (mks > 0) {
-                                FF.push(mks);
-                            }
-                        }
-                        if (RR.length <= 0) {
-                            continue; //goto next line
-                        }
-
-                        //find widths of pulses and add to pulses-array
-                        for (const R of RR) {
-                            for (const F of FF) {
-                                if (R < F) {
-                                    w_mks = F - R;
-                                    const pulse = {
-                                        R: R,
-                                        F: F,
-                                        W: (F - R)
-                                    };
-                                    pulses.push(pulse);
-                                    break;
-                                }
-                            }
-                        }
-
-                        let depth_mks = 0;
-                        for (const pulse of pulses) {
-                            const pulse_w_realBottom_mks_min = sonar__getPulse_w_realBottom_mks_min(pulse.R);
-                            if (pulse.W >= pulse_w_realBottom_mks_min) {
-                                depth_mks = pulse.R;
-                                break;
-                            }
-                        }
-
-                        //real point
-                        let lat = parseFloat(raw[34]) || 0;
-                        let lng = parseFloat(raw[35]) || 0;
-                        lat = Math.round(lat * 1000000) / 1000000;//6
-                        lng = Math.round(lng * 1000000) / 1000000;//6
-
-                        let depthM = depth_mks / sonar__mks2m;
-                        if (lat > 0 && lng > 0 && depthM >= sonar__depth_min_limit && depthM <= sonar__depth_max_limit) {
-
-                            //point real
-                            const idx = lat + '_' + lng;
-                            if (sonar__real_pointsLatLng.hasOwnProperty(idx)) {
-                                depthM = (sonar__real_pointsLatLng[idx].depthM + depthM) / 2.0;
-                                //pulses = pulses.concat(sonar__real_pointsLatLng[idx].pulses); //  Если складывать, то уплотняется картинка, хотя реально там такой плотности нет.
-                            }
-                            const point = {
-                                depthM: depthM,
-                                depth_mks: depth_mks,
-                                pulses: pulses
-                            };
-                            sonar__real_pointsLatLng[idx] = point;
-
-                            if (sonar__depth_min_m > depthM) {
-                                sonar__depth_min_m = depthM;
-                            }
-                            if (sonar__depth_max_m < depthM) {
-                                sonar__depth_max_m = depthM;
-                                sonar__depth_max_latlng = [lat, lng];
-                            }
-
-                            if (sonar__lat_min > lat) {
-                                sonar__lat_min = lat;
-                            }
-                            if (sonar__lng_min > lng) {
-                                sonar__lng_min = lng;
-                            }
-                            if (sonar__lat_max < lat) {
-                                sonar__lat_max = lat;
-                            }
-                            if (sonar__lng_max < lng) {
-                                sonar__lng_max = lng;
-                            }
-
-                            sonar__dataItemsCount++;
-                        }
+                );
 
 
-                    } // one line
 
-                    //all lines processed
-                    $('#sonar__info_latMin').html(sonar__lat_min);
-                    $('#sonar__info_latMax').html(sonar__lat_max);
-                    $('#sonar__info_lngMin').html(sonar__lng_min);
-                    $('#sonar__info_lngMax').html(sonar__lng_max);
 
-                    $('#bathymetry__points_count').html(sonar__dataItemsCount + ' points');
-                    $('#sonar__palette_depth_min_text').html(Math.round(sonar__depth_min_m * 100) / 100 + 'm');
-                    $('#sonar__palette_depth_max_text').html(Math.round(sonar__depth_max_m * 100) / 100 + 'm ' + '<div class="d-inline-block" style=font-size:6px;>' + sonar__depth_max_latlng[0] + '<br>' + sonar__depth_max_latlng[1] + '</div>');
 
-                    sonar__getColor_depth_m_dx = (sonar__depth_max_m - sonar__depth_min_m) / sonar__colors_depth.length;
-                    sonar__mks2px_fullScale_dx = (sonar__mks2px_fullScale_multiplier_vertical * sonar__depth_max_m * sonar__mks2m) / sonar__pulses_block_h_px;
+            };
+            img.src = "heightmap2.png";
 
-                    sonar__resolution_calc();
-                    sonar__axisDraw();
-                }
-                function sonar__getPulse_w_realBottom_mks_min(depth_mks) {
-                    if (depth_mks < 2000) {
-                        return 1100;
-                    }
-                    if (depth_mks < 3000) {
-                        return 1200;
-                    }
-                    return 1200;
-                }
-                function sonar__pulses_hideWeak() {
-                    const pulseW_mks = parseInt($('#sonar__range_pulse_w_min_show').val()) || 0;
+            function getHeightData(img, scale) {
 
-                    $('div.sonar__plane_point_pulse').show().filter(function () {
-                        return $(this).attr('w_mks') < pulseW_mks;
-                    }).hide();
-
-                    $('div.sonar__section_pulse').show().filter(function () {
-                        return $(this).attr('w_mks') < pulseW_mks;
-                    }).hide();
-
-                    $('#sonar__range_pulse_w_min_show_val').html(pulseW_mks + 'mks');
-                }
-                function sonar__pulses_setColor() {
-                    $('div.sonar__section_pulse').each(function () {
-                        const w_mks = parseInt($(this).attr('w_mks')) || 0;
-                        $(this).css('background-color', sonar__getColor_power_mks(w_mks));
-                    });
-                    $('div.sonar__plane_point_pulse').each(function () {
-                        const w_mks = parseInt($(this).attr('w_mks')) || 0;
-                        $(this).css('background-color', sonar__getColor_power_mks(w_mks));
-                    });
-                    if (sonar__palette_power_idx === 1 || sonar__palette_power_idx === 2) {
-                        $('div.sonar__section_pulse').css('opacity', 0.6);
-                    } else {
-                        $('div.sonar__section_pulse').css('opacity', 1);
-                    }
+                if (scale == undefined) {
+                    scale = 1;
                 }
 
-                function sonar__resolution_calc() {
-                    sonar__resolution_dot_px = parseInt($('#sonar__resolution_dot_px').val()) || 0;
-                    sonar__resolution_dLat = parseFloat($('#sonar__resolution_dLat').val()) || 0;
-                    sonar__resolution_dLng = parseFloat($('#sonar__resolution_dLng').val()) || 0;
-                    sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / sonar__resolution_dot_px;
-                    sonar__pulse_size_offset_coef_lng = sonar__resolution_dLng / sonar__resolution_dot_px;
-                }
-                function sonar__distanceTwoPoints_m(lat1, lng1, lat2, lng2) {
-                    lat1 = lat1 * 0.01745329251994329576923690768489; //to rad PI/180
-                    lat2 = lat2 * 0.01745329251994329576923690768489;
-                    lng1 = lng1 * 0.01745329251994329576923690768489;
-                    lng2 = lng2 * 0.01745329251994329576923690768489;
-                    const x = (lng2 - lng1) * Math.cos((lat1 + lat2) / 2.0);
-                    const y = (lat2 - lat1);
-                    const d = Math.sqrt(x * x + y * y) * 6371.0;  //R = 6371km
-                    return Math.round(d * 100000) / 100; // 1.86m
-                }
-                function sonar__axisDraw() {
-                    $('div.sonar__axis').remove();
-                    const lat_max_m = sonar__distanceTwoPoints_m(sonar__lat_min, parseFloat((sonar__lng_max - sonar__lng_min) / 2.0), sonar__lat_max, parseFloat((sonar__lng_max - sonar__lng_min) / 2.0));
-                    const lng_max_m = sonar__distanceTwoPoints_m(parseFloat((sonar__lat_max - sonar__lat_min) / 2.0), sonar__lng_min, parseFloat((sonar__lat_max - sonar__lat_min) / 2.0), sonar__lng_max);
-                    const lat_max_px = sonar__getOffsetLat_px(sonar__lat_min); //!sonar__lat_min 
-                    const lng_max_px = sonar__getOffsetLng_px(sonar__lng_max);
-                    const lat_10m_px = Math.round(10.0 * lat_max_px / lat_max_m);
-                    const lng_10m_px = Math.round(10.0 * lng_max_px / lng_max_m);
-                    const h_line = '<div style=" width:' + lng_10m_px + 'px; left:1px; top:1px; " class="sonar__axis" title="10m"></div>'; //lng=horis
-                    const v_line = '<div style=" height:' + lat_10m_px + 'px; left:1px; top:1px; " class="sonar__axis" title="10m"></div>';//lat=vertical
-                    $('#sonar__plane_block').append(h_line).append(v_line);
-                    $('#sonar__section_block').append(h_line).append(v_line);
+                var canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                var context = canvas.getContext('2d');
+
+                var size = img.width * img.height;
+                var data = new Float32Array(size);
+
+                context.drawImage(img, 0, 0);
+
+                for (var i = 0; i < size; i++) {
+                    data[i] = 0;
                 }
 
+                var imgd = context.getImageData(0, 0, img.width, img.height);
+                var pix = imgd.data;
 
-            </script>
-        </main>
-        <script src="jquery-3.6.0.min.js"></script>
-        <script src="bootstrap.bundle.min.js"></script>
-        <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=ea0860a1-d606-43c4-88f4-93529deb4edb" type="text/javascript"></script>
+                var j = 0;
+                for (var i = 0; i < pix.length; i += 4) {
+                    var all = pix[i] + pix[i + 1] + pix[i + 2];
+                    data[j++] = all / (12 * scale);
+                }
+
+                return data;
+            }
+
+
+        </script>
     </body>
 </html>
-<style>  
-    .sonar__axis{
-        opacity: 0.8;
-        background-color: black;       
-        position: absolute;    
-        padding: 0;
-        margin: 0; 
-        width: 2px;
-        height: 2px;
-    }
-    #sonar__section_block{                
-        overflow: scroll;
-        position: relative;
-        border: 1px solid #003580;  
-        resize: both;
-        min-height: 50px;
-        min-width: 800px;         
-    }
-    #sonar__plane_block{          
-        overflow: scroll;
-        position: relative;
-        border: 1px solid #003580; 
-        min-width: 400px;
-        min-height: 400px;
-        resize: both;
-    }
-    #map__bathymetry_block{         
-        overflow: scroll;
-        position: relative;
-        border: 1px solid #003580;         
-        min-width: 400px;
-        min-height: 400px;
-        resize: both;
-    }  
-
-    .sonar__section_dotBottomDepth{        
-        display: block;
-        float: left;                
-        position: absolute;                
-        padding: 0;
-        margin: 0;
-        overflow: hidden;     
-        z-index: 99999;
-    }
-    .sonar__section_pulse{     
-        opacity: 0.6;
-        background-color: black;       
-        position: absolute;    
-        padding: 0;
-        margin: 0;              
-    }  
-    .sonar__section_dotBottomDepth_line{        
-        display: block;
-        float: left;        
-        height: 16px;         
-        position: absolute;                
-        padding: 0;
-        margin: 0;
-        overflow: hidden;     
-        z-index: 99999;
-    }
-    .sonar__section_area{ 
-        background-color: red;
-        position: absolute;    
-        padding: 0;
-        margin: 0; 
-        z-index: 700;
-    }
-
-    .palette__item {
-        width: 6px;
-        height: 20px;
-        margin: 0;
-        padding: 0;
-    }    
-
-    .sonar__plane_point_pulses{
-        display: block;
-        float: left;                     
-        position: absolute;        
-        transform: rotate(45deg);
-        transform-origin: bottom center;
-        padding: 0;
-        margin: 0;
-        overflow: hidden;
-        z-index: 1;
-        z-index: 500;
-    }
-    .sonar__plane_point_pulses:hover{
-        border-left: 1px solid red;
-        border-right: 1px solid red;
-        border-top: 1px solid red;        
-        background-color: white;
-        z-index: 500;      
-    }
-    .sonar__plane_point_pulse{     
-        opacity: 0.3;
-        background-color: black;       
-        position: absolute;    
-        padding: 0;
-        margin: 0;
-        height: 2px;
-        z-index: 500;
-    }        
-
-    .sonar__plane_point_dot{        
-        display: block;
-        float: left;          
-        position: absolute;
-        opacity: 1;        
-        padding: 0;
-        margin: 0;  
-        z-index: 600;
-    }
-
-
-</style>
