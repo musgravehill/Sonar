@@ -969,6 +969,8 @@
 
 
 
+        <span class="btn btn-success" onclick="D3__init();">3D init</span>
+        <canvas id="D3__canvasTexture" style="border:1px solid black;"></canvas>
         <div id="D3__container"></div>
         <script src="three.js"></script>
 
@@ -1120,11 +1122,21 @@
                 let D3__w = 256, D3__h = 256;
 
                 document.addEventListener('DOMContentLoaded', function () {
-                    D3__init();
+                    
                 });
 
                 function D3__init() {
+                    let canvTexture = document.getElementById('D3__canvasTexture');
+                    canvTexture.width = D3__w;
+                    canvTexture.height = D3__h;                    
+                    let ctx = canvTexture.getContext('2d');
+                    ctx.fillStyle = '#22FF33';
+                    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);                     
+                    
+                    
+                    
                     const container = document.getElementById('D3__container');
+                    container.innerHTML = '';
 
                     D3__camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 10000);
 
@@ -1138,6 +1150,33 @@
                     D3__renderer.setPixelRatio(window.devicePixelRatio);
                     D3__renderer.setSize(D3__w, D3__h);
                     container.appendChild(D3__renderer.domElement);
+
+                    const canvasTexture = document.getElementById('D3__canvasTexture');
+                    D3__texture = new THREE.CanvasTexture(canvasTexture);
+                    const material = new THREE.MeshBasicMaterial({
+                        map: D3__texture
+                    });
+
+                    //var data = getHeightData(img); 
+
+                    D3__geometry = new THREE.PlaneGeometry(D3__w, D3__h, D3__w - 1, D3__h - 1);
+                    //D3__geometry.rotateX(-Math.PI / 2);
+                    //D3__geometry.rotateY(-Math.PI / 2);
+                    //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
+                    const vertices = D3__geometry.attributes.position.array;
+                    for (let i = 0, j = 4, l = vertices.length; i < l; i++, j += 3) {
+                        //vertices[ j +1 ] = data[i]*2;
+                        D3__geometry.attributes.position.array[j + 1] = Math.random() * 10; // data[i] / 6;
+                    }
+                    //D3__geometry.computeVertexNormals();
+                    plane = new THREE.Mesh(D3__geometry, material);
+
+                    D3__scene.add(plane);
+
+                    animate();
+
+                    D3__w += 256;
+                    D3__h += 256;
                 }
 
 
@@ -1155,48 +1194,15 @@
                 }
 
 
-                var img = new Image();
-                img.onload = function () {
-
-                    const loader = new THREE.TextureLoader();
-                    loader.load(
-                            'zmap.png',
-                            function (D3__texture) {
-                                const material = new THREE.MeshBasicMaterial({
-                                    map: D3__texture
-                                });
-                                var data = getHeightData(img);
-                                D3__texture.wrapS = THREE.ClampToEdgeWrapping;
-                                D3__texture.wrapT = THREE.ClampToEdgeWrapping;
-                                D3__geometry = new THREE.PlaneGeometry(D3__w, D3__h, D3__w - 1, D3__h - 1);
-                                //D3__geometry.rotateX(-Math.PI / 2);
-                                //D3__geometry.rotateY(-Math.PI / 2);
-                                //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
-                                const vertices = D3__geometry.attributes.position.array;
-                                for (let i = 0, j = 4, l = vertices.length; i < l; i++, j += 3) {
-                                    //vertices[ j +1 ] = data[i]*2;
-                                    D3__geometry.attributes.position.array[j + 1] = data[i] / 6;
-                                }
-                                //D3__geometry.computeVertexNormals();
-                                plane = new THREE.Mesh(D3__geometry, material);
-
-
-                                D3__scene.add(plane);
-
-                                animate();
-                            },
-                            undefined,
-                            function (err) {
-                                console.error('An error happened.');
-                            }
-                    );
 
 
 
 
 
-                };
-                img.src = "zmap.png";
+
+
+
+
 
                 function getHeightData(img) {
                     var canvas = document.createElement('canvas');
