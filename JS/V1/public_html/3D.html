@@ -91,17 +91,21 @@
                                 map: texture
                             });
                             var data = getHeightData(img);
-                            //texture.wrapS = THREE.ClampToEdgeWrapping;?
-                            //texture.wrapT = THREE.ClampToEdgeWrapping;?                                            
+                            texture.wrapS = THREE.ClampToEdgeWrapping;
+                            texture.wrapT = THREE.ClampToEdgeWrapping;
                             geometry = new THREE.PlaneGeometry(worldWidth, worldDepth, worldWidth - 1, worldDepth - 1);
                             //geometry.rotateX(-Math.PI / 2);
                             //geometry.rotateY(-Math.PI / 2);
                             //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
                             const vertices = geometry.attributes.position.array;
-                            for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
-                                vertices[ j + 1 ] = Math.round(data[i]);
+                            for (let i = 0, j = 4, l = vertices.length; i < l; i++, j += 3) {
+                                //vertices[ j +1 ] = data[i]*2;
+                                geometry.attributes.position.array[j+1]= data[i]/6;
                             }
+                            //geometry.computeVertexNormals();
                             plane = new THREE.Mesh(geometry, material);
+                           
+
                             scene.add(plane);
 
                             animate();
