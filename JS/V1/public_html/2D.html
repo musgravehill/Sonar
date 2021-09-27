@@ -489,9 +489,9 @@
                     const depth_color = sonar__getColor_depth_m(data.depthM);
                     const left_px = sonar__getOffsetLng_px(lng);
                     const top_px = sonar__getOffsetLat_px(lat);
-
+                    let html = '';
                     if (is_sonar__over_bottom) {
-                        let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm ' + lat + ' ' + lng + ' " class="sonar__plane_point_pulses" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_point_px + 'px; height: ' + Math.round(sonar__pulses_block_h_px / sonar__plane_compression_vertical) + 'px; ">'; //border-bottom: ' + sonar__resolution_point_px + 'px solid ' + depth_color + ';
+                        html += '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm ' + lat + ' ' + lng + ' " class="sonar__plane_point_pulses" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_point_px + 'px; height: ' + Math.round(sonar__pulses_block_h_px / sonar__plane_compression_vertical) + 'px; ">'; //border-bottom: ' + sonar__resolution_point_px + 'px solid ' + depth_color + ';
                         for (const pulse of data.pulses) {
                             if (pulse.R <= (data.depth_mks + 150)) {
                                 //fish over bottom                           
@@ -532,6 +532,19 @@
                     }
                 }
                 function sonar__extrapolation_point_calc(lat, lng) {
+                    const idx = lat + '_' + lng;
+
+                    //is isset real point => return it, dont re-calc
+                    if (sonar__real_pointsLatLng.hasOwnProperty(idx)) {
+                        const point = {
+                            depthM: sonar__real_pointsLatLng[idx].depthM,
+                            depth_mks: (sonar__real_pointsLatLng[idx].depthM * sonar__mks2m),
+                            pulses: []
+                        };
+                        sonar__extrapolation_pointsLatLng[idx] = point;
+                        return;
+                    }
+
                     let depthsWeightingFactors = [];
                     for (let index in sonar__real_pointsLatLng) {
                         const ll = index.split(/_/);
@@ -542,8 +555,6 @@
                             const idxDWF = Math.round(1000 / distance_m);
                             depthsWeightingFactors[idxDWF] = sonar__real_pointsLatLng[index].depthM;
                         }
-
-
                     }
                     if (depthsWeightingFactors.length) {
                         let depthM = 0;
@@ -555,7 +566,6 @@
                             depthM += depthsWeightingFactors[idxDWF] * idxDWF / idxDWF_sum;
                         }
                         if (depthM > 0.1) {
-                            const idx = lat + '_' + lng;
                             const point = {
                                 depthM: depthM,
                                 depth_mks: (depthM * sonar__mks2m),
@@ -564,6 +574,8 @@
                             sonar__extrapolation_pointsLatLng[idx] = point;
                         }
                     }
+
+                    return;
                 }
 //==================================== MAP =============================================================================================================================== 
                 function map__create() {
@@ -1254,7 +1266,7 @@
                     D3__controls = new OrbitControls(D3__camera, D3__renderer.domElement);
                     D3__controls.addEventListener('change', render);
                     D3__controls.minDistance = 20;
-                    D3__controls.maxDistance = 1500;
+                    D3__controls.maxDistance = 2500;
                     D3__controls.enablePan = true;
 
                     render();
