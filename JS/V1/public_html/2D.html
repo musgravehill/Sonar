@@ -1218,7 +1218,7 @@
                     const container = document.getElementById('D3__container');
                     container.innerHTML = '';
 
-                    D3__camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 10000);
+                    D3__camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 10000);
 
                     D3__scene = new THREE.Scene();
                     //D3__scene.background = new THREE.Color(0xefd1b5);
@@ -1254,7 +1254,7 @@
                     D3__controls = new OrbitControls(D3__camera, D3__renderer.domElement);
                     D3__controls.addEventListener('change', render);
                     D3__controls.minDistance = 20;
-                    D3__controls.maxDistance = 500;
+                    D3__controls.maxDistance = 1500;
                     D3__controls.enablePan = true;
 
                     render();
