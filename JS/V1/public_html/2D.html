@@ -972,6 +972,14 @@
         <span class="btn btn-success" onclick="D3__init();">3D init</span>
         <canvas id="D3__canvas_heightmap" style="border:1px solid black;"></canvas>
         <canvas id="D3__canvas_texture" style="border:1px solid black;"></canvas>
+        <span id="D3__controls_x_dec" class="btn" D3__controls >X-</span>
+        <span id="D3__controls_x_inc" class="btn" D3__controls >X+</span>
+        <span id="D3__controls_y_dec" class="btn" D3__controls >Y-</span>
+        <span id="D3__controls_y_inc" class="btn" D3__controls >Y+</span>
+        <span id="D3__controls_z_dec" class="btn" D3__controls >Z-</span>
+        <span id="D3__controls_z_inc" class="btn" D3__controls >Z+</span>
+        <span id="D3__controls_cam_dec" class="btn" D3__controls >cam-</span>
+        <span id="D3__controls_cam_inc" class="btn" D3__controls >cam+</span> 
         <div id="D3__container"></div>
         <script src="three.js"></script>
 
@@ -1141,12 +1149,16 @@
                 let D3__w = 256, D3__h = 256;
                 let D3__canvas_heightmap_getColor_dx, D3__canvas_texture_getColor_dx;
                 let D3__canvas_offset_coef_lat, D3__canvas_offset_coef_lng;
+                let D3__resolution_dot_px = 10;
 
                 document.addEventListener('DOMContentLoaded', function () {
 
                 });
 
                 function D3__canvases_draw() {
+                    D3__w = D3__canvas_getOffsetLng_px(sonar__lng_min);
+                    D3__h = D3__canvas_getOffsetLat_px(sonar__lat_min);
+
                     let D3__canvas_heightmap = document.getElementById('D3__canvas_heightmap');
                     D3__canvas_heightmap.width = D3__w;
                     D3__canvas_heightmap.height = D3__h;
@@ -1170,10 +1182,10 @@
                         const top_px = D3__canvas_getOffsetLat_px(lat);
 
                         D3__canvas_heightmap_ctx.fillStyle = D3__canvas_heightmap_getColor(depthM);
-                        D3__canvas_heightmap_ctx.fillRect(left_px, top_px, 2, 2); //(x, y, width, height)
+                        D3__canvas_heightmap_ctx.fillRect(left_px, top_px, D3__resolution_dot_px, D3__resolution_dot_px); //(x, y, width, height)
 
                         D3__canvas_texture_ctx.fillStyle = D3__canvas_texture_getColor(depthM);
-                        D3__canvas_texture_ctx.fillRect(left_px, top_px, 2, 2);
+                        D3__canvas_texture_ctx.fillRect(left_px, top_px, D3__resolution_dot_px, D3__resolution_dot_px);
                     }
                 }
                 function D3__canvas_heightmap_getColor(m) {
@@ -1198,8 +1210,8 @@
                 function D3__init() {
                     D3__canvas_heightmap_getColor_dx = (sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_heightmap_palette.length;
                     D3__canvas_texture_getColor_dx = (sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_texture_palette.length;
-                    D3__canvas_offset_coef_lat = sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / 2; //2px  //sonar__resolution_dot_px
-                    D3__canvas_offset_coef_lng = sonar__resolution_dLng / 2; //2px //sonar__resolution_dot_px
+                    D3__canvas_offset_coef_lat = sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / D3__resolution_dot_px;
+                    D3__canvas_offset_coef_lng = sonar__resolution_dLng / D3__resolution_dot_px;
 
                     D3__canvases_draw();
 
@@ -1225,25 +1237,60 @@
                         map: D3__texture
                     });
 
-                    //var data = getHeightData(img); 
-
                     D3__geometry = new THREE.PlaneGeometry(D3__w, D3__h, D3__w - 1, D3__h - 1);
                     //D3__geometry.rotateX(-Math.PI / 2);
                     //D3__geometry.rotateY(-Math.PI / 2);
                     //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
+                    var data = getHeightData();
                     const vertices = D3__geometry.attributes.position.array;
                     for (let i = 0, j = 4, l = vertices.length; i < l; i++, j += 3) {
-                        D3__geometry.attributes.position.array[j + 1] = Math.random() * 10; // data[i] / 6;
+                        D3__geometry.attributes.position.array[j + 1] = data[i] / 6;
                     }
                     //D3__geometry.computeVertexNormals();
                     D3__mesh = new THREE.Mesh(D3__geometry, material);
 
                     D3__scene.add(D3__mesh);
 
-                    animate();
+                    render();
+                    //animate();
 
-                    D3__w += 256;
-                    D3__h += 256;
+                    $("[D3__controls]").unbind('click');
+                    $("#D3__controls_x_dec").click(() => {
+                        D3__mesh.rotation.x -= 0.01;
+                        render();
+                    });
+                    $("#D3__controls_x_inc").click(() => {
+                        D3__mesh.rotation.x += 0.01;
+                        render();
+                    });
+                    $("#D3__controls_y_dec").click(() => {
+                        D3__mesh.rotation.y -= 0.01;
+                        render();
+                    });
+                    $("#D3__controls_y_inc").click(() => {
+                        D3__mesh.rotation.y += 0.005;
+                        render();
+                    });
+                    $("#D3__controls_z_dec").click(() => {
+                        D3__mesh.rotation.z -= 0.01;
+                        render();
+                    });
+                    $("#D3__controls_z_inc").click(() => {
+                        D3__mesh.rotation.z += 0.01;
+                        render();
+                    });
+                    
+                    $("#D3__controls_cam_dec").click(() => {
+                        D3__camera.position.z -= 10;
+                        render();
+                    });
+                    $("#D3__controls_cam_inc").click(() => {
+                        D3__camera.position.z += 10;
+                        render();
+                    });
+
+
+
                 }
 
 
@@ -1253,54 +1300,30 @@
 
 
                 function animate() {
-                    requestAnimationFrame(animate);
-                    D3__mesh.rotation.x += 0.01;
-                    //D3__mesh.rotation.y += 0.01;
+                    //requestAnimationFrame(animate);
+                    //D3__mesh.rotation.x += 0.005;
+                    //D3__mesh.rotation.y += 0.001;
                     //D3__mesh.rotation.z += 0.01;
-                    render();
+                    //render();
                 }
 
 
 
-
-
-
-
-
-
-
-
-
-                function getHeightData(img) {
-                    var canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    var context = canvas.getContext('2d');
-
-                    var size = img.width * img.height;
-                    var data = new Float32Array(size);
-
-                    context.drawImage(img, 0, 0);
-
-                    for (var i = 0; i < size; i++) {
-                        data[i] = 0;
-                    }
-
-                    var data = canvas.getContext('2d').getImageData(0, 0, img.width, img.height).data;
-
+                function getHeightData() {
+                    const D3__canvas_heightmap = document.getElementById('D3__canvas_heightmap');
+                    //const size = D3__w * D3__h;
+                    //let data = new Float32Array(size);
+                    /* for (let i = 0; i < size; i++) {
+                     data[i] = 0;
+                     }*/ //???
+                    const data = D3__canvas_heightmap.getContext('2d').getImageData(0, 0, D3__w, D3__h).data; //rgbargbargbargbargbargba
                     var normPixels = [];
-
                     for (var i = 0, n = data.length; i < n; i += 4) {
                         // get the average value of R, G and B.
-                        normPixels.push((data[i] + data[i + 1] + data[i + 2]) / 3);
+                        normPixels.push((data[i] + data[i + 1] + data[i + 2]));
                     }
-
                     return normPixels;
                 }
-
-
-
-
 
 
 </script>
