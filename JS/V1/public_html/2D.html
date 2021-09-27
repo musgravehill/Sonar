@@ -1227,7 +1227,7 @@
 
                     D3__renderer = new THREE.WebGLRenderer();
                     D3__renderer.setPixelRatio(window.devicePixelRatio);
-                    D3__renderer.setSize(2 * D3__w, 2 * D3__h);
+                    D3__renderer.setSize(Math.round(1.2 * D3__w), Math.round(1.2 * D3__h));
                     container.appendChild(D3__renderer.domElement);
 
                     const canvasTexture = document.getElementById('D3__canvas_texture');
