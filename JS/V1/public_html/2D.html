@@ -992,7 +992,7 @@
         <span id="D3__controls_cam_inc" class="btn" D3__controls >cam+</span> 
         <div id="D3__container"></div>
         <script src="three.js"></script>
-
+        <script src="OrbitControls.js"></script>   
 
     </body>
 </html>
@@ -1143,6 +1143,7 @@
 
                 let D3__camera, D3__scene, D3__renderer;
                 let D3__mesh, D3__texture, D3__geometry;
+                let D3__controls;
                 //let D3__light;
                 let D3__w = 256, D3__h = 256;
                 let D3__canvas_heightmap_getColor_dx, D3__canvas_texture_getColor_dx;
@@ -1250,9 +1251,11 @@
 
                     D3__scene.add(D3__mesh);
 
-                    //D3__light = new THREE.PointLight( 0xffffff, 1, 1000 );
-                    //D3__light.position.set(50, 50, 50);
-                    //D3__scene.add(D3__light);
+                    D3__controls = new OrbitControls(D3__camera, D3__renderer.domElement);
+                    D3__controls.addEventListener('change', render);
+                    D3__controls.minDistance = 20;
+                    D3__controls.maxDistance = 500;
+                    D3__controls.enablePan = true;
 
                     render();
                     //animate();
