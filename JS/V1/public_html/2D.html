@@ -1156,7 +1156,7 @@
                 let D3__camera, D3__scene, D3__renderer;
                 let D3__mesh, D3__texture, D3__geometry;
                 let D3__controls;
-                //let D3__light;
+                let D3__light;
                 let D3__w = 256, D3__h = 256;
                 let D3__canvas_heightmap_getColor_dx, D3__canvas_texture_getColor_dx;
                 let D3__canvas_offset_coef_lat, D3__canvas_offset_coef_lng;
@@ -1202,7 +1202,7 @@
                     return D3__canvas_heightmap_palette[idx];
                 }
                 function D3__canvas_texture_getColor(m) {
-                    let idx = Math.round((m-sonar__depth_min_m) / D3__canvas_texture_getColor_dx);
+                    let idx = Math.round((m - sonar__depth_min_m) / D3__canvas_texture_getColor_dx);
                     idx = Math.min(Math.max(parseInt(idx), 0), (D3__canvas_texture_palette.length - 1)); //constrain from to
                     return D3__canvas_texture_palette[idx];
                 }
@@ -1230,17 +1230,18 @@
                     const container = document.getElementById('D3__container');
                     container.innerHTML = '';
 
-                    D3__camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 10000);
+                    //D3__camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 10000);
+                    D3__camera = new THREE.OrthographicCamera(D3__w / -2, D3__w / 2, D3__h / 2, D3__h / -2, 1, 1000);
+                    D3__camera.position.set(0, 0, D3__w);
 
                     D3__scene = new THREE.Scene();
-                    //D3__scene.background = new THREE.Color(0xefd1b5);
+                    D3__scene.background = new THREE.Color('black');
                     //D3__scene.fog = new THREE.FogExp2(0xefd1b5, 0.0025);
-
-                    D3__camera.position.set(0, 0, D3__w);
 
                     D3__renderer = new THREE.WebGLRenderer();
                     D3__renderer.setPixelRatio(window.devicePixelRatio);
                     D3__renderer.setSize(Math.round(1.2 * D3__w), Math.round(1.2 * D3__h));
+                    D3__renderer.shadowMap.enabled = true;
                     container.appendChild(D3__renderer.domElement);
 
                     const canvasTexture = document.getElementById('D3__canvas_texture');
@@ -1252,6 +1253,7 @@
                     D3__geometry = new THREE.PlaneGeometry(D3__w, D3__h, D3__w - 1, D3__h - 1);
                     //D3__geometry.rotateX(-Math.PI / 2);
                     //D3__geometry.rotateY(-Math.PI / 2);
+                    //
                     //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
                     var data = getHeightData();
                     const vertices = D3__geometry.attributes.position.array;
@@ -1259,15 +1261,35 @@
                         D3__geometry.attributes.position.array[j + 1] = data[i] / 6;
                     }
                     //D3__geometry.computeVertexNormals();
+
                     D3__mesh = new THREE.Mesh(D3__geometry, material);
+                    D3__mesh.castShadow = true;
+                    D3__mesh.receiveShadow = true;
 
                     D3__scene.add(D3__mesh);
 
                     D3__controls = new OrbitControls(D3__camera, D3__renderer.domElement);
                     D3__controls.addEventListener('change', render);
+                    D3__controls.target.set(0, 5, 0);
                     D3__controls.minDistance = 20;
                     D3__controls.maxDistance = 2500;
                     D3__controls.enablePan = true;
+
+
+
+                    const color = 0xFFFFFF;
+                    const intensity = 0.75;
+                    D3__light = new THREE.DirectionalLight(color, intensity);
+                    D3__light.position.set(0, 0, 30);
+                    D3__light.target.position.set(0, 0, 0);
+                    D3__scene.add(D3__light);
+                    D3__scene.add(D3__light.target);
+
+                    let lightHelper = new THREE.DirectionalLightHelper(D3__light);
+                    D3__scene.add(lightHelper);
+
+                    let shadowCameraHelper = new THREE.CameraHelper(D3__light.shadow.camera);
+                    D3__scene.add(shadowCameraHelper);
 
                     render();
                     //animate();
@@ -1338,7 +1360,7 @@
                     var normPixels = [];
                     for (var i = 0, n = data.length; i < n; i += 4) {
                         // get the average value of R, G and B.
-                        normPixels.push((data[i] + data[i + 1] + data[i + 2])/3);
+                        normPixels.push((data[i] + data[i + 1] + data[i + 2]) / 3);
                     }
                     return normPixels;
                 }
