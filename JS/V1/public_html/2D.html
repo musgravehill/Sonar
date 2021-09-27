@@ -32,9 +32,16 @@
                         <b>Resolution of plane/section</b><br>                        
                         dLat &nbsp;<input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__resolution_dLat" style="width: 90px">                                 
                         <br>
-                        dLng <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__resolution_dLng" style="width: 90px">   
+                        dLng <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.000016" step="0.000001" id="sonar__resolution_dLng" style="width: 90px">   
                         <br>
-                        Point, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="4" step="1" id="sonar__resolution_point_px" style="width: 90px">   
+                        Point, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="6" step="1" id="sonar__resolution_point_px" style="width: 90px">   
+                    </div>
+                    <div class="d-block">
+                        <input id="sonar__over_bottom" type="checkbox"> impulses over bottom  
+                        <!--input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;-->
+                    </div>
+                    <div class="d-block">
+                        <input id="sonar__plane_point_dot" type="checkbox"> bottom dots 
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
@@ -76,18 +83,7 @@
                         <span id="sonar__section_ok" class="btn btn-success btn-sm">3. Apply & begin</span> 
                         <br>                                 
                         <input type="checkbox" id="sonar__section_dotBottomDepth_isShow" value="1" checked> show bottom depth dots 
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-block">
-                        <b>Impulses</b>                         
-                    </div>
-                    <div class="d-block">
-                        <input id="sonar__over_bottom" type="checkbox" checked> impulses over bottom  
-                        <!--input id="sonar__full_bottom" type="checkbox" checked> bottom  &nbsp;&nbsp;&nbsp;-->
-                    </div>
-                    <div class="d-block">
-                        <input id="sonar__plane_point_dot" type="checkbox" checked> bottom dots 
-                    </div>
+                    </div>                     
                     <hr class="my-1">
                     <div class="d-block">
                         <b>Reflection power</b><br>
@@ -177,22 +173,9 @@
                 let sonar__depth_max_limit = 0;
                 let sonar__dataItemsCount = 0;
                 const sonar__colors_depth = [
-                    '#f51c03',
-                    '#f45202',
-                    '#f38802',
-                    '#f2be01',
-                    '#f1f501',
-                    '#bde708',
-                    '#89da0f',
-                    '#55cd16',
-                    '#21c01d',
-                    '#20ad31',
-                    '#1f9a45',
-                    '#1e8759',
-                    '#0fd0d3',
-                    '#109df5',
-                    '#2061ec',
-                    '#3125e3'
+                    '#ff3c00', '#fe4900', '#fe5600', '#fe6300', '#fd7000', '#fd7d00', '#fd8a00', '#fd9700', '#fca400', '#fcb100', '#fcbe00', '#fccb00', '#fbd800', '#fbe500', '#fbf200', '#fbff00',
+                    '#76ff00', '#6ef402', '#66ea04', '#5ee006', '#56d609', '#4ecc0b', '#46c20d', '#3eb80f', '#37ae12', '#2fa414', '#279a16', '#1f9018', '#17861b', '#0f7c1d', '#07721f', '#006822',
+                    '#3debff', '#3cdef7', '#3bd1ef', '#3ac4e8', '#39b7e0', '#39abd9', '#389ed1', '#3791ca', '#3684c2', '#3577bb', '#356bb3', '#345eac', '#3351a4', '#32449d', '#313795', '#312b8e'
                 ];
                 let sonar__lat_min = 999, sonar__lng_min = 999, sonar__lat_max = 0, sonar__lng_max = 0;
                 let sonar__getColor_depth_m_dx = 1;
@@ -251,22 +234,22 @@
                     $('#sonar__section_block').css('height', parseInt(50 + sonar__pulses_block_h_px) + 'px');
 
                     $('#form_bathymetry__btn_ok').click(() => {
-                        $('#form_bathymetry__btn_ok').hide().after(sonar__waiting_html);
+                        //$('#form_bathymetry__btn_ok').hide().after(sonar__waiting_html);
                         sonar__bathymetryProcessInit();
-                        $('#form_bathymetry__btn_ok').show();
-                        $('span[sonar__waiting_html]').remove();
+                        //$('#form_bathymetry__btn_ok').show();
+                        //$('span[sonar__waiting_html]').remove();
                     });
                     $('#sonar__real_ok').click(() => {
-                        $('#sonar__real_ok').hide().after(sonar__waiting_html);
+                        //$('#sonar__real_ok').hide().after(sonar__waiting_html);
                         sonar__real_process();
-                        $('#sonar__real_ok').show();
-                        $('span[sonar__waiting_html]').remove();
+                        //$('#sonar__real_ok').show();
+                        //$('span[sonar__waiting_html]').remove();
                     });
                     $('#sonar__extrapolation_ok').click(() => {
-                        $('#sonar__extrapolation_ok').hide().after(sonar__waiting_html);
+                        //$('#sonar__extrapolation_ok').after(sonar__waiting_html).hide();
                         sonar__extrapolation_process();
-                        $('#sonar__extrapolation_ok').show();
-                        $('span[sonar__waiting_html]').remove();
+                        //$('#sonar__extrapolation_ok').show();
+                        //$('span[sonar__waiting_html]').remove();
                     });
                     $('#sonar__section_ok').click(() => {
                         sonar__section_init();
@@ -485,15 +468,21 @@
                 }
                 function sonar__plane_points_draw() {
                     $('#sonar__plane_block').html('');
-                    for (let index in  sonar__plane_pointsLatLng) {
-                        const ll = index.split(/_/);
-                        const lat_curr = parseFloat(ll[0]) || 0;
-                        const lng_curr = parseFloat(ll[1]) || 0;
-                        sonar__plane_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
+
+                    is_sonar__over_bottom = $('#sonar__over_bottom').is(":checked");
+                    is_sonar__plane_point_dot = $('#sonar__plane_point_dot').is(":checked");
+
+                    if (is_sonar__over_bottom || is_sonar__plane_point_dot) {
+                        for (let index in  sonar__plane_pointsLatLng) {
+                            const ll = index.split(/_/);
+                            const lat_curr = parseFloat(ll[0]) || 0;
+                            const lng_curr = parseFloat(ll[1]) || 0;
+                            sonar__plane_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index], is_sonar__over_bottom, is_sonar__plane_point_dot);
+                        }
+                        sonar__point_selected_latlng();
                     }
-                    sonar__point_selected_latlng();
                 }
-                function sonar__plane_point(lat, lng, data) {
+                function sonar__plane_point(lat, lng, data, is_sonar__over_bottom, is_sonar__plane_point_dot) {
                     if (lat < 1 || lng < 1) {
                         return;
                     }
@@ -501,22 +490,24 @@
                     const left_px = sonar__getOffsetLng_px(lng);
                     const top_px = sonar__getOffsetLat_px(lat);
 
-
-                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm ' + lat + ' ' + lng + ' " class="sonar__plane_point_pulses" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_point_px + 'px; height: ' + Math.round(sonar__pulses_block_h_px / sonar__plane_compression_vertical) + 'px; ">'; //border-bottom: ' + sonar__resolution_point_px + 'px solid ' + depth_color + ';
-                    for (const pulse of data.pulses) {
-                        if (pulse.R <= (data.depth_mks + 150)) {
-                            //fish over bottom                           
-                        } else {
-                            continue; //under bottom
+                    if (is_sonar__over_bottom) {
+                        let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm ' + lat + ' ' + lng + ' " class="sonar__plane_point_pulses" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_point_px + 'px; height: ' + Math.round(sonar__pulses_block_h_px / sonar__plane_compression_vertical) + 'px; ">'; //border-bottom: ' + sonar__resolution_point_px + 'px solid ' + depth_color + ';
+                        for (const pulse of data.pulses) {
+                            if (pulse.R <= (data.depth_mks + 150)) {
+                                //fish over bottom                           
+                            } else {
+                                continue; //under bottom
+                            }
+                            const pulse_color = sonar__getColor_power_mks(pulse.W); //fish over bottom                         
+                            const mt_px = Math.round(sonar__mks2px_fullScale(pulse.R) / sonar__plane_compression_vertical);
+                            html += '<div class="sonar__plane_point_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm ' + lat + ' ' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_point_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
                         }
-                        const pulse_color = sonar__getColor_power_mks(pulse.W); //fish over bottom                         
-                        const mt_px = Math.round(sonar__mks2px_fullScale(pulse.R) / sonar__plane_compression_vertical);
-                        html += '<div class="sonar__plane_point_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm ' + lat + ' ' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_point_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
+                        html += '</div>';
                     }
-                    html += '</div>';
-
-                    html += '<div class="sonar__plane_point_dot" sonar__point_selected_latlng todo lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + Math.round((sonar__pulses_block_h_px / sonar__plane_compression_vertical) + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_point_px + 'px; height:' + sonar__resolution_point_px + 'px; ">';
-                    html += '</div>';
+                    if (is_sonar__plane_point_dot) {
+                        html += '<div class="sonar__plane_point_dot" sonar__point_selected_latlng todo lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + Math.round((sonar__pulses_block_h_px / sonar__plane_compression_vertical) + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_point_px + 'px; height:' + sonar__resolution_point_px + 'px; ">';
+                        html += '</div>';
+                    }
 
                     $('#sonar__plane_block').append(html);
                 }
@@ -1144,27 +1135,15 @@
                     '#000000'
                 ];
                 const D3__canvas_texture_palette = [
-                    '#f51c03',
-                    '#f45202',
-                    '#f38802',
-                    '#f2be01',
-                    '#f1f501',
-                    '#bde708',
-                    '#89da0f',
-                    '#55cd16',
-                    '#21c01d',
-                    '#20ad31',
-                    '#1f9a45',
-                    '#1e8759',
-                    '#0fd0d3',
-                    '#109df5',
-                    '#2061ec',
-                    '#3125e3'
+                    '#ff3c00', '#fe4900', '#fe5600', '#fe6300', '#fd7000', '#fd7d00', '#fd8a00', '#fd9700', '#fca400', '#fcb100', '#fcbe00', '#fccb00', '#fbd800', '#fbe500', '#fbf200', '#fbff00',
+                    '#76ff00', '#6ef402', '#66ea04', '#5ee006', '#56d609', '#4ecc0b', '#46c20d', '#3eb80f', '#37ae12', '#2fa414', '#279a16', '#1f9018', '#17861b', '#0f7c1d', '#07721f', '#006822',
+                    '#3debff', '#3cdef7', '#3bd1ef', '#3ac4e8', '#39b7e0', '#39abd9', '#389ed1', '#3791ca', '#3684c2', '#3577bb', '#356bb3', '#345eac', '#3351a4', '#32449d', '#313795', '#312b8e'
                 ];
 
 
                 let D3__camera, D3__scene, D3__renderer;
                 let D3__mesh, D3__texture, D3__geometry;
+                //let D3__light;
                 let D3__w = 256, D3__h = 256;
                 let D3__canvas_heightmap_getColor_dx, D3__canvas_texture_getColor_dx;
                 let D3__canvas_offset_coef_lat, D3__canvas_offset_coef_lng;
@@ -1175,22 +1154,19 @@
                 });
 
                 function D3__canvases_draw() {
-                    D3__w = D3__canvas_getOffsetLng_px(sonar__lng_min);
-                    D3__h = D3__canvas_getOffsetLat_px(sonar__lat_min);
-
                     let D3__canvas_heightmap = document.getElementById('D3__canvas_heightmap');
                     D3__canvas_heightmap.width = D3__w;
                     D3__canvas_heightmap.height = D3__h;
                     let D3__canvas_heightmap_ctx = D3__canvas_heightmap.getContext('2d');
                     D3__canvas_heightmap_ctx.fillStyle = '#000000';
-                    D3__canvas_heightmap_ctx.fillRect(0, 0, D3__canvas_heightmap_ctx.canvas.width, D3__canvas_heightmap_ctx.canvas.height);
+                    D3__canvas_heightmap_ctx.fillRect(0, 0, D3__w, D3__h);
 
                     let D3__canvas_texture = document.getElementById('D3__canvas_texture');
                     D3__canvas_texture.width = D3__w;
                     D3__canvas_texture.height = D3__h;
                     let D3__canvas_texture_ctx = D3__canvas_texture.getContext('2d');
-                    D3__canvas_texture_ctx.fillStyle = '#dddddd';
-                    D3__canvas_texture_ctx.fillRect(0, 0, D3__canvas_texture_ctx.canvas.width, D3__canvas_texture_ctx.canvas.height);
+                    D3__canvas_texture_ctx.fillStyle = '#000000';
+                    D3__canvas_texture_ctx.fillRect(0, 0, D3__w, D3__h);
 
                     for (let index in  sonar__extrapolation_pointsLatLng) {
                         const ll = index.split(/_/);
@@ -1222,16 +1198,19 @@
                     return px;
                 }
                 function D3__canvas_getOffsetLng_px(lng) {
-                    let px = Math.round((sonar__lng_max - lng) / D3__canvas_offset_coef_lng);
+                    let px = Math.round((lng - sonar__lng_min) / D3__canvas_offset_coef_lng);
                     return px;
                 }
 
                 function D3__init() {
                     D3__resolution_point_px = parseInt($('#D3__resolution_point_px').val()) || 0;
-                    D3__canvas_heightmap_getColor_dx = (sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_heightmap_palette.length;
-                    D3__canvas_texture_getColor_dx = (sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_texture_palette.length;
-                    D3__canvas_offset_coef_lat = sonar__pulse_size_offset_coef_lat = sonar__extrapolation_lat_step / D3__resolution_point_px;
-                    D3__canvas_offset_coef_lng = sonar__extrapolation_lng_step / D3__resolution_point_px;
+                    D3__canvas_heightmap_getColor_dx = parseFloat((sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_heightmap_palette.length);
+                    D3__canvas_texture_getColor_dx = parseFloat((sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_texture_palette.length);
+                    D3__canvas_offset_coef_lat = parseFloat(sonar__extrapolation_lat_step / D3__resolution_point_px);
+                    D3__canvas_offset_coef_lng = parseFloat(sonar__extrapolation_lng_step / D3__resolution_point_px);
+
+                    D3__w = parseInt(D3__canvas_getOffsetLng_px(sonar__lng_max));
+                    D3__h = parseInt(D3__canvas_getOffsetLat_px(sonar__lat_min));
 
                     D3__canvases_draw();
 
@@ -1244,7 +1223,7 @@
                     //D3__scene.background = new THREE.Color(0xefd1b5);
                     //D3__scene.fog = new THREE.FogExp2(0xefd1b5, 0.0025);
 
-                    D3__camera.position.set(0, 0, 300);
+                    D3__camera.position.set(0, 0, D3__w);
 
                     D3__renderer = new THREE.WebGLRenderer();
                     D3__renderer.setPixelRatio(window.devicePixelRatio);
@@ -1271,32 +1250,36 @@
 
                     D3__scene.add(D3__mesh);
 
+                    //D3__light = new THREE.PointLight( 0xffffff, 1, 1000 );
+                    //D3__light.position.set(50, 50, 50);
+                    //D3__scene.add(D3__light);
+
                     render();
                     //animate();
 
                     $("[D3__controls]").unbind('click');
                     $("#D3__controls_x_dec").click(() => {
-                        D3__mesh.rotation.x -= 0.1;
+                        D3__mesh.rotation.x -= 0.19;
                         render();
                     });
                     $("#D3__controls_x_inc").click(() => {
-                        D3__mesh.rotation.x += 0.1;
+                        D3__mesh.rotation.x += 0.19;
                         render();
                     });
                     $("#D3__controls_y_dec").click(() => {
-                        D3__mesh.rotation.y -= 0.1;
+                        D3__mesh.rotation.y -= 0.19;
                         render();
                     });
                     $("#D3__controls_y_inc").click(() => {
-                        D3__mesh.rotation.y += 0.1;
+                        D3__mesh.rotation.y += 0.19;
                         render();
                     });
                     $("#D3__controls_z_dec").click(() => {
-                        D3__mesh.rotation.z -= 0.1;
+                        D3__mesh.rotation.z -= 0.19;
                         render();
                     });
                     $("#D3__controls_z_inc").click(() => {
-                        D3__mesh.rotation.z += 0.1;
+                        D3__mesh.rotation.z += 0.19;
                         render();
                     });
 
