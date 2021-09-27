@@ -1098,7 +1098,25 @@
 
 
 <script>
-                const D3__colors_depth = [
+                const D3__canvas_heightmap_palette = [
+                    '#ffffff',
+                    '#eeeeee',
+                    '#dddddd',
+                    '#cccccc',
+                    '#bbbbbb',
+                    '#aaaaaa',
+                    '#999999',
+                    '#888888',
+                    '#777777',
+                    '#666666',
+                    '#555555',
+                    '#444444',
+                    '#323232',
+                    '#212121',
+                    '#101010',
+                    '#000000'
+                ];
+                const D3__canvas_texture_palette = [
                     '#ffffff',
                     '#eeeeee',
                     '#dddddd',
@@ -1121,14 +1139,13 @@
                 let D3__camera, D3__scene, D3__renderer;
                 let D3__mesh, D3__texture, D3__geometry;
                 let D3__w = 256, D3__h = 256;
+                let D3__canvas_heightmap_getColor_dx, D3__canvas_texture_getColor_dx;
 
                 document.addEventListener('DOMContentLoaded', function () {
 
                 });
 
                 function D3__canvases_draw() {
-
-
                     let canvTexture = document.getElementById('D3__canvas_heightmap');
                     canvTexture.width = D3__w;
                     canvTexture.height = D3__h;
@@ -1143,7 +1160,6 @@
                     ctx.fillStyle = '#dddddd';
                     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-
                     for (let index in  sonar__extrapolation_pointsLatLng) {
                         const ll = index.split(/_/);
                         const lat_curr = parseFloat(ll[0]) || 0;
@@ -1152,14 +1168,31 @@
                         D3__canvas_texture_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
                     }
                 }
+                function D3__canvas_heightmap_getColor(m) {
+                    let idx = Math.round(m / D3__canvas_heightmap_getColor_dx);
+                    idx = Math.min(Math.max(parseInt(idx), 0), (D3__canvas_heightmap_palette.length - 1)); //constrain from to
+                    return D3__canvas_heightmap_palette[idx];
+                }
+                function D3__canvas_texture_getColor(m) {
+                    let idx = Math.round(m / D3__canvas_texture_getColor_dx);
+                    idx = Math.min(Math.max(parseInt(idx), 0), (D3__canvas_texture_palette.length - 1)); //constrain from to
+                    return D3__canvas_texture_palette[idx];
+                }
+                function D3__canvas_getOffsetLng_px(lng) {
+
+                }
+                function D3__canvas_getOffsetLat_px(lat) {
+
+                }
+
 
                 function D3__canvas_heightmap_point(lat, lng, data) {
                     if (lat < 1 || lng < 1) {
                         return;
                     }
                     const depth_color = D3__canvas_heightmap_getColor(data.depthM);
-                    const left_px = sonar__getOffsetLng_px(lng);
-                    const top_px = sonar__getOffsetLat_px(lat);
+                    const left_px = D3__canvas_getOffsetLng_px(lng);
+                    const top_px = D3__canvas_getOffsetLat_px(lat);
                 }
 
                 function D3__canvas_texture_point(lat, lng, data) {
@@ -1167,8 +1200,8 @@
                         return;
                     }
                     const depth_color = D3__canvas_texture_getColor(data.depthM);
-                    const left_px = sonar__getOffsetLng_px(lng);
-                    const top_px = sonar__getOffsetLat_px(lat);
+                    const left_px = D3__canvas_getOffsetLng_px(lng);
+                    const top_px = D3__canvas_getOffsetLat_px(lat);
                 }
 
 
