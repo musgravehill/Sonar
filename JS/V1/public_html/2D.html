@@ -30,11 +30,11 @@
                     <hr class="my-1">
                     <div class="d-block"> 
                         <b>Resolution of plane/section</b><br>                        
-                        dLat &nbsp;<input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.000005" step="0.000001" id="sonar__resolution_dLat" style="width: 90px">                                 
+                        dLat &nbsp;<input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__resolution_dLat" style="width: 90px">                                 
                         <br>
-                        dLng <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.000011" step="0.000001" id="sonar__resolution_dLng" style="width: 90px">   
+                        dLng <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__resolution_dLng" style="width: 90px">   
                         <br>
-                        Dot, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="6" step="1" id="sonar__resolution_dot_px" style="width: 90px">   
+                        Dot, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="4" step="1" id="sonar__resolution_dot_px" style="width: 90px">   
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
@@ -1147,26 +1147,33 @@
                 });
 
                 function D3__canvases_draw() {
-                    let canvTexture = document.getElementById('D3__canvas_heightmap');
-                    canvTexture.width = D3__w;
-                    canvTexture.height = D3__h;
-                    let ctx = canvTexture.getContext('2d');
-                    ctx.fillStyle = '#000000';
-                    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    let D3__canvas_heightmap = document.getElementById('D3__canvas_heightmap');
+                    D3__canvas_heightmap.width = D3__w;
+                    D3__canvas_heightmap.height = D3__h;
+                    let D3__canvas_heightmap_ctx = D3__canvas_heightmap.getContext('2d');
+                    D3__canvas_heightmap_ctx.fillStyle = '#000000';
+                    D3__canvas_heightmap_ctx.fillRect(0, 0, D3__canvas_heightmap_ctx.canvas.width, D3__canvas_heightmap_ctx.canvas.height);
 
-                    let canvTexture = document.getElementById('D3__canvas_texture');
-                    canvTexture.width = D3__w;
-                    canvTexture.height = D3__h;
-                    let ctx = canvTexture.getContext('2d');
-                    ctx.fillStyle = '#dddddd';
-                    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    let D3__canvas_texture = document.getElementById('D3__canvas_texture');
+                    D3__canvas_texture.width = D3__w;
+                    D3__canvas_texture.height = D3__h;
+                    let D3__canvas_texture_ctx = D3__canvas_texture.getContext('2d');
+                    D3__canvas_texture_ctx.fillStyle = '#dddddd';
+                    D3__canvas_texture_ctx.fillRect(0, 0, D3__canvas_texture_ctx.canvas.width, D3__canvas_texture_ctx.canvas.height);
 
                     for (let index in  sonar__extrapolation_pointsLatLng) {
                         const ll = index.split(/_/);
-                        const lat_curr = parseFloat(ll[0]) || 0;
-                        const lng_curr = parseFloat(ll[1]) || 0;
-                        D3__canvas_heightmap_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
-                        D3__canvas_texture_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
+                        const lat = parseFloat(ll[0]) || 0;
+                        const lng = parseFloat(ll[1]) || 0;
+                        const depthM = sonar__plane_pointsLatLng[index].depthM;
+                        const left_px = D3__canvas_getOffsetLng_px(lng);
+                        const top_px = D3__canvas_getOffsetLat_px(lat);
+
+                        D3__canvas_heightmap_ctx.fillStyle = D3__canvas_heightmap_getColor(depthM);
+                        D3__canvas_heightmap_ctx.fillRect(left_px, top_px, 2, 2); //(x, y, width, height)
+
+                        D3__canvas_texture_ctx.fillStyle = D3__canvas_texture_getColor(depthM);
+                        D3__canvas_texture_ctx.fillRect(left_px, top_px, 2, 2);
                     }
                 }
                 function D3__canvas_heightmap_getColor(m) {
@@ -1188,34 +1195,13 @@
                     return px;
                 }
 
-
-                function D3__canvas_heightmap_point(lat, lng, data) {
-                    if (lat < 1 || lng < 1) {
-                        return;
-                    }
-                    const depth_color = D3__canvas_heightmap_getColor(data.depthM);
-                    const left_px = D3__canvas_getOffsetLng_px(lng);
-                    const top_px = D3__canvas_getOffsetLat_px(lat);
-                }
-
-                function D3__canvas_texture_point(lat, lng, data) {
-                    if (lat < 1 || lng < 1) {
-                        return;
-                    }
-                    const depth_color = D3__canvas_texture_getColor(data.depthM);
-                    const left_px = D3__canvas_getOffsetLng_px(lng);
-                    const top_px = D3__canvas_getOffsetLat_px(lat);
-                }
-
-
-
                 function D3__init() {
                     D3__canvas_heightmap_getColor_dx = (sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_heightmap_palette.length;
                     D3__canvas_texture_getColor_dx = (sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_texture_palette.length;
                     D3__canvas_offset_coef_lat = sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / 2; //2px  //sonar__resolution_dot_px
                     D3__canvas_offset_coef_lng = sonar__resolution_dLng / 2; //2px //sonar__resolution_dot_px
 
-                    D3__height_map_draw();
+                    D3__canvases_draw();
 
                     const container = document.getElementById('D3__container');
                     container.innerHTML = '';
