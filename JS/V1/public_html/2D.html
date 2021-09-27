@@ -1140,6 +1140,7 @@
                 let D3__mesh, D3__texture, D3__geometry;
                 let D3__w = 256, D3__h = 256;
                 let D3__canvas_heightmap_getColor_dx, D3__canvas_texture_getColor_dx;
+                let D3__canvas_offset_coef_lat, D3__canvas_offset_coef_lng;
 
                 document.addEventListener('DOMContentLoaded', function () {
 
@@ -1178,11 +1179,13 @@
                     idx = Math.min(Math.max(parseInt(idx), 0), (D3__canvas_texture_palette.length - 1)); //constrain from to
                     return D3__canvas_texture_palette[idx];
                 }
-                function D3__canvas_getOffsetLng_px(lng) {
-
-                }
                 function D3__canvas_getOffsetLat_px(lat) {
-
+                    let px = Math.round((sonar__lat_max - lat) / D3__canvas_offset_coef_lat);
+                    return px;
+                }
+                function D3__canvas_getOffsetLng_px(lng) {
+                    let px = Math.round((sonar__lng_max - lng) / D3__canvas_offset_coef_lng);
+                    return px;
                 }
 
 
@@ -1207,6 +1210,11 @@
 
 
                 function D3__init() {
+                    D3__canvas_heightmap_getColor_dx = (sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_heightmap_palette.length;
+                    D3__canvas_texture_getColor_dx = (sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_texture_palette.length;
+                    D3__canvas_offset_coef_lat = sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / 2; //2px  //sonar__resolution_dot_px
+                    D3__canvas_offset_coef_lng = sonar__resolution_dLng / 2; //2px //sonar__resolution_dot_px
+
                     D3__height_map_draw();
 
                     const container = document.getElementById('D3__container');
