@@ -34,7 +34,7 @@
                         <br>
                         dLng <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__resolution_dLng" style="width: 90px">   
                         <br>
-                        Dot, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="4" step="1" id="sonar__resolution_dot_px" style="width: 90px">   
+                        Point, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="4" step="1" id="sonar__resolution_point_px" style="width: 90px">   
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
@@ -53,9 +53,15 @@
                         <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__extrapolation_lat_step" style="width: 90px">                                 
                         <br>
                         Step lng                      
-                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.00001" step="0.000001" id="sonar__extrapolation_lng_step" style="width: 90px">                                 
+                        <input type="number" class="form-control d-inline-block form-control-sm" min="0.000001" value="0.000016" step="0.000001" id="sonar__extrapolation_lng_step" style="width: 90px">                                 
                         <br>                                               
-                        <span id="sonar__extrapolation_ok" class="btn btn-sm btn-success">2. Extrapolation draw</span> 
+                        <span id="sonar__extrapolation_ok" class="btn btn-sm btn-success">2. Extrapolation draw</span>                         
+                    </div>
+                    <hr class="my-1">
+                    <div class="d-block">                         
+                        3D point, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="4" step="1" id="D3__resolution_point_px" style="width: 90px">   
+                        <br>
+                        <span class="btn btn-success" onclick="D3__init();">2.1. 3D draw</span>
                     </div>
                     <hr class="my-1">
                     <div class="d-block">
@@ -152,6 +158,8 @@
             </div> 
 
             <script>
+                const sonar__waiting_html = '<span sonar__waiting_html class="spinner-border text-danger spinner-border-sm" role="status"></span>';
+
                 let sonar__real_pointsLatLng = [];
                 let sonar__plane_pointsLatLng = [];
                 let sonar__map_pointsLatLng = [];
@@ -196,7 +204,7 @@
                 const sonar__mks2m = 1367.0;
                 let sonar__resolution_dLat = 0;
                 let sonar__resolution_dLng = 0;
-                let sonar__resolution_dot_px = 0; //px; 
+                let sonar__resolution_point_px = 0; //px; 
                 let sonar__pulse_size_offset_coef_lat = 0;
                 let sonar__pulse_size_offset_coef_lng = 0;
 
@@ -243,13 +251,22 @@
                     $('#sonar__section_block').css('height', parseInt(50 + sonar__pulses_block_h_px) + 'px');
 
                     $('#form_bathymetry__btn_ok').click(() => {
+                        $('#form_bathymetry__btn_ok').hide().after(sonar__waiting_html);
                         sonar__bathymetryProcessInit();
+                        $('#form_bathymetry__btn_ok').show();
+                        $('span[sonar__waiting_html]').remove();
                     });
                     $('#sonar__real_ok').click(() => {
+                        $('#sonar__real_ok').hide().after(sonar__waiting_html);
                         sonar__real_process();
+                        $('#sonar__real_ok').show();
+                        $('span[sonar__waiting_html]').remove();
                     });
                     $('#sonar__extrapolation_ok').click(() => {
+                        $('#sonar__extrapolation_ok').hide().after(sonar__waiting_html);
                         sonar__extrapolation_process();
+                        $('#sonar__extrapolation_ok').show();
+                        $('span[sonar__waiting_html]').remove();
                     });
                     $('#sonar__section_ok').click(() => {
                         sonar__section_init();
@@ -263,7 +280,7 @@
                         sonar__resolution_calc();
                         sonar__axisDraw();
                     });
-                    $('#sonar__resolution_dot_px').change(() => {
+                    $('#sonar__resolution_point_px').change(() => {
                         sonar__resolution_calc();
                         sonar__axisDraw();
                     });
@@ -388,8 +405,8 @@
                     //draw red RECT +_ dlat dlong                      
                     const h_px = parseInt((2 * sonar__section_dLat_limit) / sonar__pulse_size_offset_coef_lat);
                     const w_px = parseInt((2 * sonar__section_dLng_limit) / sonar__pulse_size_offset_coef_lng);
-                    const top_px = parseInt((sonar__pulses_block_h_px / sonar__plane_compression_vertical) + sonar__getOffsetLat_px(lat) - 0.5 * h_px + 0.5 * sonar__resolution_dot_px);
-                    const left_px = parseInt(sonar__getOffsetLng_px(lng) - 0.5 * w_px + 0.5 * sonar__resolution_dot_px);
+                    const top_px = parseInt((sonar__pulses_block_h_px / sonar__plane_compression_vertical) + sonar__getOffsetLat_px(lat) - 0.5 * h_px + 0.5 * sonar__resolution_point_px);
+                    const left_px = parseInt(sonar__getOffsetLng_px(lng) - 0.5 * w_px + 0.5 * sonar__resolution_point_px);
                     let html = '<div class="sonar__section_area" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + w_px + 'px; height:1px; ">';
                     html += '</div>';
                     html += '<div class="sonar__section_area" style="left:' + left_px + 'px; top:' + parseInt(top_px + h_px) + 'px; width:' + w_px + 'px; height:1px; ">';
@@ -440,7 +457,7 @@
                     const left_px = Math.round(sonar__section_isVertical ? sonar__getOffsetLat_px(lat) : sonar__getOffsetLng_px(lng));
                     let mt_px = Math.round(6 + sonar__mks2px_fullScale(data.depth_mks));
 
-                    let html = '<div class="sonar__section_dotBottomDepth" title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; height: ' + sonar__resolution_dot_px + 'px; "></div>';
+                    let html = '<div class="sonar__section_dotBottomDepth" title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + mt_px + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_point_px + 'px; height: ' + sonar__resolution_point_px + 'px; "></div>';
                     for (const pulse of data.pulses) {
                         if (pulse.R <= (data.depth_mks + 150)) {
                             mt_px = sonar__mks2px_fullScale(pulse.R); //fish over bottom                           
@@ -448,10 +465,10 @@
                             mt_px = sonar__mks2px_fullScale((pulse.R / sonar__pulse_underBottom_compression_vertical) + data.depth_mks); //under bottom  уплотняем картинку в Х раз 
                         }
                         const pulse_color = sonar__getColor_power_mks(pulse.W);
-                        html += '<div class="sonar__section_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm ' + lat + ' ' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + sonar__resolution_dot_px + 'px;  height: ' + sonar__resolution_dot_px + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
+                        html += '<div class="sonar__section_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm ' + lat + ' ' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="left:' + left_px + 'px; top:' + mt_px + 'px; width:' + sonar__resolution_point_px + 'px;  height: ' + sonar__resolution_point_px + 'px; background-color:' + pulse_color + '; z-index:' + pulse.W + '; "></div>';
                     }
 
-                    html += '<div class="sonar__section_dotBottomDepth_line" sonar__point_selected_latlng todo title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + (6 + sonar__pulses_block_h_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px;  "></div>';
+                    html += '<div class="sonar__section_dotBottomDepth_line" sonar__point_selected_latlng todo title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + (6 + sonar__pulses_block_h_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_point_px + 'px;  "></div>';
 
                     return html;
                 }
@@ -485,7 +502,7 @@
                     const top_px = sonar__getOffsetLat_px(lat);
 
 
-                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm ' + lat + ' ' + lng + ' " class="sonar__plane_point_pulses" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_dot_px + 'px; height: ' + Math.round(sonar__pulses_block_h_px / sonar__plane_compression_vertical) + 'px; ">'; //border-bottom: ' + sonar__resolution_dot_px + 'px solid ' + depth_color + ';
+                    let html = '<div title="' + (Math.round((data.depthM) * 100) / 100) + 'm ' + lat + ' ' + lng + ' " class="sonar__plane_point_pulses" style="left:' + left_px + 'px; top:' + top_px + 'px; width:' + sonar__resolution_point_px + 'px; height: ' + Math.round(sonar__pulses_block_h_px / sonar__plane_compression_vertical) + 'px; ">'; //border-bottom: ' + sonar__resolution_point_px + 'px solid ' + depth_color + ';
                     for (const pulse of data.pulses) {
                         if (pulse.R <= (data.depth_mks + 150)) {
                             //fish over bottom                           
@@ -494,11 +511,11 @@
                         }
                         const pulse_color = sonar__getColor_power_mks(pulse.W); //fish over bottom                         
                         const mt_px = Math.round(sonar__mks2px_fullScale(pulse.R) / sonar__plane_compression_vertical);
-                        html += '<div class="sonar__plane_point_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm ' + lat + ' ' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_dot_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
+                        html += '<div class="sonar__plane_point_pulse" title="' + (Math.round((pulse.R / sonar__mks2m) * 100) / 100) + 'm ' + lat + ' ' + lng + '  R=' + pulse.R + ' W=' + pulse.W + '" w_mks="' + pulse.W + '" style="top:' + mt_px + 'px; width:' + (sonar__resolution_point_px - 2) + 'px; background-color:' + pulse_color + '; "></div>';
                     }
                     html += '</div>';
 
-                    html += '<div class="sonar__plane_point_dot" sonar__point_selected_latlng todo lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + Math.round((sonar__pulses_block_h_px / sonar__plane_compression_vertical) + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_dot_px + 'px; height:' + sonar__resolution_dot_px + 'px; ">';
+                    html += '<div class="sonar__plane_point_dot" sonar__point_selected_latlng todo lat="' + lat + '" lng="' + lng + '" title="' + (Math.round(data.depthM * 100) / 100) + 'm ' + lat + ' ' + lng + ' " style="left:' + left_px + 'px; top:' + Math.round((sonar__pulses_block_h_px / sonar__plane_compression_vertical) + top_px) + 'px; background-color:' + depth_color + '; width:' + sonar__resolution_point_px + 'px; height:' + sonar__resolution_point_px + 'px; ">';
                     html += '</div>';
 
                     $('#sonar__plane_block').append(html);
@@ -560,6 +577,8 @@
 //==================================== MAP =============================================================================================================================== 
                 function map__create() {
                     if (!$('#sonar__map_is_allow').is(":checked")) {
+                        $('#map__bathymetry_block').html('');
+                        sonar__map_pointsLatLng = [];
                         return;
                     }
                     if (typeof ymaps !== 'undefined') {
@@ -927,11 +946,11 @@
                 }
 
                 function sonar__resolution_calc() {
-                    sonar__resolution_dot_px = parseInt($('#sonar__resolution_dot_px').val()) || 0;
+                    sonar__resolution_point_px = parseInt($('#sonar__resolution_point_px').val()) || 0;
                     sonar__resolution_dLat = parseFloat($('#sonar__resolution_dLat').val()) || 0;
                     sonar__resolution_dLng = parseFloat($('#sonar__resolution_dLng').val()) || 0;
-                    sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / sonar__resolution_dot_px;
-                    sonar__pulse_size_offset_coef_lng = sonar__resolution_dLng / sonar__resolution_dot_px;
+                    sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / sonar__resolution_point_px;
+                    sonar__pulse_size_offset_coef_lng = sonar__resolution_dLng / sonar__resolution_point_px;
                 }
                 function sonar__distanceTwoPoints_m(lat1, lng1, lat2, lng2) {
                     lat1 = lat1 * 0.01745329251994329576923690768489; //to rad PI/180
@@ -969,7 +988,7 @@
 
 
 
-        <span class="btn btn-success" onclick="D3__init();">3D init</span>
+
         <canvas id="D3__canvas_heightmap" style="border:1px solid black;"></canvas>
         <canvas id="D3__canvas_texture" style="border:1px solid black;"></canvas>
         <span id="D3__controls_x_dec" class="btn" D3__controls >X-</span>
@@ -1125,7 +1144,7 @@
                     '#000000'
                 ];
                 const D3__canvas_texture_palette = [
-                 '#f51c03',
+                    '#f51c03',
                     '#f45202',
                     '#f38802',
                     '#f2be01',
@@ -1149,7 +1168,7 @@
                 let D3__w = 256, D3__h = 256;
                 let D3__canvas_heightmap_getColor_dx, D3__canvas_texture_getColor_dx;
                 let D3__canvas_offset_coef_lat, D3__canvas_offset_coef_lng;
-                let D3__resolution_dot_px = 2;
+                let D3__resolution_point_px;
 
                 document.addEventListener('DOMContentLoaded', function () {
 
@@ -1182,10 +1201,10 @@
                         const top_px = D3__canvas_getOffsetLat_px(lat);
 
                         D3__canvas_heightmap_ctx.fillStyle = D3__canvas_heightmap_getColor(depthM);
-                        D3__canvas_heightmap_ctx.fillRect(left_px, top_px, D3__resolution_dot_px, D3__resolution_dot_px); //(x, y, width, height)
+                        D3__canvas_heightmap_ctx.fillRect(left_px, top_px, D3__resolution_point_px, D3__resolution_point_px); //(x, y, width, height)
 
                         D3__canvas_texture_ctx.fillStyle = D3__canvas_texture_getColor(depthM);
-                        D3__canvas_texture_ctx.fillRect(left_px, top_px, D3__resolution_dot_px, D3__resolution_dot_px);
+                        D3__canvas_texture_ctx.fillRect(left_px, top_px, D3__resolution_point_px, D3__resolution_point_px);
                     }
                 }
                 function D3__canvas_heightmap_getColor(m) {
@@ -1208,10 +1227,11 @@
                 }
 
                 function D3__init() {
+                    D3__resolution_point_px = parseInt($('#D3__resolution_point_px').val()) || 0;
                     D3__canvas_heightmap_getColor_dx = (sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_heightmap_palette.length;
                     D3__canvas_texture_getColor_dx = (sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_texture_palette.length;
-                    D3__canvas_offset_coef_lat = sonar__pulse_size_offset_coef_lat = sonar__resolution_dLat / D3__resolution_dot_px;
-                    D3__canvas_offset_coef_lng = sonar__resolution_dLng / D3__resolution_dot_px;
+                    D3__canvas_offset_coef_lat = sonar__pulse_size_offset_coef_lat = sonar__extrapolation_lat_step / D3__resolution_point_px;
+                    D3__canvas_offset_coef_lng = sonar__extrapolation_lng_step / D3__resolution_point_px;
 
                     D3__canvases_draw();
 
@@ -1228,7 +1248,7 @@
 
                     D3__renderer = new THREE.WebGLRenderer();
                     D3__renderer.setPixelRatio(window.devicePixelRatio);
-                    D3__renderer.setSize(D3__w, D3__h);
+                    D3__renderer.setSize(2 * D3__w, 2 * D3__h);
                     container.appendChild(D3__renderer.domElement);
 
                     const canvasTexture = document.getElementById('D3__canvas_texture');
