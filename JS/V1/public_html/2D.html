@@ -970,7 +970,8 @@
 
 
         <span class="btn btn-success" onclick="D3__init();">3D init</span>
-        <canvas id="D3__canvasTexture" style="border:1px solid black;"></canvas>
+        <canvas id="D3__canvas_heightmap" style="border:1px solid black;"></canvas>
+        <canvas id="D3__canvas_texture" style="border:1px solid black;"></canvas>
         <div id="D3__container"></div>
         <script src="three.js"></script>
 
@@ -1125,15 +1126,55 @@
 
                 });
 
-                function D3__init() {
-                    let canvTexture = document.getElementById('D3__canvasTexture');
+                function D3__canvases_draw() {
+
+
+                    let canvTexture = document.getElementById('D3__canvas_heightmap');
                     canvTexture.width = D3__w;
                     canvTexture.height = D3__h;
                     let ctx = canvTexture.getContext('2d');
-                    ctx.fillStyle = '#22FF33';
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+                    let canvTexture = document.getElementById('D3__canvas_texture');
+                    canvTexture.width = D3__w;
+                    canvTexture.height = D3__h;
+                    let ctx = canvTexture.getContext('2d');
+                    ctx.fillStyle = '#dddddd';
                     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 
+                    for (let index in  sonar__extrapolation_pointsLatLng) {
+                        const ll = index.split(/_/);
+                        const lat_curr = parseFloat(ll[0]) || 0;
+                        const lng_curr = parseFloat(ll[1]) || 0;
+                        D3__canvas_heightmap_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
+                        D3__canvas_texture_point(lat_curr, lng_curr, sonar__plane_pointsLatLng[index]);
+                    }
+                }
+
+                function D3__canvas_heightmap_point(lat, lng, data) {
+                    if (lat < 1 || lng < 1) {
+                        return;
+                    }
+                    const depth_color = D3__canvas_heightmap_getColor(data.depthM);
+                    const left_px = sonar__getOffsetLng_px(lng);
+                    const top_px = sonar__getOffsetLat_px(lat);
+                }
+
+                function D3__canvas_texture_point(lat, lng, data) {
+                    if (lat < 1 || lng < 1) {
+                        return;
+                    }
+                    const depth_color = D3__canvas_texture_getColor(data.depthM);
+                    const left_px = sonar__getOffsetLng_px(lng);
+                    const top_px = sonar__getOffsetLat_px(lat);
+                }
+
+
+
+                function D3__init() {
+                    D3__height_map_draw();
 
                     const container = document.getElementById('D3__container');
                     container.innerHTML = '';
@@ -1151,7 +1192,7 @@
                     D3__renderer.setSize(D3__w, D3__h);
                     container.appendChild(D3__renderer.domElement);
 
-                    const canvasTexture = document.getElementById('D3__canvasTexture');
+                    const canvasTexture = document.getElementById('D3__canvas_texture');
                     D3__texture = new THREE.CanvasTexture(canvasTexture);
                     const material = new THREE.MeshBasicMaterial({
                         map: D3__texture
