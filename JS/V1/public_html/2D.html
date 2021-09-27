@@ -721,8 +721,8 @@
 
 //==================================== SYS ===============================================================================================================================
                 function sonar__getColor_depth_m(m) {
-                    let idx = Math.round(m / sonar__getColor_depth_m_dx);
-                    idx = Math.min(Math.max(parseInt(idx), 0), (sonar__colors_depth.length - 1)); //constrain from to
+                    let idx = Math.round(parseFloat(m - sonar__depth_min_m) / sonar__getColor_depth_m_dx);
+                    idx = Math.min(Math.max(idx, 0), (sonar__colors_depth.length - 1)); //constrain from to  
                     return sonar__colors_depth[idx];
                 }
                 function sonar__getColor_power_mks(mks) {
@@ -904,7 +904,7 @@
                     $('#sonar__palette_depth_min_text').html(Math.round(sonar__depth_min_m * 100) / 100 + 'm');
                     $('#sonar__palette_depth_max_text').html(Math.round(sonar__depth_max_m * 100) / 100 + 'm ' + '<div class="d-inline-block" style=font-size:6px;>' + sonar__depth_max_latlng[0] + '<br>' + sonar__depth_max_latlng[1] + '</div>');
 
-                    sonar__getColor_depth_m_dx = (sonar__depth_max_m - sonar__depth_min_m) / sonar__colors_depth.length;
+                    sonar__getColor_depth_m_dx = parseFloat(sonar__depth_max_m - sonar__depth_min_m) / (1.0 * sonar__colors_depth.length);
                     sonar__mks2px_fullScale_dx = (sonar__mks2px_fullScale_multiplier_vertical * sonar__depth_max_m * sonar__mks2m) / sonar__pulses_block_h_px;
 
                     sonar__resolution_calc();
@@ -1197,12 +1197,12 @@
                     }
                 }
                 function D3__canvas_heightmap_getColor(m) {
-                    let idx = Math.round(m / D3__canvas_heightmap_getColor_dx);
+                    let idx = Math.round((m - sonar__depth_min_m) / D3__canvas_heightmap_getColor_dx);
                     idx = Math.min(Math.max(parseInt(idx), 0), (D3__canvas_heightmap_palette.length - 1)); //constrain from to
                     return D3__canvas_heightmap_palette[idx];
                 }
                 function D3__canvas_texture_getColor(m) {
-                    let idx = Math.round(m / D3__canvas_texture_getColor_dx);
+                    let idx = Math.round((m-sonar__depth_min_m) / D3__canvas_texture_getColor_dx);
                     idx = Math.min(Math.max(parseInt(idx), 0), (D3__canvas_texture_palette.length - 1)); //constrain from to
                     return D3__canvas_texture_palette[idx];
                 }
@@ -1338,7 +1338,7 @@
                     var normPixels = [];
                     for (var i = 0, n = data.length; i < n; i += 4) {
                         // get the average value of R, G and B.
-                        normPixels.push((data[i] + data[i + 1] + data[i + 2]));
+                        normPixels.push((data[i] + data[i + 1] + data[i + 2])/3);
                     }
                     return normPixels;
                 }
