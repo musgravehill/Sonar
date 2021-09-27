@@ -1125,22 +1125,22 @@
                     '#000000'
                 ];
                 const D3__canvas_texture_palette = [
-                    '#ffffff',
-                    '#eeeeee',
-                    '#dddddd',
-                    '#cccccc',
-                    '#bbbbbb',
-                    '#aaaaaa',
-                    '#999999',
-                    '#888888',
-                    '#777777',
-                    '#666666',
-                    '#555555',
-                    '#444444',
-                    '#323232',
-                    '#212121',
-                    '#101010',
-                    '#000000'
+                 '#f51c03',
+                    '#f45202',
+                    '#f38802',
+                    '#f2be01',
+                    '#f1f501',
+                    '#bde708',
+                    '#89da0f',
+                    '#55cd16',
+                    '#21c01d',
+                    '#20ad31',
+                    '#1f9a45',
+                    '#1e8759',
+                    '#0fd0d3',
+                    '#109df5',
+                    '#2061ec',
+                    '#3125e3'
                 ];
 
 
@@ -1256,30 +1256,30 @@
 
                     $("[D3__controls]").unbind('click');
                     $("#D3__controls_x_dec").click(() => {
-                        D3__mesh.rotation.x -= 0.01;
+                        D3__mesh.rotation.x -= 0.1;
                         render();
                     });
                     $("#D3__controls_x_inc").click(() => {
-                        D3__mesh.rotation.x += 0.01;
+                        D3__mesh.rotation.x += 0.1;
                         render();
                     });
                     $("#D3__controls_y_dec").click(() => {
-                        D3__mesh.rotation.y -= 0.01;
+                        D3__mesh.rotation.y -= 0.1;
                         render();
                     });
                     $("#D3__controls_y_inc").click(() => {
-                        D3__mesh.rotation.y += 0.005;
+                        D3__mesh.rotation.y += 0.1;
                         render();
                     });
                     $("#D3__controls_z_dec").click(() => {
-                        D3__mesh.rotation.z -= 0.01;
+                        D3__mesh.rotation.z -= 0.1;
                         render();
                     });
                     $("#D3__controls_z_inc").click(() => {
-                        D3__mesh.rotation.z += 0.01;
+                        D3__mesh.rotation.z += 0.1;
                         render();
                     });
-                    
+
                     $("#D3__controls_cam_dec").click(() => {
                         D3__camera.position.z -= 10;
                         render();
