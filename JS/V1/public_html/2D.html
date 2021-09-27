@@ -1161,25 +1161,29 @@
                 let D3__canvas_heightmap_getColor_dx, D3__canvas_texture_getColor_dx;
                 let D3__canvas_offset_coef_lat, D3__canvas_offset_coef_lng;
                 let D3__resolution_point_px;
+                let D3__canvas_heightmap, D3__canvas_texture;
 
                 document.addEventListener('DOMContentLoaded', function () {
 
                 });
 
                 function D3__canvases_draw() {
-                    let D3__canvas_heightmap = document.getElementById('D3__canvas_heightmap');
+                    D3__canvas_heightmap = document.getElementById('D3__canvas_heightmap');
                     D3__canvas_heightmap.width = D3__w;
                     D3__canvas_heightmap.height = D3__h;
                     let D3__canvas_heightmap_ctx = D3__canvas_heightmap.getContext('2d');
                     D3__canvas_heightmap_ctx.fillStyle = '#000000';
                     D3__canvas_heightmap_ctx.fillRect(0, 0, D3__w, D3__h);
 
-                    let D3__canvas_texture = document.getElementById('D3__canvas_texture');
+                    D3__canvas_texture = document.getElementById('D3__canvas_texture');
                     D3__canvas_texture.width = D3__w;
                     D3__canvas_texture.height = D3__h;
                     let D3__canvas_texture_ctx = D3__canvas_texture.getContext('2d');
                     D3__canvas_texture_ctx.fillStyle = '#000000';
                     D3__canvas_texture_ctx.fillRect(0, 0, D3__w, D3__h);
+
+                    //D3__canvas_heightmap.getContext('2d').filter = "blur(" + Math.round(D3__resolution_point_px/2) + "px)";
+                    //D3__canvas_texture.getContext('2d').filter = "blur(" + Math.round(D3__resolution_point_px/2) + "px)";
 
                     for (let index in  sonar__extrapolation_pointsLatLng) {
                         const ll = index.split(/_/);
@@ -1195,6 +1199,8 @@
                         D3__canvas_texture_ctx.fillStyle = D3__canvas_texture_getColor(depthM);
                         D3__canvas_texture_ctx.fillRect(left_px, top_px, D3__resolution_point_px, D3__resolution_point_px);
                     }
+
+
                 }
                 function D3__canvas_heightmap_getColor(m) {
                     let idx = Math.round((m - sonar__depth_min_m) / D3__canvas_heightmap_getColor_dx);
@@ -1235,18 +1241,19 @@
                     D3__camera.position.set(0, 0, D3__w);
 
                     D3__scene = new THREE.Scene();
-                    D3__scene.background = new THREE.Color('black');
+                    D3__scene.background = new THREE.Color('gray');
                     //D3__scene.fog = new THREE.FogExp2(0xefd1b5, 0.0025);
 
                     D3__renderer = new THREE.WebGLRenderer();
                     D3__renderer.setPixelRatio(window.devicePixelRatio);
                     D3__renderer.setSize(Math.round(1.2 * D3__w), Math.round(1.2 * D3__h));
-                    D3__renderer.shadowMap.enabled = true;
+                    //D3__renderer.shadowMap.enabled = true;
                     container.appendChild(D3__renderer.domElement);
 
                     const canvasTexture = document.getElementById('D3__canvas_texture');
                     D3__texture = new THREE.CanvasTexture(canvasTexture);
-                    const material = new THREE.MeshBasicMaterial({
+                    //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
+                    const D3__material = new THREE.MeshBasicMaterial({//MeshLambertMaterial // MeshBasicMaterial-doesnot have shadows\light
                         map: D3__texture
                     });
 
@@ -1254,42 +1261,51 @@
                     //D3__geometry.rotateX(-Math.PI / 2);
                     //D3__geometry.rotateY(-Math.PI / 2);
                     //
-                    //material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
-                    var data = getHeightData();
+
+                    const data = getHeightData();
                     const vertices = D3__geometry.attributes.position.array;
                     for (let i = 0, j = 4, l = vertices.length; i < l; i++, j += 3) {
                         D3__geometry.attributes.position.array[j + 1] = data[i] / 6;
                     }
-                    //D3__geometry.computeVertexNormals();
 
-                    D3__mesh = new THREE.Mesh(D3__geometry, material);
-                    D3__mesh.castShadow = true;
-                    D3__mesh.receiveShadow = true;
+                    D3__mesh = new THREE.Mesh(D3__geometry, D3__material);
+                    //D3__mesh.castShadow = true;
+                    //D3__mesh.receiveShadow = true;
+
+                    D3__mesh.material.smoothShading = true;
+                    D3__mesh.material.flatShading = true;
+                    D3__mesh.geometry.computeVertexNormals();
+
 
                     D3__scene.add(D3__mesh);
 
                     D3__controls = new OrbitControls(D3__camera, D3__renderer.domElement);
                     D3__controls.addEventListener('change', render);
-                    D3__controls.target.set(0, 5, 0);
+                    D3__controls.target.set(0, 0, 0);
                     D3__controls.minDistance = 20;
                     D3__controls.maxDistance = 2500;
                     D3__controls.enablePan = true;
 
-
-
-                    const color = 0xFFFFFF;
-                    const intensity = 0.75;
-                    D3__light = new THREE.DirectionalLight(color, intensity);
-                    D3__light.position.set(0, 0, 30);
-                    D3__light.target.position.set(0, 0, 0);
-                    D3__scene.add(D3__light);
-                    D3__scene.add(D3__light.target);
-
-                    let lightHelper = new THREE.DirectionalLightHelper(D3__light);
-                    D3__scene.add(lightHelper);
-
-                    let shadowCameraHelper = new THREE.CameraHelper(D3__light.shadow.camera);
-                    D3__scene.add(shadowCameraHelper);
+                    /*D3__light = new THREE.PointLight(0xffffff, 1, 100);
+                     D3__light.position.set(100, 100, 50);
+                     D3__light.castShadow = true; // default false
+                     D3__scene.add(D3__light);
+                     //Set up shadow properties for the light
+                     D3__light.shadow.mapSize.width = 512; // default
+                     D3__light.shadow.mapSize.height = 512; // default
+                     D3__light.shadow.camera.near = 0.5; // default
+                     D3__light.shadow.camera.far = 500; // default                     
+                     const helper = new THREE.CameraHelper(D3__light.shadow.camera);
+                     D3__scene.add(helper);*/
+                    /*D3__light = new THREE.DirectionalLight('0xFFFFFF', 0.75);
+                     D3__light.position.set(0, 0, 30);
+                     D3__light.target.position.set(0, 0, 0);
+                     D3__scene.add(D3__light);
+                     D3__scene.add(D3__light.target);                     
+                     let lightHelper = new THREE.DirectionalLightHelper(D3__light);
+                     D3__scene.add(lightHelper);                     
+                     let shadowCameraHelper = new THREE.CameraHelper(D3__light.shadow.camera);
+                     D3__scene.add(shadowCameraHelper);*/
 
                     render();
                     //animate();
@@ -1360,7 +1376,7 @@
                     var normPixels = [];
                     for (var i = 0, n = data.length; i < n; i += 4) {
                         // get the average value of R, G and B.
-                        normPixels.push((data[i] + data[i + 1] + data[i + 2]) / 3);
+                        normPixels.push((data[i] + data[i + 1] + data[i + 2]));
                     }
                     return normPixels;
                 }
