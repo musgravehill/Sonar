@@ -1250,9 +1250,9 @@
                         D3__geometry.attributes.position.array[j + 1] = Math.random() * 10; // data[i] / 6;
                     }
                     //D3__geometry.computeVertexNormals();
-                    plane = new THREE.Mesh(D3__geometry, material);
+                    D3__mesh = new THREE.Mesh(D3__geometry, material);
 
-                    D3__scene.add(plane);
+                    D3__scene.add(D3__mesh);
 
                     animate();
 
@@ -1268,9 +1268,9 @@
 
                 function animate() {
                     requestAnimationFrame(animate);
-                    plane.rotation.x += 0.01;
-                    //plane.rotation.y += 0.01;
-                    //plane.rotation.z += 0.01;
+                    D3__mesh.rotation.x += 0.01;
+                    //D3__mesh.rotation.y += 0.01;
+                    //D3__mesh.rotation.z += 0.01;
                     render();
                 }
 
