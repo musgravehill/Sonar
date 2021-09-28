@@ -1240,10 +1240,10 @@
         D3__canvas_offset_coef_lng = parseFloat(sonar__resolution_dLng / D3__resolution_point_px);
 
         D3__x_px = parseInt(D3__canvas_getOffsetLng_px(sonar__lng_max));
-        D3__y_px = parseInt(D3__canvas_getOffsetLat_px(sonar__lat_min));        
-        
-        const D3__x_m = sonar__distanceTwoPoints_m(sonar__lat_min, sonar__lng_min, sonar__lat_min, sonar__lng_max);        
-        D3__depth_px =  Math.round(D3__x_px*(sonar__depth_max_m - sonar__depth_min_m) / D3__x_m); //depth ~ size_X_meters
+        D3__y_px = parseInt(D3__canvas_getOffsetLat_px(sonar__lat_min));
+
+        const D3__x_m = sonar__distanceTwoPoints_m(sonar__lat_min, sonar__lng_min, sonar__lat_min, sonar__lng_max);
+        D3__depth_px = Math.round(D3__x_px * (sonar__depth_max_m - sonar__depth_min_m) / D3__x_m); //depth ~ size_X_meters
 
         D3__canvases_draw();
 
@@ -1304,7 +1304,7 @@
         D3__controls.enablePan = true;
 
         /*D3__light = new THREE.PointLight(0xffffff, 1, 100);
-         D3__light.position.set(100, 100, 50);
+         D3__light.position.set(0, 0, 120);
          D3__light.castShadow = true; // default false
          D3__scene.add(D3__light);
          //Set up shadow properties for the light
@@ -1314,15 +1314,16 @@
          D3__light.shadow.camera.far = 500; // default                     
          const helper = new THREE.CameraHelper(D3__light.shadow.camera);
          D3__scene.add(helper);*/
-        /*D3__light = new THREE.DirectionalLight('0xFFFFFF', 0.75);
-         D3__light.position.set(0, 0, 30);
+
+        /*D3__light = new THREE.DirectionalLight('0xFFFFFF', 1);
+         D3__light.position.set(100, 0, (D3__depth_px + 100));
          D3__light.target.position.set(0, 0, 0);
-         D3__scene.add(D3__light);
-         D3__scene.add(D3__light.target);                     
-         let lightHelper = new THREE.DirectionalLightHelper(D3__light);
-         D3__scene.add(lightHelper);                     
-         let shadowCameraHelper = new THREE.CameraHelper(D3__light.shadow.camera);
-         D3__scene.add(shadowCameraHelper);*/
+         D3__scene.add(D3__light);*/
+        //D3__scene.add(D3__light.target);
+        //let lightHelper = new THREE.DirectionalLightHelper(D3__light);
+        //D3__scene.add(lightHelper);
+        //let shadowCameraHelper = new THREE.CameraHelper(D3__light.shadow.camera);
+        //D3__scene.add(shadowCameraHelper);
 
         render();
         //animate();
