@@ -1198,7 +1198,7 @@
                 function D3__canvas_texture_getColor(m) {
                     let idx = Math.round((m - sonar__depth_min_m) / D3__canvas_texture_getColor_dx);
                     idx = parseInt(Math.min(Math.max(parseInt(idx), 0), 1024)); //constrain from to  
-                    return "hsl(" + (idx * (330 / 1024) % 360) + ",100%,50%)";
+                    return "hsl(" + (idx * (250 / 1024) % 360) + ",100%,50%)";
 
                     /*let idx = Math.round((m - sonar__depth_min_m) / D3__canvas_texture_getColor_dx);
                      idx = Math.min(Math.max(parseInt(idx), 0), (D3__canvas_texture_palette.length - 1)); //constrain from to
