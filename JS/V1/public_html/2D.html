@@ -1136,11 +1136,11 @@
 
 
 <script>
-                const D3__canvas_texture_palette = [
-                    '#ff3c00', '#fe4900', '#fe5600', '#fe6300', '#fd7000', '#fd7d00', '#fd8a00', '#fd9700', '#fca400', '#fcb100', '#fcbe00', '#fccb00', '#fbd800', '#fbe500', '#fbf200', '#fbff00',
-                    '#76ff00', '#6ef402', '#66ea04', '#5ee006', '#56d609', '#4ecc0b', '#46c20d', '#3eb80f', '#37ae12', '#2fa414', '#279a16', '#1f9018', '#17861b', '#0f7c1d', '#07721f', '#006822',
-                    '#3debff', '#3cdef7', '#3bd1ef', '#3ac4e8', '#39b7e0', '#39abd9', '#389ed1', '#3791ca', '#3684c2', '#3577bb', '#356bb3', '#345eac', '#3351a4', '#32449d', '#313795', '#312b8e'
-                ];
+                /* const D3__canvas_texture_palette = [
+                 '#ff3c00', '#fe4900', '#fe5600', '#fe6300', '#fd7000', '#fd7d00', '#fd8a00', '#fd9700', '#fca400', '#fcb100', '#fcbe00', '#fccb00', '#fbd800', '#fbe500', '#fbf200', '#fbff00',
+                 '#76ff00', '#6ef402', '#66ea04', '#5ee006', '#56d609', '#4ecc0b', '#46c20d', '#3eb80f', '#37ae12', '#2fa414', '#279a16', '#1f9018', '#17861b', '#0f7c1d', '#07721f', '#006822',
+                 '#3debff', '#3cdef7', '#3bd1ef', '#3ac4e8', '#39b7e0', '#39abd9', '#389ed1', '#3791ca', '#3684c2', '#3577bb', '#356bb3', '#345eac', '#3351a4', '#32449d', '#313795', '#312b8e'
+                 ];*/
 
 
                 let D3__camera, D3__scene, D3__renderer;
@@ -1189,18 +1189,20 @@
                         D3__canvas_texture_ctx.fillStyle = D3__canvas_texture_getColor(depthM);
                         D3__canvas_texture_ctx.fillRect(left_px, top_px, D3__resolution_point_px, D3__resolution_point_px);
                     }
-
-
                 }
                 function D3__canvas_heightmap_getColor(m) {
                     let idx = Math.round((m - sonar__depth_min_m) / D3__canvas_heightmap_getColor_dx);
                     idx = parseInt(255 - Math.min(Math.max(parseInt(idx), 0), 255)); //constrain from to                    
-                    return   sonar__rgbToHex([idx, idx, idx]);
+                    return   sonar__rgbToHex(idx, idx, idx);
                 }
                 function D3__canvas_texture_getColor(m) {
                     let idx = Math.round((m - sonar__depth_min_m) / D3__canvas_texture_getColor_dx);
-                    idx = Math.min(Math.max(parseInt(idx), 0), (D3__canvas_texture_palette.length - 1)); //constrain from to
-                    return D3__canvas_texture_palette[idx];
+                    idx = parseInt(Math.min(Math.max(parseInt(idx), 0), 1024)); //constrain from to  
+                    return "hsl(" + (idx * (330 / 1024) % 360) + ",100%,50%)";
+
+                    /*let idx = Math.round((m - sonar__depth_min_m) / D3__canvas_texture_getColor_dx);
+                     idx = Math.min(Math.max(parseInt(idx), 0), (D3__canvas_texture_palette.length - 1)); //constrain from to
+                     return D3__canvas_texture_palette[idx];*/
                 }
                 function D3__canvas_getOffsetLat_px(lat) {
                     let px = Math.round((sonar__lat_max - lat) / D3__canvas_offset_coef_lat);
@@ -1214,7 +1216,7 @@
                 function D3__init() {
                     D3__resolution_point_px = parseInt($('#D3__resolution_point_px').val()) || 0;
                     D3__canvas_heightmap_getColor_dx = parseFloat((sonar__depth_max_m - sonar__depth_min_m) / 255);
-                    D3__canvas_texture_getColor_dx = parseFloat((sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_texture_palette.length);
+                    D3__canvas_texture_getColor_dx = parseFloat((sonar__depth_max_m - sonar__depth_min_m) / 1024); //D3__canvas_texture_palette.length
                     D3__canvas_offset_coef_lat = parseFloat(sonar__extrapolation_lat_step / D3__resolution_point_px);
                     D3__canvas_offset_coef_lng = parseFloat(sonar__extrapolation_lng_step / D3__resolution_point_px);
 
