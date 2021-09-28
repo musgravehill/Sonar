@@ -66,7 +66,7 @@
                     </div>
                     <hr class="my-1">
                     <div class="d-block">                         
-                        3D point, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="4" step="1" id="D3__resolution_point_px" style="width: 90px">   
+                        3D point, px <input type="number" class="form-control d-inline-block form-control-sm" min="1" value="10" step="1" id="D3__resolution_point_px" style="width: 90px">   
                         <br>
                         <span class="btn btn-success" onclick="D3__init();">2.1. 3D draw</span>
                     </div>
@@ -1166,7 +1166,7 @@
     let D3__controls;
     let D3__light;
     let D3__x_px = 256, D3__h_px = 256, D3__depth_px = 50;
-    let D3__canvas_texture_getColor_step = 1024; //1024
+    let D3__canvas_texture_getColor_count = 1024; //1024
     let D3__canvas_heightmap_getColor_dx, D3__canvas_texture_getColor_dx;
     let D3__canvas_offset_coef_lat, D3__canvas_offset_coef_lng;
     let D3__resolution_point_px;
@@ -1216,8 +1216,8 @@
     }
     function D3__canvas_texture_getColor(m) {
         let idx = Math.round((m - sonar__depth_min_m) / D3__canvas_texture_getColor_dx);
-        idx = parseInt(Math.min(Math.max(parseInt(idx), 0), D3__canvas_texture_getColor_step)); //constrain from to  
-        return "hsl(" + (idx * (250 / D3__canvas_texture_getColor_step) % 360) + ",100%,50%)";
+        idx = parseInt(Math.min(Math.max(parseInt(idx), 0), D3__canvas_texture_getColor_count)); //constrain from to          
+        return "hsl(" + (idx * (255 / D3__canvas_texture_getColor_count) % 360) + ",100%,50%)";
 
         /*let idx = Math.round((m - sonar__depth_min_m) / D3__canvas_texture_getColor_dx);
          idx = Math.min(Math.max(parseInt(idx), 0), (D3__canvas_texture_palette.length - 1)); //constrain from to
@@ -1235,7 +1235,7 @@
     function D3__init() {
         D3__resolution_point_px = parseInt($('#D3__resolution_point_px').val()) || 0;
         D3__canvas_heightmap_getColor_dx = parseFloat((sonar__depth_max_m - sonar__depth_min_m) / 255);
-        D3__canvas_texture_getColor_dx = parseFloat((sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_texture_getColor_step); //D3__canvas_texture_palette.length
+        D3__canvas_texture_getColor_dx = parseFloat((sonar__depth_max_m - sonar__depth_min_m) / D3__canvas_texture_getColor_count); //D3__canvas_texture_palette.length
         D3__canvas_offset_coef_lat = parseFloat(sonar__resolution_dLat / D3__resolution_point_px);
         D3__canvas_offset_coef_lng = parseFloat(sonar__resolution_dLng / D3__resolution_point_px);
 
