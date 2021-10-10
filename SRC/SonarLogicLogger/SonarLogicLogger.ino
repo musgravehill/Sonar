@@ -15,7 +15,7 @@ uint16_t MONITOR_SONAR_pulses_falling_0 = 0;
 //=============================================== GPS GPRMC===================================================================================
 #include <TinyGPS.h>
 TinyGPS gps;
-float lat_f=0.0, lng_f=0.0;
+float lat_f = 0.0, lng_f = 0.0;
 
 //==================================================SD=======================
 // MOSI-11 MISO-12 CLK-13 SS-10
@@ -29,6 +29,7 @@ SdFat32 sd;
 File32 myFile;
 boolean SD_isError = true;
 uint16_t SD_records_count = 0;
+String SD_fileName;
 
 //================================================SONAR=================================================================================
 //SONAR_pin = 2; //interrupt #0
@@ -43,13 +44,13 @@ volatile uint8_t SONAR_pulses_rising_idx = 0;
 volatile uint16_t SONAR_pulses_falling[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 volatile uint8_t SONAR_pulses_falling_idx = 0;
 #define SONAR_pulses_falling_idx_max 15
-volatile boolean SONAR_isProcessTodo = false; 
+volatile boolean SONAR_isProcessTodo = false;
 
 #define SONAR_allowNextSync_mks 244450L  //min time to get new sync-pulse  (sonar send data 3-4Hz)
 #define SONAR_depthMax_mks 57000
 
 //=================SYS==============
-#define SYS_LOG_FileName "sig.txt"
+
 
 
 //================================== TIMEMACHINE =================
@@ -57,6 +58,7 @@ uint32_t TIMEMACHINE_next_251ms = 0L;
 uint32_t TIMEMACHINE_next_911ms = 0L;
 
 void setup() {
+  randomSeed(analogRead(0));
   delay(3000);
   MONITOR_init();
   SONAR_init();

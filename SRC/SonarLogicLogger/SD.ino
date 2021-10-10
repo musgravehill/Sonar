@@ -6,7 +6,7 @@ void SD_logData_continuously() {
   MONITOR_SONAR_pulses_rising_0 = SONAR_pulses_rising[0];
   MONITOR_SONAR_pulses_falling_0 = SONAR_pulses_falling[0];
 
-  myFile = sd.open(SYS_LOG_FileName, FILE_WRITE);
+  myFile = sd.open(SD_fileName.c_str(), FILE_WRITE);
   if (myFile) {
     myFile.print(F("R;"));
     for (byte i = 0; i <= SONAR_pulses_rising_idx_max; i++) {
@@ -33,12 +33,17 @@ void SD_logData_continuously() {
   SONAR_pulses_rising_idx = 0;
   SONAR_pulses_falling_idx = 0;
 
+  if (SD_records_count > 100) {
+    SD_init();
+  }
+
   SONAR_isProcessTodo = false;
 }
 
 void SD_init() {
+  SD_fileName = "sig" + random(999) + ".txt";
   if (sd.begin(SD_SS, SPI_SPEED)) {
-    myFile = sd.open(SYS_LOG_FileName, FILE_WRITE);
+    myFile = sd.open(SD_fileName.c_str(), FILE_WRITE);
     if (myFile) {
       myFile.println(F("NEW"));
       myFile.close();
