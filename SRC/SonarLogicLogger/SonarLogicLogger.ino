@@ -1,4 +1,7 @@
-///// logic analizer logger  salae =)
+/* 
+ Like logic analizer logger  salae
+ Write lat,lng and all pulses! Impulses can be analyzed on a computer at home!
+ */
 
 
 #include <stdlib.h>

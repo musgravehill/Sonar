@@ -1,3 +1,5 @@
+//LOG lat;lng;depth_m    NO info about pulses width! Simple depth.
+
 ///// TODO SONAR depth filter smooth, delete too big,too low depths from current window
 
 

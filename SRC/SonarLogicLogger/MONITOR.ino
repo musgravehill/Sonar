@@ -1,6 +1,10 @@
 void MONITOR_init() {
   lcd.init();
   lcd.backlight();
+
+  lcd.setCursor(0, 0);
+  lcd.print(F("SonarLogicLogger"));
+  delay(1500);
 }
 
 void MONITOR_render() {
@@ -11,7 +15,7 @@ void MONITOR_render() {
   if (SD_isError) {
     lcd.print(F(" SD? "));
   }
-  lcd.print(lat_f, 0); 
+  lcd.print(lat_f, 0);
   lcd.print(' ');
   lcd.print(lng_f, 0);
 
