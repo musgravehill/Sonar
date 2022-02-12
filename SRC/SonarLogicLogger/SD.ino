@@ -33,7 +33,7 @@ void SD_logData_continuously() {
   SONAR_pulses_rising_idx = 0;
   SONAR_pulses_falling_idx = 0;
 
-  if (SD_records_count > 100) {
+  if (SD_records_count > 1000) {
     SD_init();
   }
 
