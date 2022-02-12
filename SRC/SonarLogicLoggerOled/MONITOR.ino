@@ -1,5 +1,5 @@
 void MONITOR_init() {
-  u8g.setFont(u8g_font_unifont_0_8); //u8g_font_9x15r
+  u8g.setFont(u8g_font_9x15r); //u8g_font_9x15r  //u8g_font_unifont_0_8
   u8g.setFontPosTop();
 
   u8g.firstPage();
