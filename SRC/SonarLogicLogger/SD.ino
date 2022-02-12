@@ -41,7 +41,7 @@ void SD_logData_continuously() {
 }
 
 void SD_init() {
-  SD_fileName = "sig" + random(999) + ".txt";
+  SD_fileName = random(999999) + ".txt";
   if (sd.begin(SD_SS, SPI_SPEED)) {
     myFile = sd.open(SD_fileName.c_str(), FILE_WRITE);
     if (myFile) {
