@@ -1,7 +1,7 @@
-/* 
- Like logic analizer logger  salae
- Write lat,lng and all pulses! Impulses can be analyzed on a computer at home!
- */
+/*
+  Like logic analizer logger  salae
+  Write lat,lng and all pulses! Impulses can be analyzed on a computer at home!
+*/
 
 
 #include <stdlib.h>
@@ -25,7 +25,13 @@ float lat_f = 0.0, lng_f = 0.0;
 #include <SPI.h>
 #include "SdFat.h"
 #include "sdios.h"
-#define SD_FAT_TYPE 1 //1 for FAT16/FAT32 
+#define ENABLE_ARDUINO_FEATURES 0  
+#define ENABLE_ARDUINO_SERIAL 0 
+#define ENABLE_ARDUINO_STRING 0
+#define USE_FAT_FILE_FLAG_CONTIGUOUS 0
+#define ENABLE_DEDICATED_SPI 0
+#define USE_LONG_FILE_NAMES 0
+#define SDFAT_FILE_TYPE 1 //1 for FAT16/FAT32 
 #define SD_SS 10
 #define SPI_SPEED SD_SCK_MHZ(4)
 SdFat32 sd;
