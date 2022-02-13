@@ -25,10 +25,7 @@ float lat_f = 0.0, lng_f = 0.0;
 // MOSI-11 MISO-12 CLK-13 SS-10
 #include <SPI.h>
 #include "SdFat.h"
-#include "sdios.h"
-#define ENABLE_ARDUINO_FEATURES 0  
-#define ENABLE_ARDUINO_SERIAL 0 
-#define ENABLE_ARDUINO_STRING 0
+#include "sdios.h" 
 #define USE_FAT_FILE_FLAG_CONTIGUOUS 0
 #define ENABLE_DEDICATED_SPI 0
 #define USE_LONG_FILE_NAMES 0

@@ -16,9 +16,12 @@ void MONITOR_render() {
     case 1:
       MONITOR_render_1();
       break;
+    case 2:
+      MONITOR_render_2();
+      break;
   }
   MONITOR_screen_num++;
-  if (MONITOR_screen_num > 1) {
+  if (MONITOR_screen_num > 2) {
     MONITOR_screen_num = 0;
   }
 }
@@ -48,4 +51,25 @@ void MONITOR_render_1() {
   lcd.setCursor(0, 1);
   lcd.print(F("LNG "));
   lcd.print(lng_f, 6);
+}
+
+void MONITOR_render_2() {
+  lcd.setCursor(0, 0);
+  lcd.print(F("SAT "));
+  lcd.print(gps.satellites());
+
+  lcd.setCursor(0, 1);
+  int year;
+  byte month, day, hour, minute, second, hundredths;
+  unsigned long age;
+  gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
+  lcd.print(day);
+  lcd.print('-');
+  lcd.print(month);
+  lcd.print('-');
+  lcd.print(year);
+  lcd.print(' ');
+  lcd.print(hour);
+  lcd.print(':');
+  lcd.print(minute);
 }
