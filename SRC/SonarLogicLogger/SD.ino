@@ -35,6 +35,7 @@ void SD_logData_continuously() {
 
   if (SD_records_count > 1000) {
     SD_init();
+    SD_records_count = 0;
   }
 
   SONAR_isProcessTodo = false;
