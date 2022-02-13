@@ -63,13 +63,9 @@ void MONITOR_render_2() {
   byte month, day, hour, minute, second, hundredths;
   unsigned long age;
   gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
-  lcd.print(day);
-  lcd.print('-');
-  lcd.print(month);
-  lcd.print('-');
-  lcd.print(year);
-  lcd.print(' ');
-  lcd.print(hour);
-  lcd.print(':');
-  lcd.print(minute);
+  if (age !=  TinyGPS::GPS_INVALID_AGE) {
+    char sz[32];
+    sprintf(sz, "%02d-%02d-%02d %02d:%02d", month, day, year, (hour + 3), minute);
+    lcd.print(sz);
+  }
 }
