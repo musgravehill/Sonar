@@ -14,6 +14,7 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2); //0x3F  0x27
 uint16_t MONITOR_SONAR_pulses_rising_0 = 0;
 uint16_t MONITOR_SONAR_pulses_falling_0 = 0;
+uint8_t MONITOR_screen_num = 0;
 
 //=============================================== GPS GPRMC===================================================================================
 #include <TinyGPS.h>
@@ -60,11 +61,8 @@ volatile boolean SONAR_isProcessTodo = false;
 
 //=================SYS==============
 
-
-
 //================================== TIMEMACHINE =================
-uint32_t TIMEMACHINE_next_251ms = 0L;
-uint32_t TIMEMACHINE_next_911ms = 0L;
+uint32_t TIMEMACHINE_next_3911ms = 0L;
 
 void setup() {
   randomSeed(analogRead(0));
@@ -76,7 +74,7 @@ void setup() {
 }
 
 void loop() {
-  wdt_enable (WDTO_2S); //try to have time < 8s, else autoreset by watchdog
+  wdt_enable (WDTO_4S); //try to have time < 8s, else autoreset by watchdog
   TIMEMACHINE_loop();
   GPS_serial_process_continuously();
   SD_logData_continuously();
